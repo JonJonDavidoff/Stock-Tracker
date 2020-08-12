@@ -1,0 +1,87 @@
+*{
+	margin: 0;
+}
+/*Background image*/
+body, html { 
+	width: 100%;
+	height: 100%;
+  	background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url(stock_home_page.jpg) no-repeat center center fixed; 
+  	-webkit-background-size: cover;
+  	-moz-background-size: cover;
+ 	-o-background-size: cover;
+  	background-size: cover;
+
+}
+
+body{
+	margin: 0px;
+}
+/*Logo style*/
+.logo{
+	width: 50px;
+	height: 50px;
+}
+
+/*Search style*/
+.form-control{
+	font-weight: 700;
+	border-radius: 70px;
+}
+.btn-outline-secondary{
+	font-weight: 700;
+	border-radius: 150px;
+}
+
+h1{
+	font-size: 2.5em;
+	color: white;
+	text-align: center;
+	padding-top: 12%;
+  	padding-bottom: 12%;
+  	padding-right:2%;	
+}
+
+/*------------------------------------------------------------------------------*/
+/*Login.html*/
+.Login-header{
+	font-size: 2.5em;
+	color: white;
+	text-align: center;
+	padding-top: 9%;
+	margin: 0;
+	padding-bottom: 0;
+
+}
+.Email-input{
+	width: 300px;
+	margin-top:3%;	
+	margin-bottom: 1%;
+}
+.Password-input{
+	width: 300px;
+	margin-top:1%;
+}
+.Login-btn{
+	position: relative;
+	top: 10px;
+	width: 120px;
+}
+/*----------------------------------------------------------------------*/
+/*Signup.html*/
+.FirstName-input{
+	width: 300px;
+	margin-top: 3%;
+
+}
+.LastName-input{
+	width: 300px;
+	margin-top: 1%;
+}
+.Email-input-signup{
+	margin-top: 1%;
+	width: 300px;
+}
+.error{
+	border-color: #e30000;
+	background-color: #fff2f4;
+}
