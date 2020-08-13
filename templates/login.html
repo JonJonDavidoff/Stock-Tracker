@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Sign up</title>
+	<title>Login</title>
 	<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title></title>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 	<link rel="stylesheet" type="text/css" href="stylesheet.css">
 </head>
@@ -12,7 +13,7 @@
 	<nav class="navbar fixed-top navbar-expand-lg navbar-dark scrolling-navbar">
     	<div class="container">
 	      <!-- Brand -->
-	      <a class="navbar-brand" href="Home.html" >
+	      <a class="navbar-brand" href="home.html" >
 	        <img src="icon_5.png" class="logo pull-left">
 	      </a>
 
@@ -28,15 +29,15 @@
 	        <!-- Left -->
 	        <ul class="navbar-nav mr-auto">
 	          	<li class="nav-item active">
-		            <a class="nav-link" href="Home.html">Home
+		            <a class="nav-link" href="home.html">Home
 		              <span class="sr-only">(current)</span>
 		            </a>
 	          	</li>
 		        <li class="nav-item">
-		            <a class="nav-link" href="Signup.html">Sign up</a>
+		            <a class="nav-link" href="signup.html">Sign up</a>
 		        </li>
 		        <li class="nav-item">
-		           	<a class="nav-link" href="Login.html" >Login</a>
+		           	<a class="nav-link" href="login.html" >Login</a>
 		        </li>
 	        </ul>
 	          	<form class="form-inline" method="GET">
@@ -49,19 +50,19 @@
 	</nav>
   <!-- Navbar end --> 
 
-	<h1 class="Login-header"><strong> Signup </strong> </h1>
+	<h1 class="Login-header"><strong> Login </strong> </h1>
+	
 	<center>
 			<form onsubmit="">
-				<input type="text" name="FirstName" class="form-control mr-sm-2 FirstName-input input-text" placeholder="First Name" id="FirstName">
-				<input type="text" name="LastName" class="form-control mr-sm-2 LastName-input input-text" placeholder="Last Name">
-				<input type="email" name="Email" placeholder="Email" class="form-control mr-sm-2  Email-input-signup input-text" id="Email">
+				<input type="email" name="Email" placeholder="Email" class="form-control mr-sm-2  Email-input input-text" id="Email">
 				<input type="password" name="Password" placeholder="Password" class="form-control mr-sm-2 Password-input input-text">
-				<input  name="Signup" class="btn btn-m btn-outline-secondary my-2 my-sm-0 Login-btn" type="button" onclick="mainValidaiton()" value="Sign up">
+				<input  name="Login" class="btn btn-m btn-outline-secondary my-2 my-sm-0 Login-btn" type="button" onclick="mainValidaiton()"  value="Login">
+				<!-- CHANGE T0 ON SUBMIT -->
 			</form>
 	</center>
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
-	<script type="text/javascript" src="Signup_js.js"></script>
+	<script type="text/javascript" src="Login_js.js"></script>
 	</body>
 	</html>
