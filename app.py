@@ -16,7 +16,7 @@ def main():
 @app.route('/handle_data', methods=['POST'])
 def handle_data():
     projectpath = request.form['projectFilepath']
-    print projectpath
+    print(projectpath)
     return render_template('home.html')
     # your code
     # return a response
@@ -26,6 +26,5 @@ def addRegion():
     projectpath = request.form['projectFilepath']
     print(projectpath)
 
-
 if __name__ == '__main__':  # Script executed directly?
-    app.run(debug=True, host="0.0.0.0")
+    app.run(debug=True, host="")
