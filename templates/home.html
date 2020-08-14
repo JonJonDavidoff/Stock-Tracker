@@ -4,16 +4,25 @@
 	<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<title>Stock Tracker</title>
- 	<link rel="stylesheet" href="/external/bootstrap.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-	<link rel="stylesheet" type="text/css" href="stylesheet.css">
+ 	<link rel="stylesheet" type="text/css" href=" {{ url_for('static', filename='css/bootstrap.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/stylesheet.css') }}">
 </head>
 <body>
+	<style>
+		body, html{
+			background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)),  url({{ url_for('static',filename = 'images/stock_home_page.jpg')}}) no-repeat center center fixed;
+			-webkit-background-size: cover;
+			-moz-background-size: cover;
+			-o-background-size: cover;
+			background-size: cover;
+  		}
+	</style>
 	<!-- Navbar -->
 	<nav class="navbar fixed-top navbar-expand-lg navbar-dark scrolling-navbar">
     	<div class="container">
 	      <!-- Brand -->
-	      <a class="navbar-brand" href="home.html" >
-	        <img src="icon_5.png" class="logo pull-left">
+	      <a class="navbar-brand" href="../" >
+	        <img src=" {{ url_for('static', filename='images/icon_5.png')}}  " class="logo pull-left">
 	      </a>
 
 	      <!-- Collapse -->
@@ -28,7 +37,7 @@
 	        <!-- Left -->
 	        <ul class="navbar-nav mr-auto">
 	          	<li class="nav-item active">
-		            <a class="nav-link" href="home.html">Home
+		            <a class="nav-link" href="../">Home
 		              <span class="sr-only">(current)</span>
 		            </a>
 	          	</li>
@@ -39,14 +48,16 @@
 		           	<a class="nav-link" href="../login.html" >Login</a>
 		        </li>
 	        </ul>
-	         <form action="{{ url_for('handle_data') }}" method="post">
-                insert here : <input type="text" name="projectFilepath">
-                <input type="submit">
+	         <form class="form-inline" method="GET">
+		    		<input class="form-control mr-sm-2 search-input" type="search" placeholder="Search a Stock" aria-label="Search" name="stock-input" style="width: 200px;">
+		    		<button class="btn btn-m btn-outline-secondary my-2 my-sm-0 search-btn" type="submit">Search</button>
+			 </form>
         </form>
 	        </ul>
 	      </div>
 	    </div>
 	</nav>
+  <!-- Navbar end -->
 
 
   <!-- Navbar end --> 
@@ -57,8 +68,8 @@
         <input type="text" name="projectFilepath">
         <input type="submit">
     </form>
-   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous" ></script>
-	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/jquery_file.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap_javascript.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap_js.js') }}"></script>
 </body>
 </html>
