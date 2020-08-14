@@ -449,6 +449,14 @@ def update_stock(ticker, user_id, amount_of_stocks=-1, cost=-1):
         cost = stock.get_cost()
 
 
+def check_user_details(email, password):
+    if is_exist(sql="SELECT * FROM dbo.Users WHERE Email='" + str(email) + "' AND Password='" + str(password) + "'"):
+        print("User in db")
+        return True
+    else:
+        print("Incorrect details")
+        return False
+
 
 def main():
     pass
