@@ -17,6 +17,7 @@
 			background-size: cover;
   		}
 
+
 </style>
 <!-- Navbar -->
 <nav class="navbar fixed-top navbar-expand-lg navbar-dark scrolling-navbar">
@@ -50,10 +51,10 @@
                     <a class="nav-link" href="../login.html">Login</a>
                 </li>
             </ul>
-            <form class="form-inline" method="GET">
+            <form class="form-inline" method="post" action="{{ url_for('search_stock_form') }}">
                 <input class="form-control mr-sm-2 search-input" type="search" placeholder="Search a Stock"
                        aria-label="Search" name="stock-input" style="width: 200px;">
-                <button class="btn btn-m btn-outline-secondary my-2 my-sm-0 search-btn" type="submit">Search</button>
+                <input class="btn btn-m btn-outline-secondary my-2 my-sm-0 search-btn" type="submit">Search</input>
             </form>
             </form>
             </ul>
@@ -65,14 +66,17 @@
 <h1 class="Login-header"><strong> Signup </strong></h1>
 <center>
     <form method="post" action="{{ url_for('signup_form') }}" onsubmit="return mainValidaiton()">
-        <input type="text" name="FirstName" class="form-control mr-sm-2 FirstName-input input-text" placeholder="First Name"
+        <input type="text" name="FirstName" class="form-control mr-sm-2 FirstName-input input-text"
+               placeholder="First Name"
                id="FirstName">
-        <input type="text" name="LastName" class="form-control mr-sm-2 LastName-input input-text" placeholder="Last Name">
+        <input type="text" name="LastName" class="form-control mr-sm-2 LastName-input input-text"
+               placeholder="Last Name">
         <input type="email" name="Email" placeholder="Email" class="form-control mr-sm-2  Email-input-signup input-text"
                id="Email">
         <input type="password" name="Password" placeholder="Password"
                class="form-control mr-sm-2 Password-input input-text">
-        <input name="Signup" class="btn btn-m btn-outline-secondary my-2 my-sm-0 Login-btn" type="submit" value="Sign up">
+        <input name="Signup" class="btn btn-m btn-outline-secondary my-2 my-sm-0 Login-btn" type="submit"
+               value="Sign up">
     </form>
 </center>
 <script type="text/javascript" src="{{ url_for('static', filename='js/jquery_file.js') }}"></script>

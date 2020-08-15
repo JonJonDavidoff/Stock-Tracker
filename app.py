@@ -3,7 +3,7 @@
 hello_flask: First Python-Flask webapp
 """
 from flask import Flask, render_template, request, url_for  # Need render_template() to render HTML pages
-import bridging_users_db
+import bridging_users_db, Stock
 
 app = Flask(__name__, static_url_path='/static')  # Construct an instance of Flask class for our webapp
 
@@ -53,6 +53,14 @@ def login_form():
         else:
             return render_template('Signup.html')
 
+
+@app.route('/search_stock_form', methods=['POST'])
+def search_stock_form():
+    try:
+        return Stock.Stock(ticker=request.form['stock-input'].upper()).__str__()
+    except Exception as e:
+        print(str(e))
+        return "Please enter only a ticker"
 
 
 if __name__ == '__main__':  # Script executed directly?

@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<title>Stock Tracker</title>
- 	<link rel="stylesheet" type="text/css" href=" {{ url_for('static', filename='css/bootstrap.css') }}">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/stylesheet.css') }}">
+    <title>Stock Tracker</title>
+    <link rel="stylesheet" type="text/css" href=" {{ url_for('static', filename='css/bootstrap.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/stylesheet.css') }}">
 </head>
 <body>
-	<style>
+<style>
 		body, html{
 			background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)),  url({{ url_for('static',filename = 'images/stock_home_page.jpg')}}) no-repeat center center fixed;
 			-webkit-background-size: cover;
@@ -16,56 +16,59 @@
 			-o-background-size: cover;
 			background-size: cover;
   		}
-	</style>
-	<!-- Navbar -->
-	<nav class="navbar fixed-top navbar-expand-lg navbar-dark scrolling-navbar">
-    	<div class="container">
-	      <!-- Brand -->
-	      <a class="navbar-brand" href="../" >
-	        <img src=" {{ url_for('static', filename='images/icon_5.png')}}  " class="logo pull-left">
-	      </a>
 
-	      <!-- Collapse -->
-	      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-	        aria-expanded="false" aria-label="Toggle navigation">
-	        <span class="navbar-toggler-icon"></span>
-	      </button>
+</style>
+<!-- Navbar -->
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark scrolling-navbar">
+    <div class="container">
+        <!-- Brand -->
+        <a class="navbar-brand" href="../">
+            <img src=" {{ url_for('static', filename='images/icon_5.png')}}  " class="logo pull-left">
+        </a>
 
-	      <!-- Links -->
-	      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <!-- Collapse -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-	        <!-- Left -->
-	        <ul class="navbar-nav mr-auto">
-	          	<li class="nav-item active">
-		            <a class="nav-link" href="../">Home
-		              <span class="sr-only">(current)</span>
-		            </a>
-	          	</li>
-		        <li class="nav-item">
-		            <a class="nav-link" href="../signup.html">Sign up</a>
-		        </li>
-		        <li class="nav-item">
-		           	<a class="nav-link" href="../login.html" >Login</a>
-		        </li>
-	        </ul>
-	         <form class="form-inline" method="POST">
-		    		<input class="form-control mr-sm-2 search-input" type="search" placeholder="Search a Stock" aria-label="Search" name="stock-input" style="width: 200px;">
-		    		<button class="btn btn-m btn-outline-secondary my-2 my-sm-0 search-btn" type="submit">Search</button>
-			 </form>
-        </form>
-	        </ul>
-	      </div>
-	    </div>
-	</nav>
-  <!-- Navbar end -->
+        <!-- Links -->
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+            <!-- Left -->
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="../">Home
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="../signup.html">Sign up</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="../login.html">Login</a>
+                </li>
+            </ul>
+            <form class="form-inline" method="post" action="{{ url_for('search_stock_form') }}">
+                <input class="form-control mr-sm-2 search-input" type="search" placeholder="Search a Stock"
+                       aria-label="Search" name="stock-input" style="width: 200px;">
+                <input class="btn btn-m btn-outline-secondary my-2 my-sm-0 search-btn" type="submit">Search</input>
+            </form>
+            </form>
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- Navbar end -->
 
 
-  <!-- Navbar end --> 
-  	<div class="h-100">
-		<h1><strong> Stock Tracker </strong> </h1>
-	</div>
-	<script type="text/javascript" src="{{ url_for('static', filename='js/jquery_file.js') }}"></script>
-	<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap_javascript.js') }}"></script>
-	<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap_js.js') }}"></script>
+<!-- Navbar end -->
+<div class="h-100">
+    <h1><strong> Stock Tracker </strong></h1>
+</div>
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery_file.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap_javascript.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap_js.js') }}"></script>
 </body>
 </html>
