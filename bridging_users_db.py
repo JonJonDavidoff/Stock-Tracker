@@ -12,6 +12,7 @@ def excecute_signup(form_data):
     else:
         return False
 
+
 def excecute_login(form_data):
     print(form_data)
     if DbApi.check_user_details(email=form_data['Email'], password=form_data['Password']):

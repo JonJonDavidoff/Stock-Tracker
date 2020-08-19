@@ -252,7 +252,7 @@ def remove_stock_by_user_id(ticker, user_id):
     execute_query(sql="DELETE FROM dbo.Stocks WHERE ticker='" + ticker + "' AND user_id=" + str(user_id))
 
 
-def remove_user(user_id):
+def remove_user_by_user_id(user_id):
     """
       remove_stock_by_user_id is a function that removes a user and its stocks from db by the user's id
       :param user_id: the user's id
@@ -381,18 +381,18 @@ def get_users_stocks_by_email(email):
     return get_users_stocks_by_user_id(user_id=get_user_id_by_email(email))
 
 
-def print_all_users(self):
+def print_all_users():
     """
     print_all_users is a function that prints all users from the Users table
     :return: None
     """
     data = execute_select_query("SELECT * FROM dbo.Users")
-    print("[id   FirstName   LastName   Email                             Password]")
+    print("[id   FirstName   LastName   Email                            Password]")
     for row in data:
         print(row)
 
 
-def print_all_stocks(self):
+def print_all_stocks():
     """
     print_all_users is a function that prints all stocks from the Stocks table
     :return: None
@@ -413,14 +413,13 @@ def remove_stock_by_user_id(ticker, user_id):
     execute_query(sql="DELETE FROM dbo.Stocks WHERE ticker='" + ticker + "' AND user_id=" + str(user_id))
 
 
-def remove_user(user_id):
+def remove_user_by_email(email):
     """
-      remove_stock_by_user_id is a function that removes a user and its stocks from db by the user's id
-      :param user_id: the user's id
+      remove_stock_by_email is a function that removes a user and its stocks from db by the user's id
+      :param user_id: the user's email
       :return: None
       """
-    execute_query(sql="DELETE FROM dbo.Stocks WHERE user_id=" + str(user_id))
-    execute_query("DELETE FROM dbo.Users WHERE id=" + str(user_id))
+    remove_user_by_user_id(get_user_id_by_email(email=str(email)))
 
 
 def update_stock(ticker, user_id, amount_of_stocks=-1, cost=-1):
@@ -459,7 +458,7 @@ def check_user_details(email, password):
 
 
 def main():
-    pass
+    print_all_users()
 
 
 if __name__ == '__main__':
