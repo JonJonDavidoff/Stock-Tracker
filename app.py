@@ -71,7 +71,8 @@ def login_form():
 @app.route('/search_stock_form', methods=['POST'])
 def search_stock_form():
     try:
-        return Stock.Stock(ticker=request.form['stock-input'].upper()).__str__()
+        if request.method == "POST":
+            return Stock.Stock(ticker=request.form['stock-input'].upper()).__str__()
     except Exception as e:
         print(str(e))
         return "Please enter only a ticker"

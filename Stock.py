@@ -1,9 +1,10 @@
 import requests
 import json
 import Market
+import time
+import sys
 
 api_key = "pk_e4cd3161272b47369625df7d517b8714"
-
 
 market = Market.Market()
 
@@ -98,17 +99,46 @@ class Stock:
             close_price = api['latestPrice']
         return close_price
 
+    def update_stock_data(self):
+        try:
+            api_request = requests.get(
+                "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/quote?token=" + api_key)
+            api = json.loads(api_request.content)
+
+            self._company_name = api['companyName']
+            self._price = api['latestPrice']
+            self._close_price = self.get_updated_close_price(api)
+            self._daily_change = self.calculate_percentage_change(current=self._price,
+                                                                  previous=self._close_price)
+        except Exception as e:
+            api = "Error...  "
+            print(api + str(e))
+
+    def get_historical_data(self, time_range):
+        """
+        get_historical_data is a function that gets a stock historical data in a certain time range
+        :parm time_range: time range is the range of time you would like to get data for. avilable time ranges:
+         1d , 5d, 1m, 3m, 6m,ytd, 1y, 5y, max
+        """
+        try:
+            api_request = requests.get(
+                "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/chart/" + time_range + "?token=" + api_key)
+            api_historical_data = json.loads(api_request.content)
+            api_data_dict = []
+            if time_range != '1d':
+                for stock_data in api_historical_data:
+                    api_data_dict.append({'price': stock_data['close'], 'time': stock_data['label']})
+                print(api_data_dict)
+            else:
+                for stock_data in api_historical_data:
+                    api_data_dict.append({'price': stock_data['average'], 'time': stock_data['label']})
+            return api_data_dict
+        except Exception as e:
+            print(str(e))
+
 
 def main():
-    # api_request = requests.get(
-    #     "https://cloud.iexapis.com/stable/stock/" + "AMZN" + "/quote?token=" + api_key)
-    # api = json.loads(api_request.content)
-    # print(api)
-    api_request = requests.get(
-        "https://cloud.iexapis.com/stable/stock/" + "AMZN" + "/chart/3m?token=" + api_key)
-
-    api = json.loads(api_request.content)
-    print(api)
+    pass
 
 
 if __name__ == '__main__':
