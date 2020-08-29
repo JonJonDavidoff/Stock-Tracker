@@ -1,9 +1,8 @@
 import requests
 import json
 import Market
-import yfinance
 import stock_api_exceptions
-from datetime import date
+import datetime
 
 api_key = "pk_e4cd3161272b47369625df7d517b8714"
 
@@ -11,17 +10,19 @@ market = Market.Market()
 
 
 class Stock:
-    def __init__(self, ticker, amount_of_stocks=0, cost=0):
+    def __init__(self, ticker, amount_of_stocks=0, cost=0, purchase_date="False"):
         self._amount_of_stocks = amount_of_stocks
         self._ticker = ticker
         self._cost = cost
+        if purchase_date != 'False':
+            purchase_date = datetime.date(year=int(purchase_date[0:4]), month=int(purchase_date[5:7]), day=int(purchase_date[8:10]))
+        self._purchase_date = purchase_date
         # TODO Handle Exception
         try:
             api_request = requests.get(
                 "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/quote?token=" + api_key)
             self.check_response_code(api_request)
             api = json.loads(api_request.content)
-            print(str(api))
             self._company_name = api['companyName']
             self._price = api['latestPrice']
             self._close_price = self.get_updated_close_price(api)
@@ -31,14 +32,19 @@ class Stock:
                 self._cost = self._price
             self._stock_holdings = self._amount_of_stocks * self._price  # current stock holding
         except stock_api_exceptions.UnknownSymbolException as e:
-            pass
+            print(str(e))
+        except stock_api_exceptions.ServerErrorException as e:
+            print(str(e))
+        except Exception as e:
+            print(str(e))
 
     def check_response_code(self, response):
         response_code = int(str(response)[11:14])
-        print(response_code)
         if response_code != 200:
             if response_code == 404:
                 raise stock_api_exceptions.UnknownSymbolException
+            elif response_code == 500:
+                raise stock_api_exceptions.ServerErrorException
 
     def get_ticker(self):
         return self._ticker
@@ -76,7 +82,8 @@ class Stock:
             self._cost) + ", close_price= " + str(self._close_price) + ", price=" + str(
             self._price) + ", daily_change= " + str(round(self._daily_change, 4)) + "%,stock_holdings= " + str(
             self._stock_holdings) + ",orignal_holdings= " + str(self.get_orignal_holdings()) + ", stock_gain= " + str(
-            self.get_stock_gain()) + "%, company_name= " + self._company_name + " ]"
+            self.get_stock_gain()) + "%, company_name= " + self._company_name + " purchase_date=" + str(
+            self._purchase_date) + " ]"
 
     def calculate_percentage_change(self, current, previous):
         """
@@ -143,14 +150,9 @@ class Stock:
             print(str(e))
 
 
+# U9fFytnoterFaZrPfW1SYLHo8LQL
 def main():
-    # dow = yfinance.Ticker("DJI")
-    # print(dow)
-    # dow = dow.history(start="2020-08-24", end=date.today())
-    # print(dow)
-    nas = yfinance.Ticker("NQ=F")
-    nas = nas.history(start="2020-08-24", end=date.today())
-    print(nas)
+    pass
 
 
 if __name__ == '__main__':

@@ -96,7 +96,7 @@ def close_conn(conn):
 
 
 #  add_user is a function that check if the user exists in db and if it doesnt exits adds it to db
-def add_stock(ticker, user_id, cost_of_stock=-1, amount_of_stocks=0):
+def add_stock(ticker, user_id, cost_of_stock=-1, amount_of_stocks=0, purchese_date="False"):
     """
     add_stock is a function that checks if the stock exists in the  db and if it doesnt exits adds it to db
     :param ticker:
@@ -109,10 +109,9 @@ def add_stock(ticker, user_id, cost_of_stock=-1, amount_of_stocks=0):
         if not (
                 is_exist(
                     sql="SELECT * FROM dbo.Stocks WHERE ticker='" + ticker + "'AND user_id=" + str(user_id))):
-            insert_query = "INSERT INTO dbo.Stocks (ticker, amount_of_stocks, cost, user_id) " \
-                           "VALUES('" + ticker + "'," + str(amount_of_stocks) + "," + str(
-                cost_of_stock) + "," + str(
-                user_id) + ")"
+            insert_query = "INSERT INTO dbo.Stocks " \
+                           "VALUES ('" + str(ticker) + "'," + str(amount_of_stocks) + "," + str(user_id) + "," + str(
+                cost_of_stock) + ",'" + str(purchese_date) + "')"
             execute_query(insert_query)
             print('The Stock: ' + ticker + ', was added successfully')
             return True
@@ -120,8 +119,8 @@ def add_stock(ticker, user_id, cost_of_stock=-1, amount_of_stocks=0):
             # TODO create message on ui
             print("Stock already exists")
             return False
-    except Exception:
-        print("Error")
+    except Exception as e:
+        print("Error  " + str(e))
 
 
 def get_user_id_by_email(email):
@@ -133,7 +132,7 @@ def get_user_id_by_email(email):
     return get_user_by_email(email).get_id()
 
 
-def add_stock_by_email(email, ticker, cost_of_stock=-1, amount_of_stocks=0):
+def add_stock_by_email(email, ticker, cost_of_stock=-1, amount_of_stocks=0, purchese_date="False"):
     """
      add_stock_by_email is a function that get the user_id  checks if the stock exists in the  db and if it doesnt exits adds it to db
     :param email:
@@ -144,7 +143,7 @@ def add_stock_by_email(email, ticker, cost_of_stock=-1, amount_of_stocks=0):
     """
     user = get_user_by_email(email)
     add_stock(ticker=ticker, user_id=user.get_id(), cost_of_stock=cost_of_stock,
-              amount_of_stocks=amount_of_stocks)
+              amount_of_stocks=amount_of_stocks, purchese_date=purchese_date)
 
 
 def get_user_by_email(email):
@@ -196,19 +195,19 @@ def get_users_stocks_by_user_id(user_id):
     return_user_stocks_list = []
     temp_stock = 0
     for stock in list_of_stocks:
-        temp_stock = Stock.Stock(ticker=stock[1], amount_of_stocks=stock[2], cost=stock[4])
+        temp_stock = Stock.Stock(ticker=stock[1], amount_of_stocks=stock[2], cost=stock[4], purchase_date=stock[5])
         return_user_stocks_list.append(temp_stock)
     return return_user_stocks_list
 
 
 def get_users_stock_by_ticker(user_id, ticker):
-    try:
-        sql = "SELECT * FROM dbo.Stocks WHERE ticker='" + ticker + "' AND user_id=" + str(user_id)
-        data = execute_select_query(sql)
-        data = data_to_list(data)
-        return Stock.Stock(ticker=data[0][1], amount_of_stocks=data[0][2], cost=data[0][4])
-    except Exception as e:
-        print("Error... " + str(e))
+    sql = "SELECT * FROM dbo.Stocks WHERE ticker='" + ticker + "' AND user_id=" + str(user_id)
+    data = execute_select_query(sql)
+    data = data_to_list(data)
+    print(data)
+    return Stock.Stock(ticker=data[0][1], amount_of_stocks=data[0][2], cost=data[0][4], purchase_date=data[0][5])
+
+    # print("Error... " + str(e))
 
 
 def get_users_stocks_by_email(email):
@@ -262,27 +261,7 @@ def remove_user_by_user_id(user_id):
     execute_query("DELETE FROM dbo.Users WHERE id=" + str(user_id))
 
 
-def update_stock(ticker, user_id, amount_of_stocks=-1, cost=-1):
-    """
-    update_stock is a function that gets a ticker, user_id , amount_of_stocks, cost and updates the db accordingly
-    if default value,-1, the default will stay the same
-    :param ticker:
-    :param user_id:
-    :param amount_of_stocks: if default will stay the same values from the db
-    :param cost: if default will stay the same values from the db
-    :return: None
-    """
-    try:
-        if amount_of_stocks == -1 or cost == -1:
-            stock = get_users_stock_by_ticker(ticker=ticker, user_id=user_id)
-            if amount_of_stocks == -1:
-                amount_of_stocks = stock.get_amount_of_stocks()
-            else:
-                # TODO create message on ui
-                print("Stock already exists")
-                return False
-    except Exception:
-        print("Error")
+
 
 
 def get_user_id_by_email(email):
@@ -357,7 +336,7 @@ def get_users_stocks_by_user_id(user_id):
     return_user_stocks_list = []
     temp_stock = 0
     for stock in list_of_stocks:
-        temp_stock = Stock.Stock(ticker=stock[1], amount_of_stocks=stock[2], cost=stock[4])
+        temp_stock = Stock.Stock(ticker=stock[1], amount_of_stocks=stock[2], cost=stock[4], purchase_date=stock[5])
         return_user_stocks_list.append(temp_stock)
     return return_user_stocks_list
 
@@ -367,7 +346,7 @@ def get_users_stock_by_ticker(user_id, ticker):
         sql = "SELECT * FROM dbo.Stocks WHERE ticker='" + ticker + "' AND user_id=" + str(user_id)
         data = execute_select_query(sql)
         data = data_to_list(data)
-        return Stock.Stock(ticker=data[0][1], amount_of_stocks=data[0][2], cost=data[0][4])
+        return Stock.Stock(ticker=data[0][1], amount_of_stocks=data[0][2], cost=data[0][4], purchase_date=data[0][5])
     except Exception as e:
         print("Error... " + str(e))
 
@@ -422,7 +401,7 @@ def remove_user_by_email(email):
     remove_user_by_user_id(get_user_id_by_email(email=str(email)))
 
 
-def update_stock(ticker, user_id, amount_of_stocks=-1, cost=-1):
+def update_stock(ticker, user_id, amount_of_stocks=-1, cost=-1, purchese_date=-1):
     """
     update_stock is a function that gets a ticker, user_id , amount_of_stocks, cost and updates the db accordingly
     if default value,-1, the default will stay the same
@@ -433,16 +412,18 @@ def update_stock(ticker, user_id, amount_of_stocks=-1, cost=-1):
     :return: None
     """
     try:
-        if amount_of_stocks == -1 or cost == -1:
+        if amount_of_stocks == -1 or cost == -1 or purchese_date == -1 :
             stock = get_users_stock_by_ticker(ticker=ticker, user_id=user_id)
             if amount_of_stocks == -1:
                 amount_of_stocks = stock.get_amount_of_stocks()
-            else:
+            elif cost == -1:
                 cost = stock.get_cost()
+            else:
+                purchese_date = stock._purchase_date
 
         execute_query(
             "UPDATE dbo.Stocks SET amount_of_stocks =" + str(amount_of_stocks) + " , cost = " + str(
-                cost) + "  WHERE user_id =" + str(user_id) + "  AND ticker = '" + ticker + "'")
+                cost) + ",purchese_date='"+str(purchese_date) + "'  WHERE user_id =" + str(user_id) + "  AND ticker = '" + ticker + "'")
     except Exception as e:
         print("Error  " + str(e))
         cost = stock.get_cost()
@@ -458,8 +439,7 @@ def check_user_details(email, password):
 
 
 def main():
-    print_all_users()
-
+    pass
 
 if __name__ == '__main__':
     main()
