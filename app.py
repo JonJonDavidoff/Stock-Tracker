@@ -31,9 +31,9 @@ def user_exists():
     return render_template('user_exists.html')
 
 
-@app.route('/stock_dashboard.html')
-def stock_dashboard():
-    return render_template('stock_dashboard.html')
+@app.route('/index.html')
+def index():
+    return render_template('index.html')
 
 
 @app.route('/signup_form', methods=['POST'])
@@ -63,7 +63,7 @@ def login_form():
     if request.method == "POST":
         form_data_dict = dict(request.form)
         if bridging_users_db.excecute_login(form_data_dict):
-            return redirect(url_for('stock_dashboard'))
+            return redirect(url_for('index'))
         else:
             return redirect(url_for('signup'))
 
@@ -72,7 +72,7 @@ def login_form():
 def search_stock_form():
     try:
         if request.method == "POST":
-            return Stock.Stock(ticker=request.form['stock-input'].upper()).__str__()
+            return "<h1>" + Stock.Stock(ticker=request.form['stock-input'].upper()).__str__() + "</h1>"
     except Exception as e:
         print(str(e))
         return "Please enter only a ticker"

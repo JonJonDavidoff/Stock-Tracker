@@ -15,7 +15,8 @@ class Stock:
         self._ticker = ticker
         self._cost = cost
         if purchase_date != 'False':
-            purchase_date = datetime.date(year=int(purchase_date[0:4]), month=int(purchase_date[5:7]), day=int(purchase_date[8:10]))
+            purchase_date = datetime.date(year=int(purchase_date[0:4]), month=int(purchase_date[5:7]),
+                                          day=int(purchase_date[8:10]))
         self._purchase_date = purchase_date
         # TODO Handle Exception
         try:
@@ -77,7 +78,6 @@ class Stock:
         return self._company_name
 
     def __str__(self):
-        print(self._amount_of_stocks)
         return "Stock[ticker=" + self._ticker + ", amount_of_stocks= " + str(self._amount_of_stocks) + ", cost= " + str(
             self._cost) + ", close_price= " + str(self._close_price) + ", price=" + str(
             self._price) + ", daily_change= " + str(round(self._daily_change, 4)) + "%,stock_holdings= " + str(
@@ -152,7 +152,7 @@ class Stock:
 
 # U9fFytnoterFaZrPfW1SYLHo8LQL
 def main():
-    pass
+    print(Stock(ticker='AMZN', amount_of_stocks=1, purchase_date='2020/08/30', cost=1960))
 
 
 if __name__ == '__main__':
