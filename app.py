@@ -62,6 +62,7 @@ def login_form():
     # When loading form already transfers details
     if request.method == "POST":
         form_data_dict = dict(request.form)
+        print(form_data_dict)
         if bridging_users_db.excecute_login(form_data_dict):
             return redirect(url_for('index'))
         else:

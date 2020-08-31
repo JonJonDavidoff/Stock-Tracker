@@ -5,7 +5,6 @@ function removeClass(elem, cl) {
 }
 
 var stockInp  = document.querySelector(".search_stock_inp");
-var starStock  = document.querySelector(".star_p svg");
 var stockDropdown = document.querySelector(".search_stock_dropdown");
 
 stockInp.addEventListener("keyup", function (e) {
@@ -53,7 +52,3 @@ chartToggle.forEach(chart => {
 	})
 })
 
-// SVG
-starStock.addEventListener("click", function () {
-	starStock.classList.toggle("active");
-})
