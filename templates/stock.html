@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,13 +25,13 @@
       <div class="collapse navbar-collapse" id="headerMenu">
         <ul class="navbar-nav mr-auto">
           <li class="nav_bar_link nav-item ">
-            <a class="nav-link" href="./index.html" role="button"aria-haspopup="true" aria-expanded="false">
+            <a class="nav-link" href="./index.html" role="button" aria-haspopup="true" aria-expanded="false">
               Dashboard
             </a>
           </li>
           <!-- <li class="nav_bar_link nav-item active">
             <a class="nav-link" href="./store.html" role="button"aria-haspopup="true" aria-expanded="false">
-              Stock 
+              Stock
             </a>
           </li> -->
         </ul>
@@ -88,16 +87,14 @@
                     <img src="./assets/img/icon/1.png" alt="">
                   </div>
                   <div class="st_comp">
-                    Facebook
+                    FaceBook
                   </div>
-                </li>
+					 </li>
+					</ul>
 
-
-              </div>
-                
             </div>
           </li>
-          
+
         </ul>
       </div>
     </nav>
@@ -140,15 +137,15 @@
         <div class="market-pairs cus_stock_container">
         		<div class="header">
 	            <!-- img src="assets/img/icon/3.png" alt="icon"> -->
-	            <span class="filter" data-chartToggle="1m">1d</span>
-	            <span class="filter" data-chartToggle="3m">5d</span>
-	            <span class="filter" data-chartToggle="6m">1m</span>
-	            <span class="filter" data-chartToggle="ytd">3m</span>
-	            <span class="filter" data-chartToggle="1y">6m</span>
-	            <span class="filter" data-chartToggle="2y">YTD</span>
-	            <span class="filter" data-chartToggle="3y">1y</span>
+	            <span class="filter" data-chartToggle="1m">1m</span>
+	            <span class="filter" data-chartToggle="3m">3m</span>
+	            <span class="filter" data-chartToggle="6m">6m</span>
+	            <span class="filter" data-chartToggle="ytd">YTD</span>
+	            <span class="filter" data-chartToggle="1y">1y</span>
+	            <span class="filter" data-chartToggle="2y">2y</span>
+	            <span class="filter" data-chartToggle="3y">3y</span>
 	            <span class="filter" data-chartToggle="5y">5y</span>
-	            <span class="filter active" data-chartToggle="all">max</span>
+	            <span class="filter active" data-chartToggle="all">all</span>
 	          </div>
 
 	          <div class="lineStockChart_p lineChartStockPage active" data-chartFilter="all">
@@ -241,7 +238,7 @@
 						<tr>
 							<td class="stock_table_title">Avg volume</td>
 							<td>34,665,667</td>
-						</tr> 
+						</tr>
 					</table>
 				</div>
 
@@ -286,7 +283,7 @@
 						<tr>
 							<td class="stock_table_title">1y Target estimate</td>
 							<td>34,665,667</td>
-						</tr> 
+						</tr>
 					</table>
 				</div>
 
@@ -321,12 +318,11 @@
 					</table>
 				</div>
 			</div>
-
 		</div>
+  </div>
 
-		
 
-    
+
 
   <script src="assets/js/jquery-3.4.1.min.js"></script>
   <script src="assets/js/popper.min.js"></script>
@@ -347,12 +343,6 @@
         prevEl: '.swiper-button-prev',
       }
     });
-
-    // SVG
-var starStock  = document.querySelector(".star_p svg");
-starStock.addEventListener("click", function () {
-	starStock.classList.toggle("active");
-})
 
 		// ---------- Line Chart
 		function lineChartData (labels, datasets) {

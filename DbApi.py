@@ -45,14 +45,16 @@ def is_exist(sql):
     :return: bool values True if user exists False if it does not
     """
     try:
+        print(sql)
         data = execute_select_query(
             sql=sql)
+        print(data)
         if len(data) > 0:
             return True
         else:
             return False
-    except Exception:
-        print("Error")
+    except Exception as e:
+        print(str(e))
 
 
 def execute_select_query(sql):
@@ -261,9 +263,6 @@ def remove_user_by_user_id(user_id):
     execute_query("DELETE FROM dbo.Users WHERE id=" + str(user_id))
 
 
-
-
-
 def get_user_id_by_email(email):
     """
     get_user_id_by_email is a function that gets an email and retuns the related user id
@@ -412,7 +411,7 @@ def update_stock(ticker, user_id, amount_of_stocks=-1, cost=-1, purchese_date=-1
     :return: None
     """
     try:
-        if amount_of_stocks == -1 or cost == -1 or purchese_date == -1 :
+        if amount_of_stocks == -1 or cost == -1 or purchese_date == -1:
             stock = get_users_stock_by_ticker(ticker=ticker, user_id=user_id)
             if amount_of_stocks == -1:
                 amount_of_stocks = stock.get_amount_of_stocks()
@@ -423,7 +422,8 @@ def update_stock(ticker, user_id, amount_of_stocks=-1, cost=-1, purchese_date=-1
 
         execute_query(
             "UPDATE dbo.Stocks SET amount_of_stocks =" + str(amount_of_stocks) + " , cost = " + str(
-                cost) + ",purchese_date='"+str(purchese_date) + "'  WHERE user_id =" + str(user_id) + "  AND ticker = '" + ticker + "'")
+                cost) + ",purchese_date='" + str(purchese_date) + "'  WHERE user_id =" + str(
+                user_id) + "  AND ticker = '" + ticker + "'")
     except Exception as e:
         print("Error  " + str(e))
         cost = stock.get_cost()
@@ -440,6 +440,7 @@ def check_user_details(email, password):
 
 def main():
     pass
+
 
 if __name__ == '__main__':
     main()
