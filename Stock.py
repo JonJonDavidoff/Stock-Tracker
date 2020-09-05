@@ -15,8 +15,7 @@ class Stock:
         self._ticker = ticker
         self._cost = cost
         if purchase_date != 'False':
-            purchase_date = datetime.date(year=int(purchase_date[0:4]), month=int(purchase_date[5:7]),
-                                          day=int(purchase_date[8:10]))
+            purchase_date = datetime.datetime.strptime(purchase_date, '%d%m%Y')
         self._purchase_date = purchase_date
         # TODO Handle Exception
         try:
@@ -149,10 +148,22 @@ class Stock:
         except Exception as e:
             print(str(e))
 
+    def convert_main_stock_data_to_json(self):
+        json_dict = {'ticker': self._ticker, 'price': self._price, 'cost': self._cost,
+                     'amount_of_stocks': self._amount_of_stocks, 'close_price': self._close_price,
+                     'company_name': self._company_name, 'stock_holdings': self._stock_holdings,
+                     'daily_change': self._daily_change}
+        if self._purchase_date != False:
+            self._purchase_date = self._purchase_date.date()
+        json_dict['purchase_date'] = str(self._purchase_date)
+        return json.dumps(json_dict, indent=4)
 
-# U9fFytnoterFaZrPfW1SYLHo8LQL
+    # U9fFytnoterFaZrPfW1SYLHo8LQL
+
+
 def main():
-    print(Stock(ticker='AMZN', amount_of_stocks=1, purchase_date='2020/08/30', cost=1960))
+    pass
+
 
 
 if __name__ == '__main__':

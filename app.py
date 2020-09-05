@@ -6,8 +6,10 @@ from flask import Flask, render_template, request, url_for, redirect  # Need ren
 import bridging_users_db
 import Stock
 import DbApi
+from flask_socketio import SocketIO
 
 app = Flask(__name__, static_url_path='/static')  # Construct an instance of Flask class for our webapp
+socketio = SocketIO(app)
 
 
 @app.route('/')  # URL '/' to be handled by main() route handler
@@ -62,7 +64,13 @@ def login_form():
     # When loading form already transfers details
     if request.method == "POST":
         form_data_dict = dict(request.form)
+        print(str(form_data_dict))
         if bridging_users_db.excecute_login(form_data_dict):
+            stock_table = bridging_users_db.get_stocks_data_by_email(email=form_data_dict['Email'])
+
+            for stock in stock_table:
+                print(stock.convert_main_stock_data_to_json())
+            # TODO Transfer data
             return redirect(url_for('stock_dashboard'))
         else:
             return redirect(url_for('signup'))
@@ -79,4 +87,4 @@ def search_stock_form():
 
 
 if __name__ == '__main__':  # Script executed directly?
-    app.run(debug=True, host="")
+    socketio.run(app, debug=True, host="")

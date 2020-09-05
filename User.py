@@ -56,7 +56,6 @@ class User:
 def check_user(email, password):
     try:
         return check_email(email=email) and check_password(password)
-    # TODO Handle exceptions
     except(Exception):
         pass
 

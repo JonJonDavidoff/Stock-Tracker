@@ -45,7 +45,6 @@ def is_exist(sql):
     :return: bool values True if user exists False if it does not
     """
     try:
-        print(sql)
         data = execute_select_query(
             sql=sql)
         print(data)
@@ -335,7 +334,13 @@ def get_users_stocks_by_user_id(user_id):
     return_user_stocks_list = []
     temp_stock = 0
     for stock in list_of_stocks:
-        temp_stock = Stock.Stock(ticker=stock[1], amount_of_stocks=stock[2], cost=stock[4], purchase_date=stock[5])
+        print((str(stock)))
+        ticker = stock[1]
+        amount_of_stocks = stock[2]
+        cost = stock[4]
+        purchase_date = str(stock[5])
+        temp_stock = Stock.Stock(ticker=ticker, amount_of_stocks=amount_of_stocks, cost=cost,
+                                 purchase_date=purchase_date)
         return_user_stocks_list.append(temp_stock)
     return return_user_stocks_list
 
@@ -439,7 +444,7 @@ def check_user_details(email, password):
 
 
 def main():
-    pass
+    update_stock(user_id=1, ticker='AMZN', purchese_date='31032020', cost=1960, amount_of_stocks=1)
 
 
 if __name__ == '__main__':
