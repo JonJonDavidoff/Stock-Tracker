@@ -52,6 +52,10 @@ class User:
     def get_id(self):
         return self._user_id
 
+    @property
+    def user_id(self):
+        return self._user_id
+
 
 def check_user(email, password):
     try:

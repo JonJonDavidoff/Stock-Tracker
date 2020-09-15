@@ -124,13 +124,7 @@ def add_stock(ticker, user_id, cost_of_stock=-1, amount_of_stocks=0, purchese_da
         print("Error  " + str(e))
 
 
-def get_user_id_by_email(email):
-    """
-    get_user_id_by_email is a function that gets an email and retuns the related user id
-    :param email: the users email
-    :return: the user's id
-    """
-    return get_user_by_email(email).get_id()
+
 
 
 def add_stock_by_email(email, ticker, cost_of_stock=-1, amount_of_stocks=0, purchese_date="False"):
@@ -159,8 +153,8 @@ def get_user_by_email(email):
         user = User.User(user_id=list[0][0], first_name=list[0][1], last_name=list[0][2], email=list[0][3],
                          password=list[0][4])
         return user
-    except Exception:
-        print("Error")
+    except Exception as e:
+        print("Error " + str(e))
 
 
 def get_user_by_id(id):
@@ -251,7 +245,8 @@ def remove_stock_by_user_id(ticker, user_id):
     """
     execute_query(sql="DELETE FROM dbo.Stocks WHERE ticker='" + ticker + "' AND user_id=" + str(user_id))
 
-
+def stock_by_email(email, tick):
+    pass
 def remove_user_by_user_id(user_id):
     """
       remove_stock_by_user_id is a function that removes a user and its stocks from db by the user's id
@@ -268,21 +263,8 @@ def get_user_id_by_email(email):
     :param email: the users email
     :return: the user's id
     """
-    return get_user_by_email(email).get_id()
-
-
-def add_stock_by_email(email, ticker, cost_of_stock=-1, amount_of_stocks=0):
-    """
-     add_stock_by_email is a function that get the user_id  checks if the stock exists in the  db and if it doesnt exits adds it to db
-    :param email:
-    :param ticker:
-    :param cost_of_stock:
-    :param amount_of_stocks:
-    :return: None
-    """
-    user = get_user_by_email(email)
-    add_stock(ticker=ticker, user_id=user.get_id(), cost_of_stock=cost_of_stock,
-              amount_of_stocks=amount_of_stocks)
+    usr = get_user_by_email(email)
+    return usr.user_id
 
 
 def get_user_by_email(email):
@@ -394,6 +376,7 @@ def remove_stock_by_user_id(ticker, user_id):
     :return: None
     """
     execute_query(sql="DELETE FROM dbo.Stocks WHERE ticker='" + ticker + "' AND user_id=" + str(user_id))
+    print("Stock removed from db")
 
 
 def remove_user_by_email(email):
@@ -429,6 +412,7 @@ def update_stock(ticker, user_id, amount_of_stocks=-1, cost=-1, purchese_date=-1
             "UPDATE dbo.Stocks SET amount_of_stocks =" + str(amount_of_stocks) + " , cost = " + str(
                 cost) + ",purchese_date='" + str(purchese_date) + "'  WHERE user_id =" + str(
                 user_id) + "  AND ticker = '" + ticker + "'")
+        print("Stock has been updated")
     except Exception as e:
         print("Error  " + str(e))
         cost = stock.get_cost()

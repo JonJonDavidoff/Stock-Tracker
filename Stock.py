@@ -11,12 +11,12 @@ market = Market.Market()
 
 class Stock:
     def __init__(self, ticker, amount_of_stocks=0, cost=0, purchase_date="False"):
-        self._amount_of_stocks = amount_of_stocks
-        self._ticker = ticker
-        self._cost = cost
+        self._amount_of_stocks = int(amount_of_stocks)
+        self._ticker = str(ticker)
+        self._cost = int(cost)
         if purchase_date != 'False':
-            purchase_date = datetime.datetime.strptime(purchase_date, '%d%m%Y')
-        self._purchase_date = purchase_date
+            purchase_date = datetime.datetime.strptime(str(purchase_date), '%d%m%Y')
+        self._purchase_date = str(purchase_date)
         # TODO Handle Exception
         try:
             api_request = requests.get(
@@ -28,9 +28,11 @@ class Stock:
             self._close_price = self.get_updated_close_price(api)
             self._daily_change = self.calculate_percentage_change(current=self._price,
                                                                   previous=self._close_price)
+            self._daily_change_money = api['change']
             if cost == 0:  # if stock not purchased
                 self._cost = self._price
             self._stock_holdings = self._amount_of_stocks * self._price  # current stock holding
+            self._total_change_money = (self._price * self._amount_of_stocks) - (self._cost * self._amount_of_stocks)
         except stock_api_exceptions.UnknownSymbolException as e:
             print(str(e))
         except stock_api_exceptions.ServerErrorException as e:
@@ -152,9 +154,10 @@ class Stock:
         json_dict = {'ticker': self._ticker, 'price': self._price, 'cost': self._cost,
                      'amount_of_stocks': self._amount_of_stocks, 'close_price': self._close_price,
                      'company_name': self._company_name, 'stock_holdings': self._stock_holdings,
-                     'daily_change': self._daily_change}
+                     'daily_change': self._daily_change, 'total_change': self.get_stock_gain(),
+                     'daily_change_money': self._daily_change_money, 'total_change_money': self._total_change_money}
         if self._purchase_date != False:
-            self._purchase_date = self._purchase_date.date()
+            self._purchase_date = self._purchase_date
         json_dict['purchase_date'] = str(self._purchase_date)
         return json.dumps(json_dict, indent=4)
 
@@ -162,8 +165,8 @@ class Stock:
 
 
 def main():
-    pass
-
+    amzn = Stock(ticker='AMZN', cost=1960, amount_of_stocks=1)
+    print(amzn._total_change_money)
 
 
 if __name__ == '__main__':

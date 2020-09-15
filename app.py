@@ -2,13 +2,15 @@
 """
 hello_flask: First Python-Flask webapp
 """
-from flask import Flask, render_template, request, url_for, redirect  # Need render_template() to render HTML pages
+from flask import Flask, render_template, request, url_for, redirect, \
+    session  # Need render_template() to render HTML pages
 import bridging_users_db
 import Stock
 import DbApi
 from flask_socketio import SocketIO
 
 app = Flask(__name__, static_url_path='/static')  # Construct an instance of Flask class for our webapp
+app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
 socketio = SocketIO(app)
 
 
@@ -67,7 +69,7 @@ def login_form():
         print(str(form_data_dict))
         if bridging_users_db.excecute_login(form_data_dict):
             stock_table = bridging_users_db.get_stocks_data_by_email(email=form_data_dict['Email'])
-
+            session['Email'] = form_data_dict['Email']
             for stock in stock_table:
                 print(stock.convert_main_stock_data_to_json())
             # TODO Transfer data
@@ -84,6 +86,42 @@ def search_stock_form():
     except Exception as e:
         print(str(e))
         return "Please enter only a ticker"
+
+
+def messageReceived(methods=['GET', 'POST']):
+    print('message was received!!!')
+
+
+@socketio.on('conn event')
+def handle_an_event(json, methods=['GET', 'POST']):
+    print('received my event: ' + str(json))
+    socketio.emit('my response', json, callback=messageReceived())
+
+
+@socketio.on('add_transaction')
+def add_transaction(json, methods=['GET', 'POST']):
+    if json:
+        print(str(json))
+        # Assigning data to variables
+        ticker = json['ticker']
+        email = session['Email']
+        shares = json['shares']
+        cost_per_share = json['costPerShare']
+        purchase_date = json['purchaseDate']
+        try:
+            # Adding Stock to DB
+            # TODO Change to Update
+            DbApi.remove_stock_by_user_id(user_id=DbApi.get_user_id_by_email(email), ticker=ticker)
+            DbApi.add_stock_by_email(email=email, ticker=ticker, purchese_date=purchase_date,
+                                     cost_of_stock=cost_per_share,
+                                     amount_of_stocks=shares)
+            # Getting Stock Data
+            stock = Stock.Stock(ticker=ticker, amount_of_stocks=shares, cost=cost_per_share,
+                                purchase_date=purchase_date)
+            socketio.emit('response_adding_table_row', stock.convert_main_stock_data_to_json())
+        except Exception as e:
+            # TODO Add Exception to Ui
+            print(str(e))
 
 
 if __name__ == '__main__':  # Script executed directly?
