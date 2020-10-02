@@ -1,7 +1,5 @@
 import DbApi
 
-
-# TODO pytest
 def main():
     # DbApi.execute_query(sql="INSERT INTO dbo.Users VALUES('Jon Jon', 'Davidoff','jonjondavidofff@gmail.com')")
     # DbApi.execute_query(sql="UPDATE dbo.Users SET Email='edfd' WHERE id=2")

@@ -47,12 +47,13 @@ def is_exist(sql):
     try:
         data = execute_select_query(
             sql=sql)
+        print(data)
         if len(data) > 0:
             return True
         else:
             return False
-    except Exception:
-        print("Error")
+    except Exception as e:
+        print(str(e))
 
 
 def execute_select_query(sql):
@@ -123,13 +124,7 @@ def add_stock(ticker, user_id, cost_of_stock=-1, amount_of_stocks=0, purchese_da
         print("Error  " + str(e))
 
 
-def get_user_id_by_email(email):
-    """
-    get_user_id_by_email is a function that gets an email and retuns the related user id
-    :param email: the users email
-    :return: the user's id
-    """
-    return get_user_by_email(email).get_id()
+
 
 
 def add_stock_by_email(email, ticker, cost_of_stock=-1, amount_of_stocks=0, purchese_date="False"):
@@ -158,8 +153,8 @@ def get_user_by_email(email):
         user = User.User(user_id=list[0][0], first_name=list[0][1], last_name=list[0][2], email=list[0][3],
                          password=list[0][4])
         return user
-    except Exception:
-        print("Error")
+    except Exception as e:
+        print("Error " + str(e))
 
 
 def get_user_by_id(id):
@@ -250,7 +245,8 @@ def remove_stock_by_user_id(ticker, user_id):
     """
     execute_query(sql="DELETE FROM dbo.Stocks WHERE ticker='" + ticker + "' AND user_id=" + str(user_id))
 
-
+def stock_by_email(email, tick):
+    pass
 def remove_user_by_user_id(user_id):
     """
       remove_stock_by_user_id is a function that removes a user and its stocks from db by the user's id
@@ -261,30 +257,14 @@ def remove_user_by_user_id(user_id):
     execute_query("DELETE FROM dbo.Users WHERE id=" + str(user_id))
 
 
-
-
-
 def get_user_id_by_email(email):
     """
     get_user_id_by_email is a function that gets an email and retuns the related user id
     :param email: the users email
     :return: the user's id
     """
-    return get_user_by_email(email).get_id()
-
-
-def add_stock_by_email(email, ticker, cost_of_stock=-1, amount_of_stocks=0):
-    """
-     add_stock_by_email is a function that get the user_id  checks if the stock exists in the  db and if it doesnt exits adds it to db
-    :param email:
-    :param ticker:
-    :param cost_of_stock:
-    :param amount_of_stocks:
-    :return: None
-    """
-    user = get_user_by_email(email)
-    add_stock(ticker=ticker, user_id=user.get_id(), cost_of_stock=cost_of_stock,
-              amount_of_stocks=amount_of_stocks)
+    usr = get_user_by_email(email)
+    return usr.user_id
 
 
 def get_user_by_email(email):
@@ -336,7 +316,12 @@ def get_users_stocks_by_user_id(user_id):
     return_user_stocks_list = []
     temp_stock = 0
     for stock in list_of_stocks:
-        temp_stock = Stock.Stock(ticker=stock[1], amount_of_stocks=stock[2], cost=stock[4], purchase_date=stock[5])
+        ticker = stock[1]
+        amount_of_stocks = stock[2]
+        cost = stock[4]
+        purchase_date = str(stock[5])
+        temp_stock = Stock.Stock(ticker=ticker, amount_of_stocks=amount_of_stocks, cost=cost,
+                                 purchase_date=purchase_date)
         return_user_stocks_list.append(temp_stock)
     return return_user_stocks_list
 
@@ -390,6 +375,7 @@ def remove_stock_by_user_id(ticker, user_id):
     :return: None
     """
     execute_query(sql="DELETE FROM dbo.Stocks WHERE ticker='" + ticker + "' AND user_id=" + str(user_id))
+    print("Stock removed from db")
 
 
 def remove_user_by_email(email):
@@ -412,7 +398,7 @@ def update_stock(ticker, user_id, amount_of_stocks=-1, cost=-1, purchese_date=-1
     :return: None
     """
     try:
-        if amount_of_stocks == -1 or cost == -1 or purchese_date == -1 :
+        if amount_of_stocks == -1 or cost == -1 or purchese_date == -1:
             stock = get_users_stock_by_ticker(ticker=ticker, user_id=user_id)
             if amount_of_stocks == -1:
                 amount_of_stocks = stock.get_amount_of_stocks()
@@ -423,7 +409,9 @@ def update_stock(ticker, user_id, amount_of_stocks=-1, cost=-1, purchese_date=-1
 
         execute_query(
             "UPDATE dbo.Stocks SET amount_of_stocks =" + str(amount_of_stocks) + " , cost = " + str(
-                cost) + ",purchese_date='"+str(purchese_date) + "'  WHERE user_id =" + str(user_id) + "  AND ticker = '" + ticker + "'")
+                cost) + ",purchese_date='" + str(purchese_date) + "'  WHERE user_id =" + str(
+                user_id) + "  AND ticker = '" + ticker + "'")
+        print("Stock has been updated")
     except Exception as e:
         print("Error  " + str(e))
         cost = stock.get_cost()
@@ -439,7 +427,8 @@ def check_user_details(email, password):
 
 
 def main():
-    pass
+    update_stock(user_id=1, ticker='AMZN', purchese_date='31032020', cost=1960, amount_of_stocks=1)
+
 
 if __name__ == '__main__':
     main()

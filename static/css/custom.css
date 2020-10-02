@@ -1,0 +1,340 @@
+#search_stock {
+	border-color: #2a2e39;
+    background: #2a2e39;
+}
+
+.search_Stock_p {
+	position: relative;
+}
+
+.search_stock_inp {
+	border: none;
+	outline: none;
+	box-shadow: none!important;
+}
+
+.search_stock_dropdown {
+	position: absolute;
+	top: 42px;
+	right: 0;
+	background-color: #0F1219;
+	z-index: 9999;
+	border-radius: 3px;
+	border: 1px solid #2a2e39;
+	width: 300px;
+	box-shadow: 5px 5px 8px 5px rgba(0,0,0,.3);
+	display: none;
+	transition: .2s all ease-in-out;
+}
+
+.comp_content li {
+	background: #0F1219;
+	padding: 10px;
+	display: flex;
+	align-items: center;
+}
+
+.comp_content li:hover {
+	background: #2a2e39;
+}
+
+.comp_content li img {
+	width: 25px;
+	margin-right: 20px;
+}
+
+.comp_content li .st_comp {
+	color: #fff;
+}
+
+#clickFullscreen {
+	margin-top: -16px;
+}
+
+.cus_markets_capital_item {
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 14px -6px;
+    padding: 20px 0 0 0;
+    text-align: center;
+    border-radius: 5px;
+    border: 1px solid #2a2e39;
+    margin-bottom: 30px;
+}
+
+.cus_markets_capital_item .header {
+	color: #fff;
+}
+
+.cus_markets_capital_item .price {
+	color: #999;
+}
+
+.swiper-button-next:after, .swiper-button-prev:after {
+	font-size: 25px;
+}
+
+.cus_stock_container {
+	padding-top: 4px;
+}
+
+.cus_stock_container .header {
+	border-bottom: 1px solid #2a2e39;
+	padding: 10px 20px;
+}
+
+.cus_stock_container .header span {
+	background: transparent !important;
+	color: #fff;
+}
+
+.cakeStockChart_p {
+	min-height: 245px;
+	padding: 10px 20px;
+}
+
+.lineStockChart_p {
+	min-height: 251px;/*
+	align-items: center;
+	display: flex;*/
+	display: none;
+}
+
+.lineStockChart_p.active {
+	display: block;
+}
+
+.lineStockChart_p canvas {
+	height: 100% !important
+}
+
+.navbar-toggler i {
+	color: #fff !important;
+}
+
+.stock_table {
+	width: 100%;
+	margin-top: 30px;
+	border: 1px solid #2a2e39;
+}
+
+.blue {
+	color: rgb(104, 126, 239);
+}
+
+.nav_bar_link {
+	font-size: 16px;
+}
+
+.s_slides {
+	width: 180px !important;
+}
+
+.market-pairs .filter {
+	color: rgba(255,255,255,.4) !important;
+	display: inline-block;
+	padding-right: 8px;
+	font-size: 12px;
+	cursor: pointer;
+}
+
+.market-pairs .filter.active {
+	color: #fff !important;
+}
+
+
+/*--------- Stock ---------*/
+
+.stock_profile_card {
+	display: flex;
+	border: 1px solid #2a2e39;
+	padding: 20px;
+}
+
+.stock_comp_card {
+	height: 448px;
+	position: relative;
+}
+
+.stock_table_p {
+	border: 1px solid #2a2e39;
+	margin: 10px;
+	padding: 0;
+	width: 100%;
+}
+
+.stock_profile_card .img {
+	margin-right: 10px;
+	width: 50px;
+}
+
+.stock_profile_card .title {
+	font-size: 22px;
+	color: #fff;
+	padding: 0;
+	margin: 0;
+	padding-right: 30px;
+}
+
+.stock_profile_card .title span {
+	color: rgba(255,255,255, .5);
+}
+
+.stock_profile_card .price_p {
+	font-size: 16px;
+	color: #fff;
+	margin: 0;
+	padding: 0;
+}
+
+.stock_profile_card .price_p span {
+	color: rgba(255,255,255, 1);
+}
+
+.stock_profile_card .descr {
+	font-size: 15px;
+	color: rgba(255,255,255, .7);
+}
+
+.lineChartStockPage {
+	min-height: 400px;
+}
+
+.stock_table_title {
+	color: rgba(255,255,255,.5)
+}
+
+.stock_ind {
+	border-radius: 50%;
+	background: red;
+	padding: 2px;
+	width: 30px;
+	height: 30px;
+	display: inline-block;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.bg_green {
+	background: green;
+}
+
+.bg_blue {
+	background: blue;
+}
+
+.bg_orange {
+	background: orange;
+}
+
+.star_p {
+	display: inline-block;
+	transform: translateY(-2px);
+}
+
+.star_p svg {
+	width: 20px;
+}
+
+.star_p svg .star {
+	stroke: #fff;
+	stroke-width: 40;
+	fill: none;
+	stroke-miterlimit: 10;
+}
+
+.star_p svg.active .star {
+	fill: #ffc107;
+	stroke: #ffc107;
+}
+
+.star_p {
+	position: absolute;
+	top: 20px;
+	right: 20px;
+}
+
+.addStockToTable {
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	background-color: #1e9e5b;
+	position: fixed;
+	bottom: 40px;
+	right: 40px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	box-shadow: 5px 5px 10px 12px rgba(0,0,0,.2);
+	transition: .2s all ease;
+}
+
+.addStockToTable:hover {
+	background-color: #177f48;
+}
+
+.modal-body, .modal-footer, .modal-header {
+	border: 1px solid #2a2e39;
+	background-color: #0d1016;
+}
+
+.modal-body label, .modalClose {
+	color: rgba(255,255,255,.6);
+}
+
+.modalClose:hover {
+	color: rgba(255,255,255,.5);
+}
+
+@media screen and (max-width: 992px) {
+	.stock_comp_card {
+		height: 140px;
+	}
+
+	.cus_stock_container {
+		margin-top: 20px;
+	}
+}
+
+@media screen and (max-width: 576px) {
+	.s_slides {
+		width: 50% !important;
+	}
+
+	.stock_profile_card1 {
+		flex-direction: column;
+	}
+
+	.stock_table_p {
+		width: calc(100% - 20px)
+	}
+
+	.stock_comp_card {
+		height: 140px;
+	}
+
+	.lineChartStockPage {
+		min-height: 300px;
+	}
+}
+
+@media screen and (max-width: 375px) {
+	.s_slides {
+		width: calc(100% - 10px) !important;
+	}
+
+	.stock_profile_card .title {
+		font-size: 18px;
+	}
+
+	.stock_profile_card .price_p {
+		font-size: 15px;
+	}
+
+	.stock_profile_card .descr {
+		font-size: 13px;
+	}
+
+	.lineChartStockPage {
+		min-height: 250px;
+	}
+}

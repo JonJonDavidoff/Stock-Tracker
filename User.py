@@ -35,12 +35,11 @@ class PasswordMissingCharacter(Exception):
 
 class User:
     def __init__(self, email, password, user_id=None, first_name="", last_name=""):
-        if check_user(email, password):
-            self._email = email
-            self._password = password
-            self._user_id = user_id
-            self._first_name = first_name
-            self._last_name = last_name
+        self._email = email
+        self._password = password
+        self._user_id = user_id
+        self._first_name = first_name
+        self._last_name = last_name
 
     def __str__(self):
         return "User[email= " + self._email + ", password= " + self._password + ", user_id= " \
@@ -53,11 +52,14 @@ class User:
     def get_id(self):
         return self._user_id
 
+    @property
+    def user_id(self):
+        return self._user_id
+
 
 def check_user(email, password):
     try:
         return check_email(email=email) and check_password(password)
-    # TODO Handle exceptions
     except(Exception):
         pass
 
