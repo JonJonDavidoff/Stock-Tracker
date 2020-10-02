@@ -7,11 +7,19 @@ from flask import Flask, render_template, request, url_for, redirect, \
 import bridging_users_db
 import Stock
 import DbApi
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__, static_url_path='/static')  # Construct an instance of Flask class for our webapp
-app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
+app.config['SECRET_KEY'] = 'SECRET'
 socketio = SocketIO(app)
+ticker = None
+
+
+@app.route('/stock_page')
+def stock_page():
+    session['Email'] = session['Email']
+    print(session['Email'])
+    return render_template('stock.html')
 
 
 @app.route('/')  # URL '/' to be handled by main() route handler
@@ -37,7 +45,11 @@ def user_exists():
 
 @app.route('/index.html')
 def stock_dashboard():
-    return render_template('index.html')
+    print(session['Email'])
+    if session['Email']:
+        return render_template('index.html')
+    else:
+        return redirect(url_for('login'))
 
 
 @app.route('/signup_form', methods=['POST'])
@@ -50,13 +62,15 @@ def signup_form():
         data = dict(data)
         if bridging_users_db.excecute_signup(data):
             try:
-                return redirect(url_for('login'))
+                session['Email'] = data['Email']
+                session['isLoggedIn'] = True
+                return redirect(url_for('stock_dashboard'))
             except Exception as e:
                 DbApi.remove_user_by_email(str(data['Email']))
                 print(str(e))
         else:
             try:
-                return redirect(url_for('user_exists'))
+                return redirect(url_for('signup'))
             except Exception as e:
                 print(str(e))
 
@@ -78,23 +92,37 @@ def login_form():
             return redirect(url_for('signup'))
 
 
-@app.route('/search_stock_form', methods=['POST'])
-def search_stock_form():
+@app.route('/logout')
+def logout():
+    session.pop('SECRET', None)
+    session['Email'] = None
+    return redirect(url_for('main'))
+
+
+@app.route("/stocks", methods=['GET', 'POST'])
+def on_stocks():
+    print(str(request.args.to_dict()))
+    parse_args(request.args.to_dict())
+    session['Email'] = session['Email']
+    return redirect(url_for('stock_page'))
+
+
+def parse_args(arg_dict):
     try:
-        if request.method == "POST":
-            return Stock.Stock(ticker=request.form['stock-input'].upper()).__str__()
+        global ticker
+        ticker = arg_dict['ticker']
     except Exception as e:
         print(str(e))
-        return "Please enter only a ticker"
-
-
-def messageReceived(methods=['GET', 'POST']):
-    print('message was received!!!')
 
 
 @socketio.on('conn event')
 def handle_an_event(json, methods=['GET', 'POST']):
     print('received my event: ' + str(json))
+    list_of_stocks = DbApi.get_users_stocks_by_email(session['Email'])
+    list_of_stocks_json = [[]]
+    for stock in list_of_stocks[0]:
+        list_of_stocks_json.append(stock.convert_main_stock_data_to_json())
+
     socketio.emit('my response', json, callback=messageReceived())
 
 
@@ -122,6 +150,11 @@ def add_transaction(json, methods=['GET', 'POST']):
         except Exception as e:
             # TODO Add Exception to Ui
             print(str(e))
+
+
+@socketio.on('onload')
+def stock_page_on_load():
+    pass
 
 
 if __name__ == '__main__':  # Script executed directly?

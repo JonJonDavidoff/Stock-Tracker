@@ -20,5 +20,12 @@ def excecute_login(form_data):
     else:
         return False
 
+
 def get_stocks_data_by_email(email):
     return DbApi.get_users_stocks_by_email(email)
+
+
+def get_onload_stock_data(list_of_stocks):
+    # 1d ,
+    pass
+

@@ -316,7 +316,6 @@ def get_users_stocks_by_user_id(user_id):
     return_user_stocks_list = []
     temp_stock = 0
     for stock in list_of_stocks:
-        print((str(stock)))
         ticker = stock[1]
         amount_of_stocks = stock[2]
         cost = stock[4]

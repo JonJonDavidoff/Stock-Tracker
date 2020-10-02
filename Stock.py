@@ -3,6 +3,8 @@ import json
 import Market
 import stock_api_exceptions
 import datetime
+import DbApi
+import collections
 
 api_key = "pk_e4cd3161272b47369625df7d517b8714"
 
@@ -33,6 +35,11 @@ class Stock:
                 self._cost = self._price
             self._stock_holdings = self._amount_of_stocks * self._price  # current stock holding
             self._total_change_money = (self._price * self._amount_of_stocks) - (self._cost * self._amount_of_stocks)
+        #     Get Logo
+            api_request = requests.get(
+                "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/logo?token=" + api_key)
+            self.check_response_code(api_request)
+
         except stock_api_exceptions.UnknownSymbolException as e:
             print(str(e))
         except stock_api_exceptions.ServerErrorException as e:
@@ -128,27 +135,25 @@ class Stock:
             api = "Error...  "
             print(api + str(e))
 
-    def get_historical_data(self, time_range):
+    def get_historical_data(self, time_range='1d', interval='5'):
         """
         get_historical_data is a function that gets a stock historical data in a certain time range
         :parm time_range: time range is the range of time you would like to get data for. avilable time ranges:
          1d , 5d, 1m, 3m, 6m,ytd, 1y, 5y, max
         """
-        try:
-            api_request = requests.get(
-                "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/chart/" + time_range + "?token=" + api_key)
-            api_historical_data = json.loads(api_request.content)
-            api_data_dict = []
-            if time_range != '1d':
-                for stock_data in api_historical_data:
-                    api_data_dict.append({'price': stock_data['close'], 'time': stock_data['label']})
-                print(api_data_dict)
-            else:
-                for stock_data in api_historical_data:
-                    api_data_dict.append({'price': stock_data['average'], 'time': stock_data['label']})
-            return api_data_dict
-        except Exception as e:
-            print(str(e))
+        api_request = requests.get(
+            "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/chart/" +
+            time_range + "/?token=" + api_key + "&chartInterval=" + interval)
+        api_historical_data = json.loads(api_request.content)
+        api_data_dict = []
+        if time_range != '1d':
+            for stock_data in api_historical_data:
+                api_data_dict.append({'price': stock_data['close'], 'time': stock_data['label']})
+            print(api_data_dict)
+        else:
+            for stock_data in api_historical_data:
+                api_data_dict.append({'price': stock_data['average'], 'time': stock_data['label']})
+        return api_data_dict
 
     def convert_main_stock_data_to_json(self):
         json_dict = {'ticker': self._ticker, 'price': self._price, 'cost': self._cost,
@@ -161,12 +166,75 @@ class Stock:
         json_dict['purchase_date'] = str(self._purchase_date)
         return json.dumps(json_dict, indent=4)
 
-    # U9fFytnoterFaZrPfW1SYLHo8LQL
+
+# U9fFytnoterFaZrPfW1SYLHo8LQL
+def average(lst):
+    try:
+        return sum(lst) / len(lst)
+    except:
+        return None
+
+
+def get_list_of_labels(stock, time_range='1d', interval='25'):
+    temp_stock_data = None
+    list_of_labels = []
+    for stock_data in stock.get_historical_data(time_range=time_range, interval=interval):
+        list_of_labels.append(stock_data['time'])
+    return list_of_labels
+
+
+def get_list_of_historical_data(list_of_stocks, time_range='1d', interval='25'):
+    list_of_historical_data = []
+    for stock in list_of_stocks:
+        list_of_historical_data.append(stock.get_historical_data(time_range=time_range, interval=interval))
+    return list_of_historical_data
+
+
+def get_list_of_divided_stock_data(list_of_labels, list_of_historical_data):
+    list_of_divided_stock_data = collections.defaultdict(list)
+    for label in list_of_labels:
+        for index in range(len(list_of_historical_data)):
+            for stock_data in list_of_historical_data[index]:
+                if stock_data['time'] == label and stock_data['price']:
+                    list_of_divided_stock_data[label].append(stock_data['price'])
+    return list_of_divided_stock_data
+
+
+def get_list_of_stocks_divided_by_time(time_range='1', interval='25', user_id=1):
+    list_of_stocks = DbApi.get_users_stocks_by_user_id(user_id=user_id)
+    for st in list_of_stocks:
+        print(str(st))
+    list_of_labels = get_list_of_labels(stock=list_of_stocks[0], interval=interval)
+    print(list_of_labels)
+    list_of_historical_data = get_list_of_historical_data(list_of_stocks, time_range=time_range, interval=interval)
+    print(list_of_historical_data)
+    temp_stock_data = None
+    list_of_divided_stock_data = get_list_of_divided_stock_data(list_of_labels=list_of_labels,
+                                                                list_of_historical_data=list_of_historical_data)
+    print(list_of_divided_stock_data)
+    return [list_of_labels, list_of_divided_stock_data]
+
+
+def get_json_of_average_stocks_price_divided_by_time(list_of_divided_stock_data, list_of_labels):
+    dict_of_avg = collections.defaultdict(list)
+    for label in list_of_labels:
+        avg = average(list_of_divided_stock_data.get(label))
+        if avg:
+            dict_of_avg[str(label)] = round(avg, 2)
+        else:
+            dict_of_avg[str(label)] = avg
+    print(dict_of_avg)
+    return json.dumps(dict_of_avg)
+
+
+def get_average_stocks_price_divided_by_time():
+    pass
 
 
 def main():
-    amzn = Stock(ticker='AMZN', cost=1960, amount_of_stocks=1)
-    print(amzn._total_change_money)
+    api_request = requests.get(
+        "https://cloud.iexapis.com/stable/stock/" + 'FB' + "/logo?token=pk_e4cd3161272b47369625df7d517b8714")
+    print(json.loads(api_request.content))
 
 
 if __name__ == '__main__':
