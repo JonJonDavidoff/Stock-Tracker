@@ -427,7 +427,8 @@ def check_user_details(email, password):
 
 
 def main():
-    update_stock(user_id=1, ticker='AMZN', purchese_date='31032020', cost=1960, amount_of_stocks=1)
+
+    remove_stock_by_user_id(ticker='FB', user_id=1)
 
 
 if __name__ == '__main__':

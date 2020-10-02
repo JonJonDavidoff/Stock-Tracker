@@ -7,7 +7,8 @@ from flask import Flask, render_template, request, url_for, redirect, \
 import bridging_users_db
 import Stock
 import DbApi
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO
+import json
 
 app = Flask(__name__, static_url_path='/static')  # Construct an instance of Flask class for our webapp
 app.config['SECRET_KEY'] = 'SECRET'
@@ -115,15 +116,15 @@ def parse_args(arg_dict):
         print(str(e))
 
 
-@socketio.on('conn event')
-def handle_an_event(json, methods=['GET', 'POST']):
-    print('received my event: ' + str(json))
-    list_of_stocks = DbApi.get_users_stocks_by_email(session['Email'])
-    list_of_stocks_json = [[]]
-    for stock in list_of_stocks[0]:
+@socketio.on('dashboard_load_request')
+def handle_an_event(json_data, methods=['GET', 'POST']):
+    print('recived event')
+    stock_table = bridging_users_db.get_stocks_data_by_email(session['Email'])
+    list_of_stocks_json = []
+    for stock in stock_table:
         list_of_stocks_json.append(stock.convert_main_stock_data_to_json())
-
-    socketio.emit('my response', json, callback=messageReceived())
+    print(list_of_stocks_json)
+    socketio.emit('dashboard_load_response', json.dumps(list_of_stocks_json))
 
 
 @socketio.on('add_transaction')
@@ -143,10 +144,7 @@ def add_transaction(json, methods=['GET', 'POST']):
             DbApi.add_stock_by_email(email=email, ticker=ticker, purchese_date=purchase_date,
                                      cost_of_stock=cost_per_share,
                                      amount_of_stocks=shares)
-            # Getting Stock Data
-            stock = Stock.Stock(ticker=ticker, amount_of_stocks=shares, cost=cost_per_share,
-                                purchase_date=purchase_date)
-            socketio.emit('response_adding_table_row', stock.convert_main_stock_data_to_json())
+            socketio.emit('response_adding_table_row')
         except Exception as e:
             # TODO Add Exception to Ui
             print(str(e))

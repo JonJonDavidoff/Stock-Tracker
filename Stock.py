@@ -164,7 +164,7 @@ class Stock:
         if self._purchase_date != False:
             self._purchase_date = self._purchase_date
         json_dict['purchase_date'] = str(self._purchase_date)
-        return json.dumps(json_dict, indent=4)
+        return json_dict
 
 
 # U9fFytnoterFaZrPfW1SYLHo8LQL
