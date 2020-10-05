@@ -12,13 +12,14 @@ market = Market.Market()
 
 
 class Stock:
-    def __init__(self, ticker, amount_of_stocks=0, cost=0, purchase_date="False"):
+    def __init__(self, ticker, amount_of_stocks=0, cost=-1, purchase_date="False"):
         self._amount_of_stocks = int(amount_of_stocks)
         self._ticker = str(ticker)
         self._cost = int(cost)
-        if purchase_date != 'False':
-            purchase_date = datetime.datetime.strptime(str(purchase_date), '%d%m%Y')
-        self._purchase_date = str(purchase_date)
+        if purchase_date == 'False':
+            self._purchase_date = '-'
+        else:
+            self._purchase_date = str(purchase_date)
         # TODO Handle Exception
         try:
             api_request = requests.get(
@@ -31,14 +32,20 @@ class Stock:
             self._daily_change = self.calculate_percentage_change(current=self._price,
                                                                   previous=self._close_price)
             self._daily_change_money = api['change']
-            if cost == 0:  # if stock not purchased
-                self._cost = self._price
-            self._stock_holdings = self._amount_of_stocks * self._price  # current stock holding
-            self._total_change_money = (self._price * self._amount_of_stocks) - (self._cost * self._amount_of_stocks)
-        #     Get Logo
+            if cost == -1 or self._amount_of_stocks == -1:  # if stock not purchased
+                self._amount_of_stocks = '-'
+                self._cost = '-'
+                self._stock_holdings = '-'
+                self._total_change_money = '-'
+            else:
+                self._stock_holdings = self._amount_of_stocks * self._price  # current stock holding
+                self._total_change_money = (self._price * self._amount_of_stocks) - (
+                        self._cost * self._amount_of_stocks)
+            #     Get Logo
             api_request = requests.get(
                 "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/logo?token=" + api_key)
             self.check_response_code(api_request)
+            self._logo = json.loads(api_request.content)['url']
 
         except stock_api_exceptions.UnknownSymbolException as e:
             print(str(e))
@@ -77,10 +84,15 @@ class Stock:
         return self._stock_holdings
 
     def get_orignal_holdings(self):
+        if self._cost == '-' or self._amount_of_stocks == '-':
+            return '-'
         return self._cost * self._amount_of_stocks
 
     def get_stock_gain(self):
-        return self.calculate_percentage_change(current=self._stock_holdings, previous=self.get_orignal_holdings())
+        orignal_holdings = self.get_orignal_holdings()
+        if self._stock_holdings == '-' or orignal_holdings == '-':
+            return '-'
+        return self.calculate_percentage_change(current=self._stock_holdings, previous=orignal_holdings)
 
     def get_company_name(self):
         return self._company_name

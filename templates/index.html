@@ -341,7 +341,6 @@
                                     <div class="form-group col-12">
                                         <label for="symbol">Symbol</label>
                                         <select class="form-control" id="symbol">
-                                    
                                             <div class="ticker-select"></div>
                                         </select>
                                     </div>
@@ -394,9 +393,9 @@
 
                 const stock_form = ($('.stock_form')).on('submit', function(e) {
                     e.preventDefault();
-                    let ticker = $(('.search_stock_inp')).val();
-                    if (ticker != undefined) {
-                        window.location.replace("http://127.0.0.1:5000/stocks?ticker=" + ticker);
+                    const ticker = $(('.search_stock_inp')).val();
+                    if (ticker != '') {
+                        window.location.replace("http://127.0.0.1:5000/stocks? ticker=" + ticker);
                     }
                 });
                 const form = ($('.add_transaction_form')).on('submit', function(e) {
@@ -418,7 +417,7 @@
                     })
                 });
                 socket.on('response_adding_table_row', function(json) {
-                   location.reload();
+                    location.reload();
                 });
 
 
@@ -427,12 +426,17 @@
                     let total_change_class;
                     let daily_change_class;
                     // Check total change class
-                    if (json.total_change > 0) {
-                        total_change_class = "green";
+                    if (json.total_change != "-") {
+                        if (json.total_change > 0) {
+                            total_change_class = "green";
+                        } else {
+                            total_change_class = "red";
+                        }
                     } else {
-                        total_change_class = "red";
+                        total_change_class = "";
                     }
                     // Check daily change class
+
                     if (json.daily_change === 0) {
                         daily_change_class = "";
                     } else if (json.daily_change > 0) {
@@ -450,17 +454,57 @@
                     // Converting to only two numbers after .
                     console.log(json.price);
                     json.price = json.price.toFixed(2);
-                    json.total_change = json.total_change.toFixed(2);
+                    if (json.total_change != '-') {
+                        json.total_change = json.total_change.toFixed(2);
+                        json.total_change = Number(json.total_change);
+                    }
                     json.daily_change = json.daily_change.toFixed(2);
-                    json.total_change_money = json.total_change_money.toFixed(2);
+                    if (json.total_change_money != '-') {
+                        json.total_change_money = json.total_change_money.toFixed(2);
+                        json.total_change_money = Number(json.total_change_money);
+                    }
                     //Converting to number
-                    console.log(json.price)
                     json.price = Number(json.price);
-                    json.total_change = Number(json.total_change);
                     json.daily_change = Number(json.daily_change);
-                    json.total_change_money = Number(json.total_change_money);
                     return json;
 
+                }
+
+                function get_date(purchase_date) {
+                    console.log(purchase_date);
+                    if (purchase_date != '-') {
+                        // Convert date to short format
+                        purchase_date = purchase_date.slice(4) +"-"+ purchase_date.slice(2,4) +  "-"+ purchase_date.slice(0,2);
+                         return new Date(purchase_date).toLocaleDateString("he-IL");
+                    }
+                    return purchase_date;
+                }
+
+                function add_row_append(json, table_classes, currentDate) {
+                    row = "<tr class='" + json.ticker + "'><td class='table_br'><span class='blue'>" + json.ticker + "</span><br><span>" + json.price + "</span></td><td class='table_br'>";
+                    if (json.total_change == '-') {
+                        row = row + "<span class=>" + json.total_change + "</span><br>";
+                    } else {
+                        row = row + "<span class=" + table_classes.total_change_class + ">" + json.total_change + "%</span><br>";
+                    }
+                    row = row + "<span>" + json.price + "</span></td><td>" + json.amount_of_stocks + "</td><td>" +
+                        json.cost + "</td><td>" + json.stock_holdings + "</td>";
+                    if (json.daily_change == '-') {
+                        row = row + "<td class='table_br'><span>" + json.daily_change + "</span><br>";
+                    } else {
+                        row = row + "<td class='table_br'><span class=" + table_classes.daily_change_class + ">" + json.daily_change + "%</span><br>";
+                    }
+                    row = row + "<span>" + json.daily_change_money + "</span></td><td class='table_br'>";
+                    if (json.total_change == '-') {
+                        row = row + "<span>" + json.total_change + "</span><br>";
+                    } else {
+                        row = row + "<span class='" + table_classes.total_change_class + "'>" + json.total_change + "%</span><br>";
+                    }
+                    row = row + "<span>" + json.total_change_money + "</span></td><td class='table_br'>";
+                    row = row + " <span>" + currentDate + "</span></td></tr>";
+                   
+
+                    $('tbody.stock_table_body').append(row);
                 }
 
                 function add_table_row(json) {
@@ -473,19 +517,17 @@
                     // Round up data to 2 digits after 2
                     json = round_up_data(json);
                     // Convert date to short format
-                    let currentDate = new Date(json.purchase_date);
+
+                    let currentDate = get_date(json.purchase_date);
                     let row = $('.' + json.ticker);
-                    if ( row === undefined) {
-                        $('tbody.stock_table_body').append("<tr class='" + json.ticker + "'><td class='table_br'><span class='blue'>" + json.ticker + "</span><br><span>" + json.price + "</span></td><td class='table_br'><span class=" + table_classes.total_change_class + ">" + json.total_change + "%</span><br><span>" + json.price + "</span></td><td>" + json.amount_of_stocks + "</td><td>" +
-                            json.cost + "</td><td>" + json.stock_holdings + "</td><td class='table_br'><span class=" + table_classes.daily_change_class + ">" + json.daily_change + "%</span><br> <span>" + json.daily_change_money + "</span></td><td class='table_br'><span class='" + table_classes.total_change_class + "'>" + json.total_change + "%</span><br><span>" + json.total_change_money + "</span></td><td class='table_br'><span>" + currentDate.toLocaleDateString() + "</span></td></tr>");
-                    }else{
-                        row.remove();
-                        $('tbody.stock_table_body').append("<tr class='" + json.ticker + "'><td class='table_br'><span class='blue'>" + json.ticker + "</span><br><span>" + json.price + "</span></td><td class='table_br'><span class=" + table_classes.total_change_class + ">" + json.total_change + "%</span><br><span>" + json.price + "</span></td><td>" + json.amount_of_stocks + "</td><td>" +
-                            json.cost + "</td><td>" + json.stock_holdings + "</td><td class='table_br'><span class=" + table_classes.daily_change_class + ">" + json.daily_change + "%</span><br> <span>" + json.daily_change_money + "</span></td><td class='table_br'><span class='" + table_classes.total_change_class + "'>" + json.total_change + "%</span><br><span>" + json.total_change_money + "</span></td><td class='table_br'><span>" + currentDate.toLocaleDateString() + "</span></td></tr>");
-                    }
+                    if (row != undefined) {
+                         row.remove();
+                    } 
+                    add_row_append(json, table_classes, currentDate);
                 }
 
-                function add_ticker_to_select(ticker){
+
+                function add_ticker_to_select(ticker) {
                     $('#symbol').append('<option>' + ticker + '</option>');
                 }
 

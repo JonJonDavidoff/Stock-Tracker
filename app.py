@@ -19,7 +19,6 @@ ticker = None
 @app.route('/stock_page')
 def stock_page():
     session['Email'] = session['Email']
-    print(session['Email'])
     return render_template('stock.html')
 
 
@@ -152,6 +151,10 @@ def add_transaction(json, methods=['GET', 'POST']):
 
 @socketio.on('onload')
 def stock_page_on_load():
+    pass
+
+@socketio.on('add_stock')
+def add_stock():
     pass
 
 
