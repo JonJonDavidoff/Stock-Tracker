@@ -28,10 +28,51 @@ class Stock:
             api = json.loads(api_request.content)
             self._company_name = api['companyName']
             self._price = api['latestPrice']
+            self._open_price = api['open']
+            # if data is None set -
+            if not self._open_price:
+                self._open_price = '-'
             self._close_price = self.get_updated_close_price(api)
+            self._market_cap = get_market_cap(api['marketCap'])
+            self._bid_price = api['iexBidPrice']
+            self._bid_size = api['iexBidSize']
+            self._ask_price = api['iexAskPrice']
+            self._ask_size = api['iexAskSize']
+            self._week_52_range = str(api['week52Low']) + " - " + str(api['week52High'])
+            self._avg_total_volume = api['avgTotalVolume']
+            self._volume = api['latestVolume']
+            # print(api['beta'])
+            # if data is None set -
+            if not self._avg_total_volume:
+                self._avg_total_volume = '-'
+            if not self._volume:
+                self._volume = '-'
             self._daily_change = self.calculate_percentage_change(current=self._price,
                                                                   previous=self._close_price)
             self._daily_change_money = api['change']
+            # get stock stats that do not appear on first api call
+            api_request = requests.get(
+                "https://cloud.iexapis.com/stable/stock/" + 'amzn' + "/stats?token=" + api_key)
+            self.check_response_code(api_request)
+            api = json.loads(api_request.content)
+            self._beta = api['beta']
+            self._pe_ratio = api['peRatio']
+            self._eps = api['ttmEPS']
+            self._next_earnings_date = api['nextEarningsDate']
+            if not self._beta:
+                self._beta = '-'
+            else:
+                self._beta = round(self._beta, 3)
+            if not self._pe_ratio:
+                self._pe_ratio = '-'
+            else:
+                self._pe_ratio = round(self._pe_ratio, 3)
+
+            if not self._eps:
+                self._eps = '-'
+            else:
+                self._eps = round(self._eps, 3)
+
             if cost == -1 or self._amount_of_stocks == -1:  # if stock not purchased
                 self._amount_of_stocks = '-'
                 self._cost = '-'
@@ -61,6 +102,9 @@ class Stock:
                 raise stock_api_exceptions.UnknownSymbolException
             elif response_code == 500:
                 raise stock_api_exceptions.ServerErrorException
+
+    def check_if_not_none(self):
+        pass
 
     def get_ticker(self):
         return self._ticker
@@ -100,10 +144,15 @@ class Stock:
     def __str__(self):
         return "Stock[ticker=" + self._ticker + ", amount_of_stocks= " + str(self._amount_of_stocks) + ", cost= " + str(
             self._cost) + ", close_price= " + str(self._close_price) + ", price=" + str(
-            self._price) + ", daily_change= " + str(round(self._daily_change, 4)) + "%,stock_holdings= " + str(
+            self._price) + ", daily_change= " + str(round(float(self._daily_change), 4)) + "%,stock_holdings= " + str(
             self._stock_holdings) + ",orignal_holdings= " + str(self.get_orignal_holdings()) + ", stock_gain= " + str(
             self.get_stock_gain()) + "%, company_name= " + self._company_name + " purchase_date=" + str(
-            self._purchase_date) + " ]"
+            self._purchase_date) + ", market_cap=" + str(self._market_cap) + ", bid= " + str(
+            str(self._bid_price) + ' X ' + str(self._bid_size)) + ", ask=" + str(
+            str(self._ask_price) + ' X ' + str(
+                self._ask_size)) + ", week_52_range= " + self._week_52_range + ", avg_total_volume = " + str(
+            self._avg_total_volume) + ", volume= " + str(self._volume) + ", Beta=" + str(
+            self._beta) + ", peRatio= " + str(self._pe_ratio) + ", eps=" + str(self._eps) + "]"
 
     def calculate_percentage_change(self, current, previous):
         """
@@ -168,11 +217,35 @@ class Stock:
         return api_data_dict
 
     def convert_main_stock_data_to_json(self):
-        json_dict = {'ticker': self._ticker, 'price': self._price, 'cost': self._cost,
-                     'amount_of_stocks': self._amount_of_stocks, 'close_price': self._close_price,
-                     'company_name': self._company_name, 'stock_holdings': self._stock_holdings,
-                     'daily_change': self._daily_change, 'total_change': self.get_stock_gain(),
-                     'daily_change_money': self._daily_change_money, 'total_change_money': self._total_change_money}
+        json_dict = {'ticker': self._ticker,
+                     'company_name': self._company_name,
+                     'price': self._price,
+                     'cost': self._cost,
+                     'amount_of_stocks': self._amount_of_stocks,
+                     'close_price': self._close_price,
+                     'open_price': self._open_price,
+                     'bid': str(self._bid_price + ' X ' + self._bid_size),
+                     'ask': str(str(self._ask_price) + ' X ' + str(self._ask_size)),
+                     'day_range': 'need to add',  # TODO add day_range
+                     'week_52_range': self._week_52_range,
+                     'volume': self._volume,
+                     'avg_volume': self._avg_total_volume,
+                     'market_cap': self._market_cap,
+                     'beta': self._beta,
+                     'pe_ratio': self._pe_ratio,
+                     'eps': self._eps,
+                     'Earning date': 'need to add',
+                     'Forward Dividend yeild': 'need to add',
+                     'Ex-Dividend yeild': 'need to add',
+                     '1y Target estimate': 'need to add',
+                     'stock_holdings': self._stock_holdings,
+                     'daily_change': self._daily_change,
+                     'total_change': self.get_stock_gain(),
+                     'daily_change_money': self._daily_change_money,
+                     'total_change_money': self._total_change_money,
+
+                     }
+
         if self._purchase_date != False:
             self._purchase_date = self._purchase_date
         json_dict['purchase_date'] = str(self._purchase_date)
@@ -239,14 +312,22 @@ def get_json_of_average_stocks_price_divided_by_time(list_of_divided_stock_data,
     return json.dumps(dict_of_avg)
 
 
-def get_average_stocks_price_divided_by_time():
-    pass
+def get_market_cap(x):
+    abbreviations = ["", "K", "M", "B", "T", "Qd", "Qn", "Sx", "Sp", "O", "N",
+                     "De", "Ud", "DD"]
+    thing = "1"
+    a = 0
+    while len(thing) < len(str(x)) - 3:
+        thing += "000"
+        a += 1
+    b = int(thing)
+    thing = round(x / b, 3)
+    return str(thing) + " " + abbreviations[a]
 
 
 def main():
-    api_request = requests.get(
-        "https://cloud.iexapis.com/stable/stock/" + 'FB' + "/logo?token=pk_e4cd3161272b47369625df7d517b8714")
-    print(json.loads(api_request.content))
+    amzn = Stock(ticker='amzn')
+    print(amzn)
 
 
 if __name__ == '__main__':

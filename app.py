@@ -19,6 +19,7 @@ ticker = None
 @app.route('/stock_page')
 def stock_page():
     session['Email'] = session['Email']
+    session['ticker'] = session['ticker']
     return render_template('stock.html')
 
 
@@ -96,21 +97,23 @@ def login_form():
 def logout():
     session.pop('SECRET', None)
     session['Email'] = None
+    session['ticker'] = None
     return redirect(url_for('main'))
 
 
 @app.route("/stocks", methods=['GET', 'POST'])
 def on_stocks():
     print(str(request.args.to_dict()))
-    parse_args(request.args.to_dict())
+    url_dict = request.args.to_dict()
     session['Email'] = session['Email']
+    session['ticker'] = url_dict[' ticker']
     return redirect(url_for('stock_page'))
 
 
 def parse_args(arg_dict):
     try:
-        global ticker
-        ticker = arg_dict['ticker']
+        print("parse " + str(arg_dict['ticker']))
+        session['ticker'] = arg_dict['ticker']
     except Exception as e:
         print(str(e))
 
@@ -151,11 +154,21 @@ def add_transaction(json, methods=['GET', 'POST']):
 
 @socketio.on('onload')
 def stock_page_on_load():
-    pass
+    is_user_holding_stock = DbApi.stock_exists(user_id=DbApi.get_user_id_by_email(session['Email']),
+                                               ticker=session['ticker'])
+    socketio.emit('page_load_response', json.dumps({
+        'isUserHoldingStock': is_user_holding_stock
+    }))
 
-@socketio.on('add_stock')
-def add_stock():
-    pass
+
+@socketio.on('addStock')
+def add_stock(json, methods=['GET', 'POST']):
+    DbApi.add_stock_by_email(session['Email'], str(session['ticker']), -1, 0, 'False')
+
+
+@socketio.on('removeStock')
+def remove_stock(json, methods=['GET', 'POST']):
+    DbApi.remove_stock_by_user_id(ticker=str(session['ticker']), user_id=DbApi.get_user_id_by_email(session['Email']))
 
 
 if __name__ == '__main__':  # Script executed directly?

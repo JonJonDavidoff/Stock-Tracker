@@ -78,7 +78,7 @@
                                         <img src="{{ url_for('static', filename='images/icon/1.png')}}" alt="">
                                     </div>
                                     <div class="st_comp">
-                                        <a href="http://127.0.0.1:5000/stocks?ticker=GOOGL">Google</a>
+                                        <a href="http://127.0.0.1:5000/stocks? ticker=GOOGL">Google</a>
                                     </div>
                                 </li>
                                 <!-- --------- Company --------- -->
@@ -393,7 +393,7 @@
 
                 const stock_form = ($('.stock_form')).on('submit', function(e) {
                     e.preventDefault();
-                    const ticker = $(('.search_stock_inp')).val();
+                    const ticker = $(('.search_stock_inp')).val().toUpperCase();
                     if (ticker != '') {
                         window.location.replace("http://127.0.0.1:5000/stocks? ticker=" + ticker);
                     }
