@@ -23,7 +23,7 @@ class Stock:
         # TODO Handle Exception
         try:
             api_request = requests.get(
-                "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/quote?token=" + api_key)
+                "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/quote/?token=" + api_key)
             self.check_response_code(api_request)
             api = json.loads(api_request.content)
             self._company_name = api['companyName']
@@ -50,7 +50,11 @@ class Stock:
             self._daily_change = self.calculate_percentage_change(current=self._price,
                                                                   previous=self._close_price)
             self._daily_change_money = api['change']
-            # get stock stats that do not appear on first api call
+            self._daily_low = api['low']
+            self._daily_high = api['high']
+            self._daily_range = '-'
+            self._ytd_change = api['ytdChange']
+            # get stock stats that do not appear on both api calls
             api_request = requests.get(
                 "https://cloud.iexapis.com/stable/stock/" + 'amzn' + "/stats?token=" + api_key)
             self.check_response_code(api_request)
@@ -59,6 +63,16 @@ class Stock:
             self._pe_ratio = api['peRatio']
             self._eps = api['ttmEPS']
             self._next_earnings_date = api['nextEarningsDate']
+            self._dividend_yield = api['dividendYield']
+            self._ex_dividend_date = api['exDividendDate']
+
+            # get dividend data
+            if not self._ask_price:
+                self._ask_price = '-'
+                self._ask_size = ''
+            if not self._bid_price:
+                self._bid_price = '-'
+                self._bid_size = ''
             if not self._beta:
                 self._beta = '-'
             else:
@@ -67,11 +81,23 @@ class Stock:
                 self._pe_ratio = '-'
             else:
                 self._pe_ratio = round(self._pe_ratio, 3)
-
             if not self._eps:
                 self._eps = '-'
             else:
                 self._eps = round(self._eps, 3)
+            if not self._next_earnings_date:
+                self._next_earnings_date = '-'
+
+            if not self._dividend_yield:
+                self._dividend_yield = '-'
+            else:
+                self._dividend_yield = round(self._dividend_yield, 3)
+
+            if not self._ex_dividend_date:
+                self._ex_dividend_date = '-'
+
+            if self._daily_low and self._daily_high:
+                self._daily_range = str(str(self._daily_low) + ' - ' + str(self._daily_high))
 
             if cost == -1 or self._amount_of_stocks == -1:  # if stock not purchased
                 self._amount_of_stocks = '-'
@@ -87,6 +113,10 @@ class Stock:
                 "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/logo?token=" + api_key)
             self.check_response_code(api_request)
             self._logo = json.loads(api_request.content)['url']
+            api_request = requests.get(
+                "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/company?token=" + api_key)
+            self.check_response_code(api_request)
+            self._company_description = json.loads(api_request.content)['description']
 
         except stock_api_exceptions.UnknownSymbolException as e:
             print(str(e))
@@ -152,7 +182,10 @@ class Stock:
             str(self._ask_price) + ' X ' + str(
                 self._ask_size)) + ", week_52_range= " + self._week_52_range + ", avg_total_volume = " + str(
             self._avg_total_volume) + ", volume= " + str(self._volume) + ", Beta=" + str(
-            self._beta) + ", peRatio= " + str(self._pe_ratio) + ", eps=" + str(self._eps) + "]"
+            self._beta) + ", peRatio= " + str(self._pe_ratio) + ", eps=" + str(
+            self._eps) + ", next_earnings_date=" + str(self._next_earnings_date) + " , dividend_yield=" + str(
+            self._dividend_yield) + ", daily_range=" + str(self._daily_range) + ", ytd_change=" + str(
+            self._ytd_change) + "%, exDividendDate=" + str(self._ex_dividend_date) + ", description="+self._company_description+"]"
 
     def calculate_percentage_change(self, current, previous):
         """
@@ -220,13 +253,14 @@ class Stock:
         json_dict = {'ticker': self._ticker,
                      'company_name': self._company_name,
                      'price': self._price,
+                     'description' : self._company_description,
                      'cost': self._cost,
                      'amount_of_stocks': self._amount_of_stocks,
                      'close_price': self._close_price,
                      'open_price': self._open_price,
-                     'bid': str(self._bid_price + ' X ' + self._bid_size),
+                     'bid': str(str(self._bid_price) + ' X ' + str(self._bid_size)),
                      'ask': str(str(self._ask_price) + ' X ' + str(self._ask_size)),
-                     'day_range': 'need to add',  # TODO add day_range
+                     'day_range': self._daily_range,
                      'week_52_range': self._week_52_range,
                      'volume': self._volume,
                      'avg_volume': self._avg_total_volume,
@@ -234,16 +268,16 @@ class Stock:
                      'beta': self._beta,
                      'pe_ratio': self._pe_ratio,
                      'eps': self._eps,
-                     'Earning date': 'need to add',
-                     'Forward Dividend yeild': 'need to add',
-                     'Ex-Dividend yeild': 'need to add',
-                     '1y Target estimate': 'need to add',
+                     'next_earnings_date': self._next_earnings_date,
+                     'dividend_yield': self._dividend_yield,
+                     'ex_dividend_date': self._ex_dividend_date,
+                     'ytd_change': self._ytd_change,
                      'stock_holdings': self._stock_holdings,
                      'daily_change': self._daily_change,
                      'total_change': self.get_stock_gain(),
                      'daily_change_money': self._daily_change_money,
                      'total_change_money': self._total_change_money,
-
+                     'logo': self._logo
                      }
 
         if self._purchase_date != False:
@@ -326,8 +360,10 @@ def get_market_cap(x):
 
 
 def main():
-    amzn = Stock(ticker='amzn')
+    amzn = Stock(ticker='AMZN')
     print(amzn)
+
+    # xpath='/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/div/div[2]/div[1]/table/tbody/tr[5]/td[2]')
 
 
 if __name__ == '__main__':
