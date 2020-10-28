@@ -56,7 +56,7 @@ class Stock:
             self._ytd_change = api['ytdChange']
             # get stock stats that do not appear on both api calls
             api_request = requests.get(
-                "https://cloud.iexapis.com/stable/stock/" + 'amzn' + "/stats?token=" + api_key)
+                "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/stats?token=" + api_key)
             self.check_response_code(api_request)
             api = json.loads(api_request.content)
             self._beta = api['beta']
@@ -65,40 +65,7 @@ class Stock:
             self._next_earnings_date = api['nextEarningsDate']
             self._dividend_yield = api['dividendYield']
             self._ex_dividend_date = api['exDividendDate']
-
-            # get dividend data
-            if not self._ask_price:
-                self._ask_price = '-'
-                self._ask_size = ''
-            if not self._bid_price:
-                self._bid_price = '-'
-                self._bid_size = ''
-            if not self._beta:
-                self._beta = '-'
-            else:
-                self._beta = round(self._beta, 3)
-            if not self._pe_ratio:
-                self._pe_ratio = '-'
-            else:
-                self._pe_ratio = round(self._pe_ratio, 3)
-            if not self._eps:
-                self._eps = '-'
-            else:
-                self._eps = round(self._eps, 3)
-            if not self._next_earnings_date:
-                self._next_earnings_date = '-'
-
-            if not self._dividend_yield:
-                self._dividend_yield = '-'
-            else:
-                self._dividend_yield = round(self._dividend_yield, 3)
-
-            if not self._ex_dividend_date:
-                self._ex_dividend_date = '-'
-
-            if self._daily_low and self._daily_high:
-                self._daily_range = str(str(self._daily_low) + ' - ' + str(self._daily_high))
-
+            self.check_if_not_none()
             if cost == -1 or self._amount_of_stocks == -1:  # if stock not purchased
                 self._amount_of_stocks = '-'
                 self._cost = '-'
@@ -134,7 +101,37 @@ class Stock:
                 raise stock_api_exceptions.ServerErrorException
 
     def check_if_not_none(self):
-        pass
+        if not self._ask_price:
+            self._ask_price = '-'
+            self._ask_size = ''
+        if not self._bid_price:
+            self._bid_price = '-'
+            self._bid_size = ''
+        if not self._beta:
+            self._beta = '-'
+        else:
+            self._beta = round(self._beta, 3)
+        if not self._pe_ratio:
+            self._pe_ratio = '-'
+        else:
+            self._pe_ratio = round(self._pe_ratio, 3)
+        if not self._eps:
+            self._eps = '-'
+        else:
+            self._eps = round(self._eps, 3)
+        if not self._next_earnings_date:
+            self._next_earnings_date = '-'
+
+        if not self._dividend_yield:
+            self._dividend_yield = '-'
+        else:
+            self._dividend_yield = round(self._dividend_yield, 3)
+
+        if not self._ex_dividend_date:
+            self._ex_dividend_date = '-'
+
+        if self._daily_low and self._daily_high:
+            self._daily_range = str(str(self._daily_low) + ' - ' + str(self._daily_high))
 
     def get_ticker(self):
         return self._ticker
@@ -185,7 +182,8 @@ class Stock:
             self._beta) + ", peRatio= " + str(self._pe_ratio) + ", eps=" + str(
             self._eps) + ", next_earnings_date=" + str(self._next_earnings_date) + " , dividend_yield=" + str(
             self._dividend_yield) + ", daily_range=" + str(self._daily_range) + ", ytd_change=" + str(
-            self._ytd_change) + "%, exDividendDate=" + str(self._ex_dividend_date) + ", description="+self._company_description+"]"
+            self._ytd_change) + "%, exDividendDate=" + str(
+            self._ex_dividend_date) + ", description=" + self._company_description + "]"
 
     def calculate_percentage_change(self, current, previous):
         """
@@ -253,7 +251,7 @@ class Stock:
         json_dict = {'ticker': self._ticker,
                      'company_name': self._company_name,
                      'price': self._price,
-                     'description' : self._company_description,
+                     'description': self._company_description,
                      'cost': self._cost,
                      'amount_of_stocks': self._amount_of_stocks,
                      'close_price': self._close_price,
@@ -294,58 +292,6 @@ def average(lst):
         return None
 
 
-def get_list_of_labels(stock, time_range='1d', interval='25'):
-    temp_stock_data = None
-    list_of_labels = []
-    for stock_data in stock.get_historical_data(time_range=time_range, interval=interval):
-        list_of_labels.append(stock_data['time'])
-    return list_of_labels
-
-
-def get_list_of_historical_data(list_of_stocks, time_range='1d', interval='25'):
-    list_of_historical_data = []
-    for stock in list_of_stocks:
-        list_of_historical_data.append(stock.get_historical_data(time_range=time_range, interval=interval))
-    return list_of_historical_data
-
-
-def get_list_of_divided_stock_data(list_of_labels, list_of_historical_data):
-    list_of_divided_stock_data = collections.defaultdict(list)
-    for label in list_of_labels:
-        for index in range(len(list_of_historical_data)):
-            for stock_data in list_of_historical_data[index]:
-                if stock_data['time'] == label and stock_data['price']:
-                    list_of_divided_stock_data[label].append(stock_data['price'])
-    return list_of_divided_stock_data
-
-
-def get_list_of_stocks_divided_by_time(time_range='1', interval='25', user_id=1):
-    list_of_stocks = DbApi.get_users_stocks_by_user_id(user_id=user_id)
-    for st in list_of_stocks:
-        print(str(st))
-    list_of_labels = get_list_of_labels(stock=list_of_stocks[0], interval=interval)
-    print(list_of_labels)
-    list_of_historical_data = get_list_of_historical_data(list_of_stocks, time_range=time_range, interval=interval)
-    print(list_of_historical_data)
-    temp_stock_data = None
-    list_of_divided_stock_data = get_list_of_divided_stock_data(list_of_labels=list_of_labels,
-                                                                list_of_historical_data=list_of_historical_data)
-    print(list_of_divided_stock_data)
-    return [list_of_labels, list_of_divided_stock_data]
-
-
-def get_json_of_average_stocks_price_divided_by_time(list_of_divided_stock_data, list_of_labels):
-    dict_of_avg = collections.defaultdict(list)
-    for label in list_of_labels:
-        avg = average(list_of_divided_stock_data.get(label))
-        if avg:
-            dict_of_avg[str(label)] = round(avg, 2)
-        else:
-            dict_of_avg[str(label)] = avg
-    print(dict_of_avg)
-    return json.dumps(dict_of_avg)
-
-
 def get_market_cap(x):
     abbreviations = ["", "K", "M", "B", "T", "Qd", "Qn", "Sx", "Sp", "O", "N",
                      "De", "Ud", "DD"]
@@ -360,10 +306,9 @@ def get_market_cap(x):
 
 
 def main():
-    amzn = Stock(ticker='AMZN')
-    print(amzn)
-
-    # xpath='/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/div/div[2]/div[1]/table/tbody/tr[5]/td[2]')
+    api_request = requests.get("https://cloud.iexapis.com/stable/ref-data/sectors?token=" + api_key)
+    api = json.loads(api_request.content)
+    print(api)
 
 
 if __name__ == '__main__':

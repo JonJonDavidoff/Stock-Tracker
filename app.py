@@ -18,8 +18,6 @@ ticker = None
 
 @app.route('/stock_page')
 def stock_page():
-    session['Email'] = session['Email']
-    session['ticker'] = session['ticker']
     return render_template('stock.html')
 
 
@@ -158,7 +156,6 @@ def stock_page_on_load():
                                                ticker=session['ticker'])
     stock_json = Stock.Stock(ticker=session['ticker']).convert_main_stock_data_to_json()
     stock_json['is_user_holding_stock'] = is_user_holding_stock
-
     socketio.emit('page_load_response', json.dumps(stock_json))
 
 @socketio.on('addStock')
