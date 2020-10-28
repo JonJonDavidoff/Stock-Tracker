@@ -120,6 +120,8 @@ def parse_args(arg_dict):
 def handle_an_event(json_data, methods=['GET', 'POST']):
     print('recived event')
     stock_table = bridging_users_db.get_stocks_data_by_email(session['Email'])
+    print(str(Stock.get_sector_diversity(stock_table)))
+
     list_of_stocks_json = []
     for stock in stock_table:
         list_of_stocks_json.append(stock.convert_main_stock_data_to_json())

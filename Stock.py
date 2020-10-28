@@ -2,9 +2,8 @@ import requests
 import json
 import Market
 import stock_api_exceptions
-import datetime
-import DbApi
-import collections
+import matplotlib
+
 
 api_key = "pk_e4cd3161272b47369625df7d517b8714"
 
@@ -41,8 +40,6 @@ class Stock:
             self._week_52_range = str(api['week52Low']) + " - " + str(api['week52High'])
             self._avg_total_volume = api['avgTotalVolume']
             self._volume = api['latestVolume']
-            # print(api['beta'])
-            # if data is None set -
             if not self._avg_total_volume:
                 self._avg_total_volume = '-'
             if not self._volume:
@@ -83,7 +80,9 @@ class Stock:
             api_request = requests.get(
                 "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/company?token=" + api_key)
             self.check_response_code(api_request)
-            self._company_description = json.loads(api_request.content)['description']
+            api = json.loads(api_request.content)
+            self._company_description = api['description']
+            self._sector = api['sector']
 
         except stock_api_exceptions.UnknownSymbolException as e:
             print(str(e))
@@ -183,7 +182,8 @@ class Stock:
             self._eps) + ", next_earnings_date=" + str(self._next_earnings_date) + " , dividend_yield=" + str(
             self._dividend_yield) + ", daily_range=" + str(self._daily_range) + ", ytd_change=" + str(
             self._ytd_change) + "%, exDividendDate=" + str(
-            self._ex_dividend_date) + ", description=" + self._company_description + "]"
+            self._ex_dividend_date) + ", description=" + self._company_description + ", sector= " + str(
+            self._sector) + "]"
 
     def calculate_percentage_change(self, current, previous):
         """
@@ -275,7 +275,8 @@ class Stock:
                      'total_change': self.get_stock_gain(),
                      'daily_change_money': self._daily_change_money,
                      'total_change_money': self._total_change_money,
-                     'logo': self._logo
+                     'logo': self._logo,
+                     'sector': self._sector
                      }
 
         if self._purchase_date != False:
@@ -303,6 +304,26 @@ def get_market_cap(x):
     b = int(thing)
     thing = round(x / b, 3)
     return str(thing) + " " + abbreviations[a]
+
+
+def get_sector_diversity(list_of_stocks):
+    # sector_dict = {'Electronic Technology': 0, 'Distribution Services': 0, 'Health Technology': 0,
+    #                'Commercial Services': 0, 'Industrial Services': 0, 'Finance': 0,
+    #                'Process Industries': 0, 'Transportation': 0, 'Technology Services': 0,
+    #                'Producer Manufacturing': 0, 'Retail Trade': 0, 'Consumer Services': 0,
+    #                'Non-Energy Minerals': 0, 'Utilities': 0, 'Miscellaneous': 0,
+    #                'Health Services': 0, 'Consumer Durables': 0, 'Consumer Non-Durables': 0,
+    #                'Communications': 0, 'Energy Minerals': 0, 'Government': 0}
+    sector_dict = {}
+
+    for stock in list_of_stocks:
+        sector_name = stock._sector
+        if not sector_name in sector_dict:
+            sector_dict[sector_name] = 1
+        else:
+            sector_dict[sector_name] = sector_dict[sector_name] + 1
+
+    return sector_dict
 
 
 def main():
