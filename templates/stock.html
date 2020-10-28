@@ -220,7 +220,6 @@
                         </tr>
                         <tr id="ytd_change">
                             <td class="stock_table_title">YTD Change</td>
-                            
                         </tr>
                     </table>
                 </div>
@@ -290,13 +289,13 @@
 
 
         function add_logo(logo_url) {
-          // add_logo is a function that adds the logo to stock page
+            // add_logo is a function that adds the logo to stock page
             $('.img').append('<img src=' + logo_url + ' alt="" width="128px" height="128px">')
         }
 
 
         function get_price_class(price) {
-          // get_price_class check to see what color is the number
+            // get_price_class check to see what color is the number
             if (price > 0) {
                 return "green";
             } else if (price < 0) {
@@ -319,15 +318,15 @@
             }
         });
 
-        function add_stock_data_to_table(close_price, open_price, bid, ask, day_range, week_52_range, volume, avg_volume, market_cap, beta, pe_ratio, eps,next_earnings_date,dividend_yield,ex_dividend_date, ytd_change) {
-          // append data to stock data table
+        function add_stock_data_to_table(close_price, open_price, bid, ask, day_range, week_52_range, volume, avg_volume, market_cap, beta, pe_ratio, eps, next_earnings_date, dividend_yield, ex_dividend_date, ytd_change) {
+            // append data to stock data table
             $('#previous_close').append("<td>" + close_price + "</td>");
             $('#open_price').append("<td>" + open_price + "</td>");
             if (bid == "- X ") { // check if empty and assign correct value
                 bid = "-";
             }
             $('#bid').append("<td>" + bid + "</td>");
-            if (ask == "- X ") {// check if empty and assign correct value
+            if (ask == "- X ") { // check if empty and assign correct value
                 ask = "-";
             }
             $('#ask').append("<td>" + ask + "</td>");
@@ -342,7 +341,7 @@
             $('#next_earnings_date').append("<td>" + next_earnings_date + "</td>");
             $('#dividend_yield').append("<td>" + dividend_yield + "</td>");
             $('#ex_dividend_date').append("<td>" + ex_dividend_date + "</td>");
-            $('#ytd_change').append("<td>" +  ytd_change.toFixed(2) + "%</td>");
+            $('#ytd_change').append("<td>" + ytd_change.toFixed(2) + "%</td>");
         }
         </script>
         <script>

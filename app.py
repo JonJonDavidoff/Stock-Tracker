@@ -120,13 +120,12 @@ def parse_args(arg_dict):
 def handle_an_event(json_data, methods=['GET', 'POST']):
     print('recived event')
     stock_table = bridging_users_db.get_stocks_data_by_email(session['Email'])
-    print(str(Stock.get_sector_diversity(stock_table)))
-
+    stock_diversity_list = Stock.get_sector_diversity(stock_table)
     list_of_stocks_json = []
     for stock in stock_table:
         list_of_stocks_json.append(stock.convert_main_stock_data_to_json())
     print(list_of_stocks_json)
-    socketio.emit('dashboard_load_response', json.dumps(list_of_stocks_json))
+    socketio.emit('dashboard_load_response', json.dumps((json.dumps(list_of_stocks_json), json.dumps(stock_diversity_list))))
 
 
 @socketio.on('add_transaction')
@@ -159,6 +158,7 @@ def stock_page_on_load():
     stock_json = Stock.Stock(ticker=session['ticker']).convert_main_stock_data_to_json()
     stock_json['is_user_holding_stock'] = is_user_holding_stock
     socketio.emit('page_load_response', json.dumps(stock_json))
+
 
 @socketio.on('addStock')
 def add_stock(json, methods=['GET', 'POST']):
