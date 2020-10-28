@@ -7,7 +7,8 @@ from flask import Flask, render_template, request, url_for, redirect, \
 import bridging_users_db
 import Stock
 import DbApi
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO
+import json
 
 app = Flask(__name__, static_url_path='/static')  # Construct an instance of Flask class for our webapp
 app.config['SECRET_KEY'] = 'SECRET'
@@ -17,8 +18,6 @@ ticker = None
 
 @app.route('/stock_page')
 def stock_page():
-    session['Email'] = session['Email']
-    print(session['Email'])
     return render_template('stock.html')
 
 
@@ -96,34 +95,36 @@ def login_form():
 def logout():
     session.pop('SECRET', None)
     session['Email'] = None
+    session['ticker'] = None
     return redirect(url_for('main'))
 
 
 @app.route("/stocks", methods=['GET', 'POST'])
 def on_stocks():
     print(str(request.args.to_dict()))
-    parse_args(request.args.to_dict())
+    url_dict = request.args.to_dict()
     session['Email'] = session['Email']
+    session['ticker'] = url_dict[' ticker']
     return redirect(url_for('stock_page'))
 
 
 def parse_args(arg_dict):
     try:
-        global ticker
-        ticker = arg_dict['ticker']
+        print("parse " + str(arg_dict['ticker']))
+        session['ticker'] = arg_dict['ticker']
     except Exception as e:
         print(str(e))
 
 
-@socketio.on('conn event')
-def handle_an_event(json, methods=['GET', 'POST']):
-    print('received my event: ' + str(json))
-    list_of_stocks = DbApi.get_users_stocks_by_email(session['Email'])
-    list_of_stocks_json = [[]]
-    for stock in list_of_stocks[0]:
+@socketio.on('dashboard_load_request')
+def handle_an_event(json_data, methods=['GET', 'POST']):
+    print('recived event')
+    stock_table = bridging_users_db.get_stocks_data_by_email(session['Email'])
+    list_of_stocks_json = []
+    for stock in stock_table:
         list_of_stocks_json.append(stock.convert_main_stock_data_to_json())
-
-    socketio.emit('my response', json, callback=messageReceived())
+    print(list_of_stocks_json)
+    socketio.emit('dashboard_load_response', json.dumps(list_of_stocks_json))
 
 
 @socketio.on('add_transaction')
@@ -143,10 +144,7 @@ def add_transaction(json, methods=['GET', 'POST']):
             DbApi.add_stock_by_email(email=email, ticker=ticker, purchese_date=purchase_date,
                                      cost_of_stock=cost_per_share,
                                      amount_of_stocks=shares)
-            # Getting Stock Data
-            stock = Stock.Stock(ticker=ticker, amount_of_stocks=shares, cost=cost_per_share,
-                                purchase_date=purchase_date)
-            socketio.emit('response_adding_table_row', stock.convert_main_stock_data_to_json())
+            socketio.emit('response_adding_table_row')
         except Exception as e:
             # TODO Add Exception to Ui
             print(str(e))
@@ -154,7 +152,20 @@ def add_transaction(json, methods=['GET', 'POST']):
 
 @socketio.on('onload')
 def stock_page_on_load():
-    pass
+    is_user_holding_stock = DbApi.stock_exists(user_id=DbApi.get_user_id_by_email(session['Email']),
+                                               ticker=session['ticker'])
+    stock_json = Stock.Stock(ticker=session['ticker']).convert_main_stock_data_to_json()
+    stock_json['is_user_holding_stock'] = is_user_holding_stock
+    socketio.emit('page_load_response', json.dumps(stock_json))
+
+@socketio.on('addStock')
+def add_stock(json, methods=['GET', 'POST']):
+    DbApi.add_stock_by_email(session['Email'], str(session['ticker']), -1, 0, 'False')
+
+
+@socketio.on('removeStock')
+def remove_stock(json, methods=['GET', 'POST']):
+    DbApi.remove_stock_by_user_id(ticker=str(session['ticker']), user_id=DbApi.get_user_id_by_email(session['Email']))
 
 
 if __name__ == '__main__':  # Script executed directly?
