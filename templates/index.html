@@ -324,9 +324,7 @@
                 socket.on('dashboard_load_response', function(json) {
                     json = JSON.parse(json);
                     sectors = JSON.parse(json[1]);
-                    console.log(sectors);
                     json = JSON.parse(json[0]);
-                    console.log(json);
                     for (let i = 0; i < json.length; ++i) {
                         add_table_row(json[i]);
                         add_ticker_to_select(json[i].ticker);
@@ -400,26 +398,26 @@
 
                 function round_up_data(json) {
                     // Converting to only two numbers after .
-                    console.log(json.price);
                     json.price = json.price.toFixed(2);
                     if (json.total_change != '-') {
-                        json.total_change = json.total_change.toFixed(2);
-                        json.total_change = Number(json.total_change);
+                        json.total_change = round_up_number_to_2_digits(json.total_change);
                     }
                     json.daily_change = json.daily_change.toFixed(2);
                     if (json.total_change_money != '-') {
-                        json.total_change_money = json.total_change_money.toFixed(2);
-                        json.total_change_money = Number(json.total_change_money);
+                        json.total_change_money = round_up_number_to_2_digits(json.total_change_money);
                     }
                     //Converting to number
                     json.price = Number(json.price);
                     json.daily_change = Number(json.daily_change);
                     return json;
+                }
 
+                function round_up_number_to_2_digits(num) {
+                    num = num.toFixed(2);
+                    return Number(num);
                 }
 
                 function get_date(purchase_date) {
-                    console.log(purchase_date);
                     if (purchase_date != '-') {
                         // Convert date to short format
                         purchase_date = purchase_date.slice(4) + "-" + purchase_date.slice(2, 4) + "-" + purchase_date.slice(0, 2);
@@ -519,28 +517,30 @@
                     return sector_dict[sector];
                 }
 
+                function get_sum_of_json(sector_list) {
+                    let sum = 0;
+                    for (let sector in sector_list) {
+                        sum = sum + sector_list[sector];
+                    }
+                    return sum;
+                }
+
                 // ---------- Chart Chart
                 function add_sector_chart(sector_list) {
                     let data = [];
-                    const length = Object.keys(sector_list).length;
+                    const sum = get_sum_of_json(sector_list);
                     let index = 0;
-                                        let precentge = 0;
+
+                    let precentge = 0;
                     let list_of_colors = [];
                     let list_of_labels = [];
-
-                    for (const sector in sector_list) {
-                        precentge = (sector_list[sector] / length) * 100;
+                    for (let sector in sector_list) {
+                        precentge = round_up_number_to_2_digits((sector_list[sector] / sum) * 100);
                         data[index++] = precentge;
-                        sector_list[sector] = precentge;
                         list_of_colors.push(get_sector_color(sector));
-
                         list_of_labels.push(precentge + "% " + sector.replace('_', ' '));
                     }
-                  
-                   
-                    
-
-                    var cakeConfig = {
+                    const cakeConfig = {
                         type: 'doughnut',
                         data: {
                             datasets: [{

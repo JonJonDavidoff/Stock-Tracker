@@ -307,15 +307,6 @@ def get_market_cap(x):
 
 
 def get_sector_diversity(list_of_stocks):
-    sector_dict = {'Electronic Technology': '#65fede', 'Distribution Services': '#16d27b',
-                   'Health Technology': '#eef03e',
-                   'Commercial Services': '#ef3c2e', 'Industrial Services': '#1a1c20', 'Finance': '#cf7500',
-                   'Process Industries': '#f0a500', 'Transportation': '#03c4a1', 'Technology Services': '#150485',
-                   'Producer Manufacturing': '#590995', 'Retail Trade': '#7579e7', 'Consumer Services': '#9AB3F5',
-                   'Non-Energy Minerals': '#a3d8f4', 'Utilities': '#b9fffc', 'Miscellaneous': '#625261',
-                   'Health Services': '#a6a6a4', 'Consumer Durables': '#89beb3', 'Consumer Non-Durables': '#a4b787',
-                   'Communications': '#aa3a3a', 'Energy Minerals': '#595b83', 'Government': '060930',
-                   'other': '#f4abc4'}
     sector_dict = {}
     for stock in list_of_stocks:
         sector_name = stock._sector.replace(' ', '_')
@@ -328,15 +319,7 @@ def get_sector_diversity(list_of_stocks):
 
 
 def main():
-    number_of_colors = 8
-
-    color = ["#" + ''.join([random.choice('0123456789ABCDEF') for j in range(6)])
-             for i in range(number_of_colors)]
-    print(color)
-    for i in range(number_of_colors):
-        plt.scatter(random.randint(0, 10), random.randint(0, 10), c=color[i], s=200)
-
-    plt.show()
+    pass
 
 
 if __name__ == '__main__':
