@@ -20,7 +20,9 @@
     <!-- ----------------------- Header --------------------- -->
     <header class="dark-bb">
         <nav class="navbar navbar-expand-lg">
-            <a class="navbar-brand" href="exchange-dark.html"><img src="assets/img/logo.png" alt="logo"></a>
+            <a class="navbar-brand" href="exchange-dark.html">
+                 <img src="{{ url_for('static', filename='images/logo.png')}}" alt="logo">
+            </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#headerMenu" aria-controls="headerMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <i class="icon ion-md-menu"></i>
             </button>
@@ -31,19 +33,26 @@
                             Dashboard
                         </a>
                     </li>
-                    <!-- <li class="nav_bar_link nav-item active">
-        <a class="nav-link" href="./store.html" role="button"aria-haspopup="true" aria-expanded="false">
-          Stock
-        </a>
-      </li> -->
+                    <li class="nav_bar_link nav-item ">
+                        <a class="nav-link" href="./logout" role="button" aria-haspopup="true" aria-expanded="false">
+                            Logout
+                        </a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav ml-auto">
                     <li class="navbar-item search_Stock_p">
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" id="search_stock"><i class="icon ion-md-search"></i></span>
+                                <form action="" method="POST" class="stock_form">
+                                    <span class="input-group-text" id="search_stock">
+                                        <button type="submit" style="background: none; padding: 0px;border: none">
+                                            <i class="icon ion-md-search"></i>
+                                        </button>
+                                    </span>
                             </div>
                             <input type="text" class="form-control search_stock_inp" placeholder="Search" aria-describedby="search_stock">
+                            </form>
+                            </div>
                         </div>
                         <div class="search_stock_dropdown">
                             <div class="heading">
@@ -71,7 +80,7 @@
                                 <!-- --------- Company --------- -->
                                 <li class="list-group-item list-group-item-action" data-company="microsoft">
                                     <div class="img">
-                                        <img src="./assets/img/icon/1.png" alt="">
+                                        <img src="./images/logo.png" alt="">
                                     </div>
                                     <div class="st_comp">
                                         Microsoft
@@ -100,9 +109,9 @@
         <div class="row sm-gutters">
             <div class="col-lg-4 col-md-12">
                 <div class="stock_profile_card stock_comp_card">
-                    <div class="img">
+                    <div class="img_logo" style="margin-bottom: 25%;" >
                     </div>
-                    <div class="content" style="margin-left: 20%;">
+                    <div class="content" style="margin-left: 5%;">
                         <p class="title">
                             <c id="company_name"></c>
                             <span class="star_p">
@@ -261,6 +270,13 @@
         <script type="text/javascript">
         const socket = io.connect('http://' + document.domain + ':' + location.port);
         // page load functions
+        const stock_form = ($('.stock_form')).on('submit', function(e) {
+                    e.preventDefault();
+                    const ticker = $(('.search_stock_inp')).val().toUpperCase();
+                    if (ticker != '') {
+                        window.location.replace("http://127.0.0.1:5000/stocks? ticker=" + ticker);
+                    }
+                });
         window.onload = socket.emit('onload');
 
         socket.on('page_load_response', function(json) {
@@ -270,18 +286,25 @@
                 if (json.is_user_holding_stock) {
                     $('#star_id').addClass('active');
                 }
+                json.daily_change = round_up_number_to_2_digits(json.daily_change);
+                console.log(json.daily_change);
                 add_title(json.company_name, json.price, json.daily_change, json.daily_change_money, json.description);
                 add_logo(json.logo);
                 add_stock_data_to_table(json.close_price, json.open_price, json.bid, json.ask, json.day_range, json.week_52_range, json.volume, json.avg_volume, json.market_cap, json.beta, json.pe_ratio, json.eps, json.next_earnings_date, json.dividend_yield, json.ex_dividend_date, json.ytd_change);
             }
         });
 
+        function round_up_number_to_2_digits(num) {
+            num = num.toFixed(2);
+            return Number(num);
+        }
+
         function add_title(company_name, price, daily_change, daily_change_money, company_description) {
             // insert company_name title
             $('#company_name').append(company_name);
             // insert company_price and daily change
-            $('.price_p').addClass(get_price_class(price));
-            $('.price_p').append("<span class='price'>" + price + " - </span>" + daily_change_money + " - " + daily_change + "%");
+            $('.price_p').addClass(get_price_class(daily_change_money));
+            $('.price_p').append("<span class='price'>" + price + " </span>" + daily_change_money + "     " + daily_change + "%");
             // insert company description
             $('#company-descr').append("<p class='descr' style='margin-top:2%;font-size:0.83em'>" + company_description + "</p>");
 
@@ -290,15 +313,15 @@
 
         function add_logo(logo_url) {
             // add_logo is a function that adds the logo to stock page
-            $('.img').append('<img src=' + logo_url + ' alt="" width="128px" height="128px">')
+            $('.img_logo').append('<img src=' + logo_url + ' alt="" style="border-radius: 50%;width:50px;height:51px;max-width: None;">')
         }
 
 
-        function get_price_class(price) {
+        function get_price_class(daily_change) {
             // get_price_class check to see what color is the number
-            if (price > 0) {
+            if (daily_change > 0) {
                 return "green";
-            } else if (price < 0) {
+            } else if (daily_change < 0) {
                 return "red";
             } else {
                 return "";

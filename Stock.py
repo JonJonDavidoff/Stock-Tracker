@@ -44,8 +44,7 @@ class Stock:
                 self._avg_total_volume = '-'
             if not self._volume:
                 self._volume = '-'
-            self._daily_change = self.calculate_percentage_change(current=self._price,
-                                                                  previous=self._close_price)
+            self._daily_change = api['changePercent']
             self._daily_change_money = api['change']
             self._daily_low = api['low']
             self._daily_high = api['high']

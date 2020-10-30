@@ -425,9 +425,8 @@
                     }
                     return purchase_date;
                 }
-
                 function add_row_append(json, table_classes, currentDate) {
-                    row = "<tr class='" + json.ticker + "'><td class='table_br'><span class='blue'>" + json.ticker + "</span><br><span>" + json.price + "</span></td><td class='table_br'>";
+                    row = "<tr class='" + json.ticker + "'><td class='table_br'><span class='blue'><a href='http://127.0.0.1:5000/stocks? ticker=" + json.ticker + "'>" + json.ticker + "</a></span><br><span>" + json.price + "</span></td><td class='table_br'>";
                     if (json.total_change == '-') {
                         row = row + "<span class=>" + json.total_change + "</span><br>";
                     } else {
