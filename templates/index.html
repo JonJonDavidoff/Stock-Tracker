@@ -325,6 +325,9 @@
                     json = JSON.parse(json);
                     sectors = JSON.parse(json[1]);
                     json = JSON.parse(json[0]);
+                    if(json.amount_of_stocks == 0){
+                        json.amount_of_stocks = '-';
+                    }
                     for (let i = 0; i < json.length; ++i) {
                         add_table_row(json[i]);
                         add_ticker_to_select(json[i].ticker);
@@ -425,6 +428,7 @@
                     }
                     return purchase_date;
                 }
+
                 function add_row_append(json, table_classes, currentDate) {
                     row = "<tr class='" + json.ticker + "'><td class='table_br'><span class='blue'><a href='http://127.0.0.1:5000/stocks? ticker=" + json.ticker + "'>" + json.ticker + "</a></span><br><span>" + json.price + "</span></td><td class='table_br'>";
                     if (json.total_change == '-') {

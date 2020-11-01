@@ -22,48 +22,47 @@ class Stock:
         # TODO Handle Exception
         try:
             api_request = requests.get(
-                "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/quote/?token=" + api_key)
-            self.check_response_code(api_request)
+                "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/batch/?types=quote,stats,logo,company&token=" + api_key)
             api = json.loads(api_request.content)
-            self._company_name = api['companyName']
-            self._price = api['latestPrice']
-            self._open_price = api['open']
+            self._company_name = api['quote']['companyName']
+            self._price = api['quote']['latestPrice']
+            self._open_price = api['quote']['open']
             # if data is None set -
             if not self._open_price:
                 self._open_price = '-'
             self._close_price = self.get_updated_close_price(api)
-            self._market_cap = get_market_cap(api['marketCap'])
-            self._bid_price = api['iexBidPrice']
-            self._bid_size = api['iexBidSize']
-            self._ask_price = api['iexAskPrice']
-            self._ask_size = api['iexAskSize']
-            self._week_52_range = str(api['week52Low']) + " - " + str(api['week52High'])
-            self._avg_total_volume = api['avgTotalVolume']
-            self._volume = api['latestVolume']
+            self._market_cap = get_market_cap(api['quote']['marketCap'])
+            self._bid_price = api['quote']['iexBidPrice']
+            self._bid_size = api['quote']['iexBidSize']
+            self._ask_price = api['quote']['iexAskPrice']
+            self._ask_size = api['quote']['iexAskSize']
+            self._week_52_range = str(api['quote']['week52Low']) + " - " + str(api['quote']['week52High'])
+            self._avg_total_volume = api['quote']['avgTotalVolume']
+            self._volume = api['quote']['latestVolume']
             if not self._avg_total_volume:
                 self._avg_total_volume = '-'
             if not self._volume:
                 self._volume = '-'
-            self._daily_change = api['changePercent']
-            self._daily_change_money = api['change']
-            self._daily_low = api['low']
-            self._daily_high = api['high']
+            self._daily_change = api['quote']['changePercent']
+            self._daily_change_money = api['quote']['change']
+            self._daily_low = api['quote']['low']
+            self._daily_high = api['quote']['high']
             self._daily_range = '-'
-            self._ytd_change = api['ytdChange']
+            self._ytd_change = api['quote']['ytdChange']
             # get stock stats that do not appear on both api calls
-            api_request = requests.get(
-                "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/stats?token=" + api_key)
-            self.check_response_code(api_request)
-            api = json.loads(api_request.content)
-            self._beta = api['beta']
-            self._pe_ratio = api['peRatio']
-            self._eps = api['ttmEPS']
-            self._next_earnings_date = api['nextEarningsDate']
-            self._dividend_yield = api['dividendYield']
-            self._ex_dividend_date = api['exDividendDate']
+            # api_request = requests.get(
+            #     "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/stats?token=" + api_key)
+            # self.check_response_code(api_request)
+            # api = json.loads(api_request.content)
+            self._beta = api['stats']['beta']
+            self._pe_ratio = api['stats']['peRatio']
+            self._eps = api['stats']['ttmEPS']
+            self._next_earnings_date = api['stats']['nextEarningsDate']
+            self._dividend_yield = api['stats']['dividendYield']
+            self._ex_dividend_date = api['stats']['exDividendDate']
             self.check_if_not_none()
             if cost == -1 or self._amount_of_stocks == -1:  # if stock not purchased
-                self._amount_of_stocks = '-'
+                self._amount_of_stocks = self._amount_of_stocks
                 self._cost = '-'
                 self._stock_holdings = '-'
                 self._total_change_money = '-'
@@ -72,16 +71,17 @@ class Stock:
                 self._total_change_money = (self._price * self._amount_of_stocks) - (
                         self._cost * self._amount_of_stocks)
             #     Get Logo
-            api_request = requests.get(
-                "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/logo?token=" + api_key)
-            self.check_response_code(api_request)
-            self._logo = json.loads(api_request.content)['url']
-            api_request = requests.get(
-                "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/company?token=" + api_key)
-            self.check_response_code(api_request)
-            api = json.loads(api_request.content)
-            self._company_description = api['description']
-            self._sector = api['sector']
+            # api_request = requests.get(
+            #     "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/logo?token=" + api_key)
+            # self.check_response_code(api_request)
+            # self._logo = json.loads(api_request.content)['url']
+            self._logo = api['logo']['url']
+            # api_request = requests.get(
+            #     "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/company?token=" + api_key)
+            # self.check_response_code(api_request)
+            # api = json.loads(api_request.content)
+            self._company_description = api['company']['description']
+            self._sector = api['company']['sector']
 
         except stock_api_exceptions.UnknownSymbolException as e:
             print(str(e))
@@ -206,45 +206,11 @@ class Stock:
         """
         close_price = -1
         if market.is_open():
-            close_price = api['previousClose']
+            close_price = api['quote']['previousClose']
         else:
-            close_price = api['latestPrice']
+            close_price = api['quote']['latestPrice']
         return close_price
 
-    def update_stock_data(self):
-        try:
-            api_request = requests.get(
-                "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/quote?token=" + api_key)
-            api = json.loads(api_request.content)
-
-            self._company_name = api['companyName']
-            self._price = api['latestPrice']
-            self._close_price = self.get_updated_close_price(api)
-            self._daily_change = self.calculate_percentage_change(current=self._price,
-                                                                  previous=self._close_price)
-        except Exception as e:
-            api = "Error...  "
-            print(api + str(e))
-
-    def get_historical_data(self, time_range='1d', interval='5'):
-        """
-        get_historical_data is a function that gets a stock historical data in a certain time range
-        :parm time_range: time range is the range of time you would like to get data for. avilable time ranges:
-         1d , 5d, 1m, 3m, 6m,ytd, 1y, 5y, max
-        """
-        api_request = requests.get(
-            "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/chart/" +
-            time_range + "/?token=" + api_key + "&chartInterval=" + interval)
-        api_historical_data = json.loads(api_request.content)
-        api_data_dict = []
-        if time_range != '1d':
-            for stock_data in api_historical_data:
-                api_data_dict.append({'price': stock_data['close'], 'time': stock_data['label']})
-            print(api_data_dict)
-        else:
-            for stock_data in api_historical_data:
-                api_data_dict.append({'price': stock_data['average'], 'time': stock_data['label']})
-        return api_data_dict
 
     def convert_main_stock_data_to_json(self):
         json_dict = {'ticker': self._ticker,
@@ -283,8 +249,22 @@ class Stock:
         json_dict['purchase_date'] = str(self._purchase_date)
         return json_dict
 
+    def get_historcal_data(self, time_range):
 
-# U9fFytnoterFaZrPfW1SYLHo8LQL
+        api_request = requests.get(
+            "https://sandbox.iexapis.com/stable/stock/" + self._ticker + "/chart/" + time_range + "?chartInterval=" + str(
+                get_chart_interval(time_range)) + "&token=" + 'Tsk_8d5db594bcc747f78b1d42e2d8593069')
+        api = json.loads(api_request.content)
+        stock_data_dict = {}
+        if time_range == '1d':
+            indicator = 'average'
+        else:
+            indicator = 'close'
+        for d in api:
+            stock_data_dict[d['label']] = d[indicator]
+        return stock_data_dict
+
+
 def average(lst):
     try:
         return sum(lst) / len(lst)
@@ -317,8 +297,58 @@ def get_sector_diversity(list_of_stocks):
     return sector_dict
 
 
+def get_chart_interval(time_range):
+    intervel = '5'
+    if time_range == '5d':
+        intervel = '60'
+    elif time_range == '1m':
+        intervel = '2d'
+    elif time_range == '3m':
+        intervel = '5d'
+    elif time_range == '6m':
+        intervel = '2w'
+    elif time_range == 'ytd':
+        intervel = '1w'
+    elif time_range == '1y':
+        intervel = '1m'
+    elif time_range == '5y':
+        intervel = '3m'
+    elif time_range == 'max':
+        intervel = '6m'
+    else:
+        intervel = '5'
+    return intervel
+
+
+def get_list_of_historcal_data(list_of_stocks, time_range):
+    list_of_stock_dicts = []
+    return_dict = {}
+    for stock in list_of_stocks:
+        list_of_stock_dicts.append(stock.get_historcal_data(time_range))
+
+    for stock in list_of_stocks:
+        for d in list_of_stock_dicts:
+            for key in d:
+                if stock.get_amount_of_stocks() != 0:
+                    if str(key) in return_dict:
+                        return_dict[str(key)] = return_dict[str(key)] + (
+                                d[str(key)] * float(stock.get_amount_of_stocks()))
+                    else:
+                        return_dict[str(key)] = (d[str(key)] * float(stock.get_amount_of_stocks()))
+
+    return return_dict
+
+
 def main():
-    pass
+    a = Stock(ticker='INTC', amount_of_stocks=1)
+    print(a)
+    # cvs = Stock(ticker='CVS', amount_of_stocks=2)
+    # print(get_list_of_historcal_data([a, cvs], time_range='5d'))
+    # api_request = requests.get(
+    #     "https://cloud.iexapis.com/stable/stock/" + 'AMZN'+ "/batch/?types=quote,stats,logo,company&token=" + api_key)
+    # api = json.loads(api_request.content)
+    # print(api)
+    # print(api['stats']['week52change'])
 
 
 if __name__ == '__main__':
