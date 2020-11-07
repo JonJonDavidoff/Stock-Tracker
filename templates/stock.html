@@ -21,7 +21,7 @@
     <header class="dark-bb">
         <nav class="navbar navbar-expand-lg">
             <a class="navbar-brand" href="exchange-dark.html">
-                 <img src="{{ url_for('static', filename='images/logo.png')}}" alt="logo">
+                <img src="{{ url_for('static', filename='images/logo.png')}}" alt="logo">
             </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#headerMenu" aria-controls="headerMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <i class="icon ion-md-menu"></i>
@@ -52,53 +52,53 @@
                             </div>
                             <input type="text" class="form-control search_stock_inp" placeholder="Search" aria-describedby="search_stock">
                             </form>
-                            </div>
                         </div>
-                        <div class="search_stock_dropdown">
-                            <div class="heading">
-                                <span>Company</span>
-                            </div>
-                            <ul class="comp_content list-group">
-                                <!-- --------- Company --------- -->
-                                <li class="list-group-item list-group-item-action" data-company="amazon">
-                                    <div class="img">
-                                        <img src="./assets/img/icon/1.png" alt="">
-                                    </div>
-                                    <div class="st_comp">
-                                        Amazon
-                                    </div>
-                                </li>
-                                <!-- --------- Company --------- -->
-                                <li class="list-group-item list-group-item-action" data-company="google">
-                                    <div class="img">
-                                        <img src="./assets/img/icon/1.png" alt="">
-                                    </div>
-                                    <div class="st_comp">
-                                        Google
-                                    </div>
-                                </li>
-                                <!-- --------- Company --------- -->
-                                <li class="list-group-item list-group-item-action" data-company="microsoft">
-                                    <div class="img">
-                                        <img src="./images/logo.png" alt="">
-                                    </div>
-                                    <div class="st_comp">
-                                        Microsoft
-                                    </div>
-                                </li>
-                                <!-- --------- Company --------- -->
-                                <li class="list-group-item list-group-item-action" data-company="facebook">
-                                    <div class="img">
-                                        <img src="./assets/img/icon/1.png" alt="">
-                                    </div>
-                                    <div class="st_comp">
-                                        FaceBook
-                                    </div>
-                                </li>
-                            </ul>
+            </div>
+            <div class="search_stock_dropdown">
+                <div class="heading">
+                    <span>Company</span>
+                </div>
+                <ul class="comp_content list-group">
+                    <!-- --------- Company --------- -->
+                    <li class="list-group-item list-group-item-action" data-company="amazon">
+                        <div class="img">
+                            <img src="./assets/img/icon/1.png" alt="">
+                        </div>
+                        <div class="st_comp">
+                            Amazon
+                        </div>
+                    </li>
+                    <!-- --------- Company --------- -->
+                    <li class="list-group-item list-group-item-action" data-company="google">
+                        <div class="img">
+                            <img src="./assets/img/icon/1.png" alt="">
+                        </div>
+                        <div class="st_comp">
+                            Google
+                        </div>
+                    </li>
+                    <!-- --------- Company --------- -->
+                    <li class="list-group-item list-group-item-action" data-company="microsoft">
+                        <div class="img">
+                            <img src="./images/logo.png" alt="">
+                        </div>
+                        <div class="st_comp">
+                            Microsoft
+                        </div>
+                    </li>
+                    <!-- --------- Company --------- -->
+                    <li class="list-group-item list-group-item-action" data-company="facebook">
+                        <div class="img">
+                            <img src="./assets/img/icon/1.png" alt="">
+                        </div>
+                        <div class="st_comp">
+                            FaceBook
                         </div>
                     </li>
                 </ul>
+            </div>
+            </li>
+            </ul>
             </div>
         </nav>
     </header>
@@ -109,7 +109,7 @@
         <div class="row sm-gutters">
             <div class="col-lg-4 col-md-12">
                 <div class="stock_profile_card stock_comp_card">
-                    <div class="img_logo" style="margin-bottom: 25%;" >
+                    <div class="img_logo" style="margin-bottom: 25%;">
                     </div>
                     <div class="content" style="margin-left: 5%;">
                         <p class="title">
@@ -133,8 +133,8 @@
                 <div class="market-pairs cus_stock_container">
                     <div class="header">
                         <!-- img src="assets/img/icon/3.png" alt="icon"> -->
-                        <span class="filter" data-chartToggle="1m">1m</span>
-                        <span class="filter" data-chartToggle="3m">3m</span>
+                        <span class="filter" data-chartToggle="1m">1d</span>
+                        <span class="filter" data-chartToggle="3m">5d</span>
                         <span class="filter" data-chartToggle="6m">6m</span>
                         <span class="filter" data-chartToggle="ytd">YTD</span>
                         <span class="filter" data-chartToggle="1y">1y</span>
@@ -147,10 +147,10 @@
                         <canvas id="lineStockChart"></canvas>
                     </div>
                     <div class="lineStockChart_p lineChartStockPage" data-chartFilter="1m">
-                        <canvas id="lineStockChart_1m"></canvas>
+                        <canvas id="lineStockChart_1d"></canvas>
                     </div>
                     <div class="lineStockChart_p lineChartStockPage" data-chartFilter="3m">
-                        <canvas id="lineStockChart_3m"></canvas>
+                        <canvas id="lineStockChart_5d"></canvas>
                     </div>
                     <div class="lineStockChart_p lineChartStockPage" data-chartFilter="6m">
                         <canvas id="lineStockChart_6m"></canvas>
@@ -271,12 +271,12 @@
         const socket = io.connect('http://' + document.domain + ':' + location.port);
         // page load functions
         const stock_form = ($('.stock_form')).on('submit', function(e) {
-                    e.preventDefault();
-                    const ticker = $(('.search_stock_inp')).val().toUpperCase();
-                    if (ticker != '') {
-                        window.location.replace("http://127.0.0.1:5000/stocks? ticker=" + ticker);
-                    }
-                });
+            e.preventDefault();
+            const ticker = $(('.search_stock_inp')).val().toUpperCase();
+            if (ticker != '') {
+                window.location.replace("http://127.0.0.1:5000/stocks? ticker=" + ticker);
+            }
+        });
         window.onload = socket.emit('onload');
 
         socket.on('page_load_response', function(json) {
@@ -291,6 +291,7 @@
                 add_title(json.company_name, json.price, json.daily_change, json.daily_change_money, json.description);
                 add_logo(json.logo);
                 add_stock_data_to_table(json.close_price, json.open_price, json.bid, json.ask, json.day_range, json.week_52_range, json.volume, json.avg_volume, json.market_cap, json.beta, json.pe_ratio, json.eps, json.next_earnings_date, json.dividend_yield, json.ex_dividend_date, json.ytd_change);
+                create_graphs(json);
             }
         });
 
@@ -365,6 +366,105 @@
             $('#dividend_yield').append("<td>" + dividend_yield + "</td>");
             $('#ex_dividend_date').append("<td>" + ex_dividend_date + "</td>");
             $('#ytd_change').append("<td>" + ytd_change.toFixed(2) + "%</td>");
+        }
+
+        function create_graphs(json) {
+            create_1d_graph();
+            create_5d_graph(json.graph_5d);
+        }
+
+        function create_1d_graph() {
+            // All Linechart
+            var chartLine = new Chart(chartElement("#lineStockChart"), {
+                type: 'line',
+                data: lineChartData(
+                    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                    [{
+                            label: 'Chart 1',
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
+                        },
+                        {
+                            label: 'Chart 2',
+                            backgroundColor: 'rgba(171, 184, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
+                            data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
+                        }
+                    ],
+                ),
+                options: lineChartOptions
+            });
+            // All Linechart - 1d
+            var chartLine = new Chart(chartElement("#lineStockChart_1d"), {
+                type: 'line',
+                data: lineChartData(
+                    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                    [{
+                            label: "1 Day ",
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
+                        },
+
+                    ],
+                ),
+                options: lineChartOptions
+            });
+       } 
+
+
+
+        function create_5d_graph(fived_data) {
+            let list_of_labels = [];
+            let list_of_prices = [];
+            for (let label in fived_data){
+                list_of_labels.push(label);
+                list_of_prices.push(fived_data[label]);
+            }
+            console.log(list_of_labels);
+            console.log(list_of_prices);
+
+
+            // All Linechart - 5d
+            const chartLine = new Chart(chartElement("#lineStockChart_5d"), {
+                type: 'line',
+                data: lineChartData(
+                    list_of_labels,
+                    [{
+                        label: '5 Days',
+                        backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                        borderColor: 'transparent',
+                        borderWidth: 0,
+                        pointRadius: 3,
+                        pointHoverRadius: 3,
+                        pointHitRadius: 100,
+                        pointBackgroundColor: 'transparent',
+                        pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                        data: list_of_prices,
+                    }, ],
+                ),
+                options: lineChartOptions
+            });
+
         }
         </script>
         <script>
@@ -455,108 +555,9 @@
 
         window.onload = function() {
 
-            // All Linechart
-            var chartLine = new Chart(chartElement("#lineStockChart"), {
-                type: 'line',
-                data: lineChartData(
-                    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                    [{
-                            label: 'Chart 1',
-                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                            borderColor: 'transparent',
-                            borderWidth: 0,
-                            pointRadius: 3,
-                            pointHoverRadius: 3,
-                            pointHitRadius: 100,
-                            pointBackgroundColor: 'transparent',
-                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                            data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
-                        },
-                        {
-                            label: 'Chart 2',
-                            backgroundColor: 'rgba(171, 184, 255, 0.8)',
-                            borderColor: 'transparent',
-                            borderWidth: 0,
-                            pointRadius: 3,
-                            pointHoverRadius: 3,
-                            pointHitRadius: 100,
-                            pointBackgroundColor: 'transparent',
-                            pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
-                            data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
-                        }
-                    ],
-                ),
-                options: lineChartOptions
-            });
 
 
-            // All Linechart - 1m
-            var chartLine = new Chart(chartElement("#lineStockChart_1m"), {
-                type: 'line',
-                data: lineChartData(
-                    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                    [{
-                            label: 'Chart 1',
-                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                            borderColor: 'transparent',
-                            borderWidth: 0,
-                            pointRadius: 3,
-                            pointHoverRadius: 3,
-                            pointHitRadius: 100,
-                            pointBackgroundColor: 'transparent',
-                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                            data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
-                        },
-                        {
-                            label: 'Chart 2',
-                            backgroundColor: 'rgba(171, 184, 255, 0.8)',
-                            borderColor: 'transparent',
-                            borderWidth: 0,
-                            pointRadius: 3,
-                            pointHoverRadius: 3,
-                            pointHitRadius: 100,
-                            pointBackgroundColor: 'transparent',
-                            pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
-                            data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
-                        }
-                    ],
-                ),
-                options: lineChartOptions
-            });
-
-            // All Linechart - 3m
-            var chartLine = new Chart(chartElement("#lineStockChart_3m"), {
-                type: 'line',
-                data: lineChartData(
-                    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                    [{
-                            label: 'Chart 1',
-                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                            borderColor: 'transparent',
-                            borderWidth: 0,
-                            pointRadius: 3,
-                            pointHoverRadius: 3,
-                            pointHitRadius: 100,
-                            pointBackgroundColor: 'transparent',
-                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                            data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
-                        },
-                        {
-                            label: 'Chart 2',
-                            backgroundColor: 'rgba(171, 184, 255, 0.8)',
-                            borderColor: 'transparent',
-                            borderWidth: 0,
-                            pointRadius: 3,
-                            pointHoverRadius: 3,
-                            pointHitRadius: 100,
-                            pointBackgroundColor: 'transparent',
-                            pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
-                            data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
-                        }
-                    ],
-                ),
-                options: lineChartOptions
-            });
+            
 
             // All Linechart - 6m
             var chartLine = new Chart(chartElement("#lineStockChart_6m"), {
@@ -765,4 +766,5 @@
         }
         </script>
 </body>
+
 </html>

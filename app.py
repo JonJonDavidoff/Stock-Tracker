@@ -155,8 +155,11 @@ def add_transaction(json, methods=['GET', 'POST']):
 def stock_page_on_load():
     is_user_holding_stock = DbApi.stock_exists(user_id=DbApi.get_user_id_by_email(session['Email']),
                                                ticker=session['ticker'])
-    stock_json = Stock.Stock(ticker=session['ticker']).convert_main_stock_data_to_json()
+    stock = Stock.Stock(ticker=session['ticker'])
+    stock_json = stock.convert_main_stock_data_to_json()
     stock_json['is_user_holding_stock'] = is_user_holding_stock
+    stock_json['graph_1d'] = stock.get_one_day_historical_data()
+    stock_json['graph_5d'] = stock.get_five_day_historical_data()
     socketio.emit('page_load_response', json.dumps(stock_json))
 
 

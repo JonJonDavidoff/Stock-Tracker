@@ -49,11 +49,6 @@ class Stock:
             self._daily_high = api['quote']['high']
             self._daily_range = '-'
             self._ytd_change = api['quote']['ytdChange']
-            # get stock stats that do not appear on both api calls
-            # api_request = requests.get(
-            #     "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/stats?token=" + api_key)
-            # self.check_response_code(api_request)
-            # api = json.loads(api_request.content)
             self._beta = api['stats']['beta']
             self._pe_ratio = api['stats']['peRatio']
             self._eps = api['stats']['ttmEPS']
@@ -70,16 +65,7 @@ class Stock:
                 self._stock_holdings = self._amount_of_stocks * self._price  # current stock holding
                 self._total_change_money = (self._price * self._amount_of_stocks) - (
                         self._cost * self._amount_of_stocks)
-            #     Get Logo
-            # api_request = requests.get(
-            #     "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/logo?token=" + api_key)
-            # self.check_response_code(api_request)
-            # self._logo = json.loads(api_request.content)['url']
             self._logo = api['logo']['url']
-            # api_request = requests.get(
-            #     "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/company?token=" + api_key)
-            # self.check_response_code(api_request)
-            # api = json.loads(api_request.content)
             self._company_description = api['company']['description']
             self._sector = api['company']['sector']
 
@@ -211,7 +197,6 @@ class Stock:
             close_price = api['quote']['latestPrice']
         return close_price
 
-
     def convert_main_stock_data_to_json(self):
         json_dict = {'ticker': self._ticker,
                      'company_name': self._company_name,
@@ -249,11 +234,37 @@ class Stock:
         json_dict['purchase_date'] = str(self._purchase_date)
         return json_dict
 
-    def get_historcal_data(self, time_range):
+    def get_one_day_historical_data(self):
+        return self.get_historical_data(time_range='1d')
+
+    def get_five_day_historical_data(self):
+        return self.get_historical_data(time_range='5dm')
+
+    def get_one_month_historical_data(self):
+        return self.get_historical_data(time_range='1m')
+
+    def get_three_month_historical_data(self):
+        return self.get_historical_data(time_range='3m')
+
+    def get_six_month_historical_data(self):
+        return self.get_historical_data(time_range='6m')
+
+    def get_ytd_historical_data(self):
+        return self.get_historical_data(time_range='ytd')
+
+    def get_1y_historical_data(self):
+        return self.get_historical_data(time_range='1y')
+
+    def get_5y_historical_data(self):
+        return self.get_historical_data(time_range='5y')
+
+    def get_max_historical_data(self):
+        return self.get_historical_data(time_range='max')
+
+    def get_historical_data(self, time_range, intervel=0):
 
         api_request = requests.get(
-            "https://sandbox.iexapis.com/stable/stock/" + self._ticker + "/chart/" + time_range + "?chartInterval=" + str(
-                get_chart_interval(time_range)) + "&token=" + 'Tsk_8d5db594bcc747f78b1d42e2d8593069')
+            "https://sandbox.iexapis.com/stable/stock/" + self._ticker + "/chart/" + time_range + "?token=" + 'Tsk_8d5db594bcc747f78b1d42e2d8593069')
         api = json.loads(api_request.content)
         stock_data_dict = {}
         if time_range == '1d':
@@ -261,7 +272,10 @@ class Stock:
         else:
             indicator = 'close'
         for d in api:
-            stock_data_dict[d['label']] = d[indicator]
+            try:
+                stock_data_dict[d['label']] = d[indicator]
+            except:
+                continue
         return stock_data_dict
 
 
@@ -297,58 +311,32 @@ def get_sector_diversity(list_of_stocks):
     return sector_dict
 
 
-def get_chart_interval(time_range):
-    intervel = '5'
-    if time_range == '5d':
-        intervel = '60'
-    elif time_range == '1m':
-        intervel = '2d'
-    elif time_range == '3m':
-        intervel = '5d'
-    elif time_range == '6m':
-        intervel = '2w'
-    elif time_range == 'ytd':
-        intervel = '1w'
-    elif time_range == '1y':
-        intervel = '1m'
-    elif time_range == '5y':
-        intervel = '3m'
-    elif time_range == 'max':
-        intervel = '6m'
-    else:
-        intervel = '5'
-    return intervel
-
-
 def get_list_of_historcal_data(list_of_stocks, time_range):
     list_of_stock_dicts = []
     return_dict = {}
     for stock in list_of_stocks:
-        list_of_stock_dicts.append(stock.get_historcal_data(time_range))
-
-    for stock in list_of_stocks:
-        for d in list_of_stock_dicts:
-            for key in d:
-                if stock.get_amount_of_stocks() != 0:
-                    if str(key) in return_dict:
-                        return_dict[str(key)] = return_dict[str(key)] + (
-                                d[str(key)] * float(stock.get_amount_of_stocks()))
-                    else:
-                        return_dict[str(key)] = (d[str(key)] * float(stock.get_amount_of_stocks()))
+        list_of_stock_dicts.append(stock.get_historical_data(time_range))
+    index = 0
+    for d in list_of_stock_dicts:
+        stock = list_of_stocks[index]
+        for key in d:
+            if stock.get_amount_of_stocks() != 0:
+                if str(key) in return_dict:
+                    return_dict[str(key)] = return_dict[str(key)] + (
+                            d[str(key)] * float(stock.get_amount_of_stocks()))
+                else:
+                    return_dict[str(key)] = (d[str(key)] * float(stock.get_amount_of_stocks()))
+        print("stock is" + stock.get_ticker() + ", d:  " + str(return_dict))
+        index = index + 1
 
     return return_dict
 
 
 def main():
     a = Stock(ticker='INTC', amount_of_stocks=1)
-    print(a)
-    # cvs = Stock(ticker='CVS', amount_of_stocks=2)
-    # print(get_list_of_historcal_data([a, cvs], time_range='5d'))
-    # api_request = requests.get(
-    #     "https://cloud.iexapis.com/stable/stock/" + 'AMZN'+ "/batch/?types=quote,stats,logo,company&token=" + api_key)
-    # api = json.loads(api_request.content)
-    # print(api)
-    # print(api['stats']['week52change'])
+    b = Stock('AMZN', amount_of_stocks=1)
+
+
 
 
 if __name__ == '__main__':
