@@ -2,8 +2,8 @@ import requests
 import json
 import Market
 import stock_api_exceptions
-import matplotlib.pyplot as plt
-import random
+from datetime import datetime, timedelta
+import dateutil.parser
 
 api_key = "pk_e4cd3161272b47369625df7d517b8714"
 
@@ -235,22 +235,22 @@ class Stock:
         return json_dict
 
     def get_one_day_historical_data(self):
-        return self.get_historical_data(time_range='1d')
+        return self.get_historical_data(time_range='1d', intervel=self.get_intervel('1d'))
 
     def get_five_day_historical_data(self):
-        return self.get_historical_data(time_range='5dm')
+        return self.get_historical_data(time_range='5dm', intervel=self.get_intervel('5dm'))
 
     def get_one_month_historical_data(self):
-        return self.get_historical_data(time_range='1m')
+        return self.get_historical_data(time_range='1m', intervel=self.get_intervel('1m'))
 
     def get_three_month_historical_data(self):
-        return self.get_historical_data(time_range='3m')
+        return self.get_historical_data(time_range='3m', intervel=self.get_intervel('3m'))
 
     def get_six_month_historical_data(self):
-        return self.get_historical_data(time_range='6m')
+        return self.get_historical_data(time_range='6m',intervel=self.get_intervel('6m'))
 
     def get_ytd_historical_data(self):
-        return self.get_historical_data(time_range='ytd')
+        return self.get_historical_data(time_range='ytd', intervel=self.get_intervel('ytd'))
 
     def get_1y_historical_data(self):
         return self.get_historical_data(time_range='1y')
@@ -261,21 +261,53 @@ class Stock:
     def get_max_historical_data(self):
         return self.get_historical_data(time_range='max')
 
-    def get_historical_data(self, time_range, intervel=0):
+    def get_intervel(self, time_range):
+        if time_range == '1d':
+            return 5
+        elif time_range == '5dm':
+            return 2
+        elif time_range == '1m':
+            return 1
+        elif time_range == '3m':
+            return 2
+        elif time_range == '6m':
+            return 3
+        elif time_range == 'ytd':
+            return 1
+        else:
+            return 7
+
+    def get_historical_data(self, time_range, intervel=2):
 
         api_request = requests.get(
-            "https://sandbox.iexapis.com/stable/stock/" + self._ticker + "/chart/" + time_range + "?token=" + 'Tsk_8d5db594bcc747f78b1d42e2d8593069')
+            "https://sandbox.iexapis.com/stable/stock/" + self._ticker + "/chart/" + time_range + "?includeToday=true&chartInterval=" + str(
+                intervel) + "&token=" + 'Tsk_8d5db594bcc747f78b1d42e2d8593069')
         api = json.loads(api_request.content)
         stock_data_dict = {}
-        if time_range == '1d':
+        if time_range == '1d' or '5dm':
             indicator = 'average'
         else:
             indicator = 'close'
-        for d in api:
-            try:
-                stock_data_dict[d['label']] = d[indicator]
-            except:
-                continue
+        if time_range != '5dm':
+            indicator = 'close'
+            for d in api:
+                if d[indicator]:
+                    stock_data_dict[d['label']] = d[indicator]
+        else:
+            dt = datetime.date(dateutil.parser.parse(api[0]['date']))
+            days_ago = 1
+            for d in api:
+                try:
+                    label = d['label']
+                    stock_data_dict[label] = d[indicator]
+                    if label == '09:30':
+                        days_ago += 1
+                        dt = datetime.now() + timedelta(days=days_ago)
+                    new_label = dt.strftime('%a') + ', ' + label
+                    stock_data_dict[new_label] = stock_data_dict.pop(label)
+                except:
+                    continue
+
         return stock_data_dict
 
 
@@ -335,8 +367,7 @@ def get_list_of_historcal_data(list_of_stocks, time_range):
 def main():
     a = Stock(ticker='INTC', amount_of_stocks=1)
     b = Stock('AMZN', amount_of_stocks=1)
-
-
+    print(b.get_one_month_historical_data())
 
 
 if __name__ == '__main__':

@@ -160,6 +160,10 @@ def stock_page_on_load():
     stock_json['is_user_holding_stock'] = is_user_holding_stock
     stock_json['graph_1d'] = stock.get_one_day_historical_data()
     stock_json['graph_5d'] = stock.get_five_day_historical_data()
+    stock_json['graph_1m'] = stock.get_one_month_historical_data()
+    stock_json['graph_3m'] = stock.get_three_month_historical_data()
+    stock_json['graph_6m'] = stock.get_six_month_historical_data()
+    stock_json['graph_ytd'] = stock.get_ytd_historical_data()
     socketio.emit('page_load_response', json.dumps(stock_json))
 
 
