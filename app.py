@@ -2,6 +2,7 @@
 """
 hello_flask: First Python-Flask webapp
 """
+
 from flask import Flask, render_template, request, url_for, redirect, \
     session  # Need render_template() to render HTML pages
 import bridging_users_db
@@ -9,6 +10,9 @@ import Stock
 import DbApi
 from flask_socketio import SocketIO
 import json
+from threading import Thread, Lock
+from time import sleep
+
 
 app = Flask(__name__, static_url_path='/static')  # Construct an instance of Flask class for our webapp
 app.config['SECRET_KEY'] = 'SECRET'
@@ -81,10 +85,7 @@ def login_form():
         form_data_dict = dict(request.form)
         print(str(form_data_dict))
         if bridging_users_db.excecute_login(form_data_dict):
-            stock_table = bridging_users_db.get_stocks_data_by_email(email=form_data_dict['Email'])
             session['Email'] = form_data_dict['Email']
-            for stock in stock_table:
-                print(stock.convert_main_stock_data_to_json())
             # TODO Transfer data
             return redirect(url_for('stock_dashboard'))
         else:
@@ -125,7 +126,12 @@ def handle_an_event(json_data, methods=['GET', 'POST']):
     for stock in stock_table:
         list_of_stocks_json.append(stock.convert_main_stock_data_to_json())
     print(list_of_stocks_json)
-    socketio.emit('dashboard_load_response', json.dumps((json.dumps(list_of_stocks_json), json.dumps(stock_diversity_list))))
+    socketio.emit('dashboard_load_response',
+                  json.dumps((json.dumps(list_of_stocks_json), json.dumps(stock_diversity_list))))
+    # Update live data
+    stock_dashboard_thread = Thread(target=update_data, args=(stock_table,))
+    sleep(120)
+    stock_dashboard_thread.start()
 
 
 @socketio.on('add_transaction')
@@ -164,6 +170,9 @@ def stock_page_on_load():
     stock_json['graph_3m'] = stock.get_three_month_historical_data()
     stock_json['graph_6m'] = stock.get_six_month_historical_data()
     stock_json['graph_ytd'] = stock.get_ytd_historical_data()
+    stock_json['graph_1y'] = stock.get_1y_historical_data()
+    stock_json['graph_5y'] = stock.get_5y_historical_data()
+    stock_json['graph_max'] = stock.get_max_historical_data()
     socketio.emit('page_load_response', json.dumps(stock_json))
 
 
@@ -175,6 +184,24 @@ def add_stock(json, methods=['GET', 'POST']):
 @socketio.on('removeStock')
 def remove_stock(json, methods=['GET', 'POST']):
     DbApi.remove_stock_by_user_id(ticker=str(session['ticker']), user_id=DbApi.get_user_id_by_email(session['Email']))
+
+
+lock = Lock()
+
+
+def update_data(list_of_stocks):
+    json_list_of_stocks = []
+    while True:
+        sleep(10)
+        lock.acquire()
+        json_list_of_stocks.clear()
+        for stock in list_of_stocks:
+            stock.update_stock()
+            json_list_of_stocks.append(stock.convert_main_stock_data_to_json())
+        socketio.emit('update_data', json.dumps(json_list_of_stocks))
+        lock.release()
+
+
 
 
 if __name__ == '__main__':  # Script executed directly?

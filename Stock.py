@@ -4,10 +4,12 @@ import Market
 import stock_api_exceptions
 from datetime import datetime, timedelta
 import dateutil.parser
+import Logger
 
-api_key = "pk_e4cd3161272b47369625df7d517b8714"
+api_key = "Tsk_8d5db594bcc747f78b1d42e2d8593069"
 
 market = Market.Market()
+api_url = "https://sandbox.iexapis.com/"
 
 
 class Stock:
@@ -19,11 +21,12 @@ class Stock:
             self._purchase_date = '-'
         else:
             self._purchase_date = str(purchase_date)
-        # TODO Handle Exception
-        try:
+            # TODO Handle Exception
+
             api_request = requests.get(
-                "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/batch/?types=quote,stats,logo,company&token=" + api_key)
+                api_url + "stable/stock/" + self._ticker + "/batch/?types=quote,stats,logo,company&token=" + api_key)
             api = json.loads(api_request.content)
+            print(api)
             self._company_name = api['quote']['companyName']
             self._price = api['quote']['latestPrice']
             self._open_price = api['quote']['open']
@@ -68,13 +71,6 @@ class Stock:
             self._logo = api['logo']['url']
             self._company_description = api['company']['description']
             self._sector = api['company']['sector']
-
-        except stock_api_exceptions.UnknownSymbolException as e:
-            print(str(e))
-        except stock_api_exceptions.ServerErrorException as e:
-            print(str(e))
-        except Exception as e:
-            print(str(e))
 
     def check_response_code(self, response):
         response_code = int(str(response)[11:14])
@@ -234,6 +230,55 @@ class Stock:
         json_dict['purchase_date'] = str(self._purchase_date)
         return json_dict
 
+    def update_stock(self):
+        api_request = requests.get(
+            "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/batch/?types=quote,stats,logo,company&token=" + api_key)
+        api = json.loads(api_request.content)
+        self._company_name = api['quote']['companyName']
+        self._price = api['quote']['latestPrice']
+        self._open_price = api['quote']['open']
+        # if data is None set -
+        if not self._open_price:
+            self._open_price = '-'
+        self._close_price = self.get_updated_close_price(api)
+        self._market_cap = get_market_cap(api['quote']['marketCap'])
+        self._bid_price = api['quote']['iexBidPrice']
+        self._bid_size = api['quote']['iexBidSize']
+        self._ask_price = api['quote']['iexAskPrice']
+        self._ask_size = api['quote']['iexAskSize']
+        self._week_52_range = str(api['quote']['week52Low']) + " - " + str(api['quote']['week52High'])
+        self._avg_total_volume = api['quote']['avgTotalVolume']
+        self._volume = api['quote']['latestVolume']
+        if not self._avg_total_volume:
+            self._avg_total_volume = '-'
+        if not self._volume:
+            self._volume = '-'
+        self._daily_change = api['quote']['changePercent']
+        self._daily_change_money = api['quote']['change']
+        self._daily_low = api['quote']['low']
+        self._daily_high = api['quote']['high']
+        self._daily_range = '-'
+        self._ytd_change = api['quote']['ytdChange']
+        self._beta = api['stats']['beta']
+        self._pe_ratio = api['stats']['peRatio']
+        self._eps = api['stats']['ttmEPS']
+        self._next_earnings_date = api['stats']['nextEarningsDate']
+        self._dividend_yield = api['stats']['dividendYield']
+        self._ex_dividend_date = api['stats']['exDividendDate']
+        self.check_if_not_none()
+        if self._cost == '-' or self._amount_of_stocks == -1:  # if stock not purchased
+            self._amount_of_stocks = self._amount_of_stocks
+            self._cost = '-'
+            self._stock_holdings = '-'
+            self._total_change_money = '-'
+        else:
+            self._stock_holdings = self._amount_of_stocks * self._price  # current stock holding
+            self._total_change_money = (self._price * self._amount_of_stocks) - (
+                    self._cost * self._amount_of_stocks)
+        self._logo = api['logo']['url']
+        self._company_description = api['company']['description']
+        self._sector = api['company']['sector']
+
     def get_one_day_historical_data(self):
         return self.get_historical_data(time_range='1d', intervel=self.get_intervel('1d'))
 
@@ -247,19 +292,19 @@ class Stock:
         return self.get_historical_data(time_range='3m', intervel=self.get_intervel('3m'))
 
     def get_six_month_historical_data(self):
-        return self.get_historical_data(time_range='6m',intervel=self.get_intervel('6m'))
+        return self.get_historical_data(time_range='6m', intervel=self.get_intervel('6m'))
 
     def get_ytd_historical_data(self):
         return self.get_historical_data(time_range='ytd', intervel=self.get_intervel('ytd'))
 
     def get_1y_historical_data(self):
-        return self.get_historical_data(time_range='1y')
+        return self.get_historical_data(time_range='1y', intervel=self.get_intervel('1y'))
 
     def get_5y_historical_data(self):
-        return self.get_historical_data(time_range='5y')
+        return self.get_historical_data(time_range='5y', intervel=self.get_intervel('5y'))
 
     def get_max_historical_data(self):
-        return self.get_historical_data(time_range='max')
+        return self.get_historical_data(time_range='max', intervel=self.get_intervel('max'))
 
     def get_intervel(self, time_range):
         if time_range == '1d':
@@ -274,13 +319,16 @@ class Stock:
             return 3
         elif time_range == 'ytd':
             return 1
-        else:
+        elif time_range == '1y':
+            return 4
+        elif time_range == '5y':
             return 7
+        else:
+            return 14
 
     def get_historical_data(self, time_range, intervel=2):
-
         api_request = requests.get(
-            "https://sandbox.iexapis.com/stable/stock/" + self._ticker + "/chart/" + time_range + "?includeToday=true&chartInterval=" + str(
+            api_url + "/stable/stock/" + self._ticker + "/chart/" + time_range + "?includeToday=true&chartInterval=" + str(
                 intervel) + "&token=" + 'Tsk_8d5db594bcc747f78b1d42e2d8593069')
         api = json.loads(api_request.content)
         stock_data_dict = {}
@@ -290,15 +338,18 @@ class Stock:
             indicator = 'close'
         if time_range != '5dm':
             indicator = 'close'
-            for d in api:
-                if d[indicator]:
-                    stock_data_dict[d['label']] = d[indicator]
+        print(api)
+        for d in api:
+            if 'label' in d.keys():
+                stock_data_dict[d['label']] = d[indicator]
+
+
         else:
             dt = datetime.date(dateutil.parser.parse(api[0]['date']))
             days_ago = 1
             for d in api:
                 try:
-                    label = d['label']
+                    label = d[0]
                     stock_data_dict[label] = d[indicator]
                     if label == '09:30':
                         days_ago += 1
@@ -332,15 +383,18 @@ def get_market_cap(x):
 
 
 def get_sector_diversity(list_of_stocks):
-    sector_dict = {}
-    for stock in list_of_stocks:
-        sector_name = stock._sector.replace(' ', '_')
-        if not sector_name in sector_dict:
-            sector_dict[sector_name] = 1
-        else:
-            sector_dict[sector_name] = sector_dict[sector_name] + 1
+    try:
+        sector_dict = {}
+        for stock in list_of_stocks:
+            sector_name = stock._sector.replace(' ', '_')
+            if not sector_name in sector_dict:
+                sector_dict[sector_name] = 1
+            else:
+                sector_dict[sector_name] = sector_dict[sector_name] + 1
+        return sector_dict
 
-    return sector_dict
+    except Exception as e:
+        Logger.Log.get_log().log(file_name='Stock.py', function_name='get_sector_diversity', exception=str(e))
 
 
 def get_list_of_historcal_data(list_of_stocks, time_range):
@@ -364,10 +418,16 @@ def get_list_of_historcal_data(list_of_stocks, time_range):
     return return_dict
 
 
+def test_logger():
+    try:
+        raise Exception
+    except Exception as e:
+        Logger.Log.get_log().log(file_name='Stock.py', function_name='test_logger', exception=str(e))
+
+
 def main():
-    a = Stock(ticker='INTC', amount_of_stocks=1)
-    b = Stock('AMZN', amount_of_stocks=1)
-    print(b.get_one_month_historical_data())
+    for i in range(10):
+        test_logger()
 
 
 if __name__ == '__main__':
