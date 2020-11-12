@@ -418,16 +418,7 @@ def get_list_of_historcal_data(list_of_stocks, time_range):
     return return_dict
 
 
-def test_logger():
-    try:
-        raise Exception
-    except Exception as e:
-        Logger.Log.get_log().log(file_name='Stock.py', function_name='test_logger', exception=str(e))
 
-
-def main():
-    for i in range(10):
-        test_logger()
 
 
 if __name__ == '__main__':
