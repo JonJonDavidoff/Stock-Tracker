@@ -426,7 +426,7 @@
                     console.log(json.daily_change);
                     $('.' + json.ticker + '_price').text(json.price);
                     $('.' + json.ticker + '_holdings').text(json.stock_holdings);  
-                    $('.' + json.ticker + '_daily_change').text(json.daily_change); // not working
+                    $('.' + json.ticker + '_daily_change').text(json.daily_change+'%');
                     $('.' + json.ticker + '_daily_change_money').text(json.daily_change_money);
                 }
 
@@ -461,7 +461,7 @@
                         json.cost + "</td><td class="+stock_holdings_class+">" + json.stock_holdings + "</td>";
                     if (json.daily_change == '-') {
                         console.log('in if');
-                        row = row + "<td class='table_br'><span class="+daily_change_class_search+">" + json.daily_change + "</span><br>";
+                        row = row + "<td class='table_br'><span class="+daily_change_class_search+">" + json.daily_change + "%</span><br>";
                     } else {
                         row = row + "<td class='table_br'><span class='"+daily_change_class_search+" " +table_classes['daily_change_class'] +"'>" + json.daily_change + "%</span><br>";
                         //  + "" 

@@ -1,7 +1,7 @@
 import pyodbc
 import User
 import Stock
-
+import Logger
 
 def execute_query(sql):
     try:
@@ -10,7 +10,7 @@ def execute_query(sql):
         conn_and_cursor[0].commit()
         close_conn(conn_and_cursor[1])
     except Exception as e:
-        print("Error" + str(e))
+        Logger.Log.get_log().log(file_name='Stock.py', exception=str(e), function_name='update_stock')
 
 
 def add_user(first_name, last_name, email, password):
@@ -433,7 +433,7 @@ def stock_exists(user_id, ticker):
 
 
 def main():
-    pass
+   pass
 
 
 if __name__ == '__main__':
