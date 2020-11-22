@@ -325,7 +325,7 @@
                     json = JSON.parse(json);
                     sectors = JSON.parse(json[1]);
                     json = JSON.parse(json[0]);
-                    if(json.amount_of_stocks == 0){
+                    if (json.amount_of_stocks == 0) {
                         json.amount_of_stocks = '-';
                     }
                     for (let i = 0; i < json.length; ++i) {
@@ -369,9 +369,9 @@
                     location.reload();
                 });
 
-                socket.on('update_data', function(json){
+                socket.on('update_data', function(json) {
                     json = JSON.parse(json);
-                     for (let i = 0; i < json.length; ++i) {
+                    for (let i = 0; i < json.length; ++i) {
                         update_table_row(json[i]);
 
                     }
@@ -421,13 +421,47 @@
                     json.daily_change = Number(json.daily_change);
                     return json;
                 }
+                function getOpositeColor(color){
+                 if (color == "red") {
+                    return "green";
+                 } else {
+                    return "red";
+                 }
+                }
 
-                function update_table_row(json){
-                    console.log(json.daily_change);
+                function addClassToElement(element, classToCheck) {
+                    if (classToCheck != "") {
+                        if(!element.hasClass(classToCheck)){
+                            const OpositeColor = getOpositeColor(classToCheck);
+                            if (element.hasClass(OpositeColor)) {
+                                element.removeClass(OpositeColor);
+                                element.addClass(classToCheck);
+                            }else{
+                                element.addClass(classToCheck);
+                            }
+                        }
+                    } else {
+                        if (element.hasClass("red")) {
+                            element.removeClass('red');
+                        } else {
+                            element.removeClass('green');
+                        }
+                    }
+                }
+
+
+                function update_table_row(json) {
+                    classes = get_table_classes(json);
                     $('.' + json.ticker + '_price').text(json.price);
-                    $('.' + json.ticker + '_holdings').text(json.stock_holdings);  
-                    $('.' + json.ticker + '_daily_change').text(json.daily_change+'%');
+                    $('.' + json.ticker + '_holdings').text(json.stock_holdings);
+                    const daily_change = $('.' + json.ticker + '_daily_change');
+                    addClassToElement(daily_change, classes['daily_change_class']);
+                    daily_change.text(json.daily_change + '%');
                     $('.' + json.ticker + '_daily_change_money').text(json.daily_change_money);
+                    const total_change =  $('.' + json.ticker + '_total_change');
+                    total_change.text(json.total_change + '%')
+
+
                 }
 
                 function round_up_number_to_2_digits(num) {
@@ -445,38 +479,35 @@
                 }
 
                 function add_row_append(json, table_classes, currentDate) {
-                    const price_class = json.ticker+'_price';
-                    const stock_holdings_class = json.ticker +'_holdings';
+                    const price_class = json.ticker + '_price';
+                    const stock_holdings_class = json.ticker + '_holdings';
                     const daily_change_class_search = json.ticker + '_daily_change';
-                    const daily_change_money_class = json.ticker + '_daily_change_money'
+                    const daily_change_money_class = json.ticker + '_daily_change_money';
+                    const total_change_class_search = json.ticker + '_total_change';
 
-
-                    row = "<tr class='" + json.ticker + "'><td class='table_br'><span class='blue'><a href='http://127.0.0.1:5000/stocks? ticker=" + json.ticker + "'>" + json.ticker + "</a></span><br><span class="+price_class+">" + json.price + "</span></td><td class='table_br'>";
+                    row = "<tr class='" + json.ticker + "'><td class='table_br'><span class='blue'><a href='http://127.0.0.1:5000/stocks? ticker=" + json.ticker + "'>" + json.ticker + "</a></span><br><span class=" + price_class + ">" + json.price + "</span></td><td class='table_br'>";
                     if (json.total_change == '-') {
                         row = row + "<span class=>" + json.total_change + "</span><br>";
                     } else {
                         row = row + "<span class=" + table_classes.total_change_class + ">" + json.total_change + "%</span><br>";
                     }
-                    row = row + "<span class="+price_class+">" + json.price + "</span></td><td>" + json.amount_of_stocks + "</td><td>" +
-                        json.cost + "</td><td class="+stock_holdings_class+">" + json.stock_holdings + "</td>";
+                    row = row + "<span class=" + price_class + ">" + json.price + "</span></td><td>" + json.amount_of_stocks + "</td><td>" +
+                        json.cost + "</td><td class=" + stock_holdings_class + ">" + json.stock_holdings + "</td>";
                     if (json.daily_change == '-') {
                         console.log('in if');
-                        row = row + "<td class='table_br'><span class="+daily_change_class_search+">" + json.daily_change + "%</span><br>";
+                        row = row + "<td class='table_br'><span class=" + daily_change_class_search + ">" + json.daily_change + "%</span><br>";
                     } else {
-                        row = row + "<td class='table_br'><span class='"+daily_change_class_search+" " +table_classes['daily_change_class'] +"'>" + json.daily_change + "%</span><br>";
-                        //  + "" 
-                       
+                        row = row + "<td class='table_br'><span class='" + daily_change_class_search + " " + table_classes['daily_change_class'] + "'>" + json.daily_change + "%</span><br>";
+
                     }
-                    row = row + "<span class="+daily_change_money_class+">" + json.daily_change_money + "</span></td><td class='table_br'>";
+                    row = row + "<span class=" + daily_change_money_class + ">" + json.daily_change_money + "</span></td><td class='table_br'>";
                     if (json.total_change == '-') {
                         row = row + "<span>" + json.total_change + "</span><br>";
                     } else {
-                        row = row + "<span class='" + table_classes.total_change_class + "'>" + json.total_change + "%</span><br>";
+                        row = row + "<span class='" + table_classes.total_change_class + " " + total_change_class_search +"'>" + json.total_change + "%</span><br>";
                     }
-                    row = row + "<span>" + json.total_change_money + "</span></td><td class='table_br'>";
+                    row = row + "<span class=''>" + json.total_change_money + "</span></td><td class='table_br'>";
                     row = row + " <span>" + currentDate + "</span></td></tr>";
-
-                    console.log(json.daily_change);
                     $('tbody.stock_table_body').append(row);
                     // console.log($('.' + daily_change_class_search));
                 }

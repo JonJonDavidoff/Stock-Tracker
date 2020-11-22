@@ -34,22 +34,20 @@ def round_number(n, decimals=2):
 
 class Stock:
     def __init__(self, ticker, amount_of_stocks=0, cost=-1, purchase_date="False"):
-        # try:
-        self._amount_of_stocks = int(amount_of_stocks)
-        self._ticker = str(ticker)
-        self._cost = int(cost)
-        if purchase_date == 'False':
-            self._purchase_date = '-'
-        else:
-            self._purchase_date = str(purchase_date)
+        try:
+            self._amount_of_stocks = int(amount_of_stocks)
+            self._ticker = str(ticker)
+            self._cost = int(cost)
+            if purchase_date == 'False':
+                self._purchase_date = '-'
+            else:
+                self._purchase_date = str(purchase_date)
             # TODO Handle Exception
-
             api_request = requests.get(
                 api_url + "stable/stock/" + self._ticker + "/batch/?types=quote,stats,logo,company&token=" + api_key)
             api = json.loads(api_request.content)
             print(api)
-            company = api['quote']['companyName']
-            self._company_name = company
+            self._company_name = api['quote']['companyName']
             self._price = round_number(api['quote']['latestPrice'])
             self._open_price = round_number(api['quote']['open'])
             # if data is None set -
@@ -93,10 +91,9 @@ class Stock:
             self._logo = api['logo']['url']
             self._company_description = api['company']['description']
             self._sector = api['company']['sector']
-
-    # except Exception as e:
-    #     print(sys.exc_info())
-    #     Logger.Log.get_log().log(file_name='Stock.py', exception=str(e), function_name='__init__')
+        except Exception as e:
+            print(sys.exc_info())
+            Logger.Log.get_log().log(file_name='Stock.py', exception=str(e), function_name='__init__')
 
     def check_response_code(self, response):
         response_code = int(str(response)[11:14])
@@ -169,10 +166,15 @@ class Stock:
         orignal_holdings = self.get_orignal_holdings()
         if self._stock_holdings == '-' or orignal_holdings == '-':
             return '-'
-        return self.calculate_percentage_change(current=self._stock_holdings, previous=orignal_holdings)
+        return round_number(self.calculate_percentage_change(current=self._stock_holdings, previous=orignal_holdings))
 
+    @property
     def get_company_name(self):
-        return self._company_name
+        try:
+            return self._company_name
+        except Exception as e:
+            print(sys.exc_info())
+            Logger.Log.get_log().log(file_name='Stock.py', exception=str(e), function_name='get_company_name')
 
     def __str__(self):
         return "Stock[ticker=" + self._ticker + ", amount_of_stocks= " + str(self._amount_of_stocks) + ", cost= " + str(
@@ -221,7 +223,7 @@ class Stock:
 
     def convert_main_stock_data_to_json(self):
         json_dict = {'ticker': self._ticker,
-                     'company_name': self.get_company_name(),
+                     'company_name': self._company_name,
                      'price': self._price,
                      'description': self._company_description,
                      'cost': self._cost,
@@ -250,7 +252,6 @@ class Stock:
                      'logo': self._logo,
                      'sector': self._sector
                      }
-
         if self._purchase_date != False:
             self._purchase_date = self._purchase_date
         json_dict['purchase_date'] = str(self._purchase_date)
@@ -261,7 +262,7 @@ class Stock:
             api_request = requests.get(
                 "https://cloud.iexapis.com/stable/stock/" + self._ticker + "/batch/?types=quote,stats,logo,company&token=" + api_key)
             api = json.loads(api_request.content)
-            self._company_name = self.get_company_name()
+            self._company_name = self.get_company_name
             self._price = round_number(api['quote']['latestPrice'])
             self._open_price = round_number(api['quote']['open'])
             # if data is None set -
@@ -357,43 +358,41 @@ class Stock:
         elif time_range == '5y':
             return 7
         else:
-            return 14
+            return 10
 
     def get_historical_data(self, time_range, intervel=2):
-        try:
-            api_request = requests.get(
-                api_url + "/stable/stock/" + self._ticker + "/chart/" + time_range + "?includeToday=true&chartInterval=" + str(
-                    intervel) + "&token=" + 'Tsk_8d5db594bcc747f78b1d42e2d8593069')
-            api = json.loads(api_request.content)
-            stock_data_dict = {}
-            if time_range == '1d' or '5dm':
-                indicator = 'average'
-            else:
-                indicator = 'close'
-            if time_range != '5dm':
-                indicator = 'close'
-            print(api)
-            for d in api:
-                if 'label' in d.keys():
-                    stock_data_dict[d['label']] = d[indicator]
-            else:
-                dt = datetime.date(dateutil.parser.parse(api[0]['date']))
-                days_ago = 1
-                for d in api:
-                    try:
-                        label = d[0]
-                        stock_data_dict[label] = d[indicator]
-                        if label == '09:30':
-                            days_ago += 1
-                            dt = datetime.now() + timedelta(days=days_ago)
-                        new_label = dt.strftime('%a') + ', ' + label
-                        stock_data_dict[new_label] = stock_data_dict.pop(label)
-                    except:
-                        continue
+        api_request = requests.get(
+            api_url + "/stable/stock/" + self._ticker + "/chart/" + time_range + "?includeToday=true&chartInterval=" + str(
+                intervel) + "&token=" + api_key)
 
-            return stock_data_dict
-        except Exception as e:
-            Logger.Log.get_log().log(file_name='Stock.py', function_name='get_historical_data', exception=str(e))
+        api = json.loads(api_request.content)
+        print(api)
+        stock_data_dict = {}
+        if time_range == '1d' or '5dm':
+            indicator = 'average'
+        else:
+            indicator = 'close'
+        if time_range != '5dm':
+            indicator = 'close'
+        print(api)
+        for d in api:
+            if 'label' in d.keys():
+                stock_data_dict[d['label']] = d[indicator]
+        else:
+            dt = datetime.date(dateutil.parser.parse(api[0]['date']))
+            days_ago = 1
+            for d in api:
+                try:
+                    label = d[0]
+                    stock_data_dict[label] = d[indicator]
+                    if label == '09:30':
+                        days_ago += 1
+                        dt = datetime.now() + timedelta(days=days_ago)
+                    new_label = dt.strftime('%a') + ', ' + label
+                    stock_data_dict[new_label] = stock_data_dict.pop(label)
+                except Exception as e:
+                    continue
+        return stock_data_dict
 
 
 def average(lst):
@@ -432,27 +431,24 @@ def get_sector_diversity(list_of_stocks):
 
 
 def get_list_of_historcal_data(list_of_stocks, time_range):
-    try:
-        list_of_stock_dicts = []
-        return_dict = {}
-        for stock in list_of_stocks:
-            list_of_stock_dicts.append(stock.get_historical_data(time_range))
-        index = 0
-        for d in list_of_stock_dicts:
-            stock = list_of_stocks[index]
-            for key in d:
-                if stock.get_amount_of_stocks() != 0:
-                    if str(key) in return_dict:
-                        return_dict[str(key)] = return_dict[str(key)] + (
-                                d[str(key)] * float(stock.get_amount_of_stocks()))
-                    else:
-                        return_dict[str(key)] = (d[str(key)] * float(stock.get_amount_of_stocks()))
-            print("stock is" + stock.get_ticker() + ", d:  " + str(return_dict))
-            index = index + 1
+    list_of_stock_dicts = []
+    return_dict = {}
+    for stock in list_of_stocks:
+        list_of_stock_dicts.append(stock.get_historical_data(time_range))
+    index = 0
+    for d in list_of_stock_dicts:
+        stock = list_of_stocks[index]
+        for key in d:
+            if stock.get_amount_of_stocks() != 0:
+                if str(key) in return_dict:
+                    return_dict[str(key)] = return_dict[str(key)] + (
+                            d[str(key)] * float(stock.get_amount_of_stocks()))
+                else:
+                    return_dict[str(key)] = (d[str(key)] * float(stock.get_amount_of_stocks()))
+        print("stock is" + stock.get_ticker() + ", d:  " + str(return_dict))
+        index = index + 1
 
-        return return_dict
-    except Exception as e:
-        Logger.Log.get_log().log(file_name='Stock.py', function_name='get_list_of_historcal_data', exception=str(e))
+    return return_dict
 
 
 # def test_logger():
@@ -463,7 +459,7 @@ def get_list_of_historcal_data(list_of_stocks, time_range):
 
 
 def main():
-    pass
+    print(Stock(ticker='AMZN').get_historical_data(time_range='5d'))
 
 
 if __name__ == '__main__':

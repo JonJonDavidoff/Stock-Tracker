@@ -376,7 +376,8 @@
             create_6m_graph(json.graph_6m, json.price);
             create_ytd_graph(json.graph_ytd, json.price);
             create_oney_graph(json.graph_1y, json.price);
-            create_fivey_graph(json.graph_5y, json.price)
+            create_fivey_graph(json.graph_5y, json.price);
+            create_all_graph(json.graph_max, json.price);
         }
 
         function create_1d_graph(oned_data, current_price) {
@@ -384,49 +385,18 @@
             let list_of_labels = [];
             let list_of_prices = [];
             let counter = 0;
+            let tempPrice;
             for (let label in oned_data) {
-                if (counter % 5 == 0) {
-                    list_of_labels.push(label);
-                } else {
-                    list_of_labels.push('');
+                list_of_labels.push(label);
+                tempPrice = oned_data[label];
+                if (tempPrice != undefined) {
+                    list_of_prices.push(round_up_number_to_2_digits(tempPrice));
                 }
-                list_of_prices.push(round_up_number_to_2_digits(oned_data[label]));
                 counter++;
             }
             list_of_labels.push('4:00 PM');
             list_of_prices.push(current_price);
-            var chartLine = new Chart(chartElement("#lineStockChart"), {
-                type: 'line',
-                data: lineChartData(
-                    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                    [{
-                            label: 'Chart 1',
-                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                            borderColor: 'transparent',
-                            borderWidth: 0,
-                            pointRadius: 3,
-                            pointHoverRadius: 3,
-                            pointHitRadius: 100,
-                            pointBackgroundColor: 'transparent',
-                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                            data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
-                        },
-                        {
-                            label: 'Chart 2',
-                            backgroundColor: 'rgba(171, 184, 255, 0.8)',
-                            borderColor: 'transparent',
-                            borderWidth: 0,
-                            pointRadius: 3,
-                            pointHoverRadius: 3,
-                            pointHitRadius: 100,
-                            pointBackgroundColor: 'transparent',
-                            pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
-                            data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
-                        }
-                    ],
-                ),
-                options: lineChartOptions
-            });
+
             // All Linechart - 1d
             var chartLine = new Chart(chartElement("#lineStockChart_1d"), {
                 type: 'line',
@@ -458,11 +428,8 @@
             let list_of_prices = [];
             let counter = 0;
             for (let label in fived_data) {
-                if (counter % 3 == 0) {
-                    list_of_labels.push(label);
-                } else {
-                    list_of_labels.push('');
-                }
+
+                list_of_labels.push(label);
                 list_of_prices.push(round_up_number_to_2_digits(fived_data[label]));
                 counter++;
             }
@@ -498,11 +465,8 @@
             let list_of_prices = [];
             let counter = 0;
             for (let label in onem_data) {
-                if (counter % 2 == 0) {
-                    list_of_labels.push(label);
-                } else {
-                    list_of_labels.push('');
-                }
+                list_of_labels.push(label);
+
                 list_of_prices.push(round_up_number_to_2_digits(onem_data[label]));
                 counter++;
             }
@@ -535,11 +499,9 @@
             let list_of_prices = [];
             let counter = 0;
             for (let label in threem_data) {
-                if (counter % 3 == 0) {
-                    list_of_labels.push(label);
-                } else {
-                    list_of_labels.push('');
-                }
+
+                list_of_labels.push(label);
+
                 list_of_prices.push(round_up_number_to_2_digits(threem_data[label]));
                 counter++;
             }
@@ -573,11 +535,8 @@
             let list_of_prices = [];
             let counter = 0;
             for (let label in sixm_data) {
-                if (counter % 3 == 0) {
-                    list_of_labels.push(label);
-                } else {
-                    list_of_labels.push('');
-                }
+
+                list_of_labels.push(label);
                 list_of_prices.push(round_up_number_to_2_digits(sixm_data[label]));
                 counter++;
             }
@@ -610,11 +569,9 @@
             let list_of_prices = [];
             let counter = 0;
             for (let label in ytd_data) {
-                if (counter % 3 == 0) {
-                    list_of_labels.push(label);
-                } else {
-                    list_of_labels.push('');
-                }
+
+                list_of_labels.push(label);
+
                 list_of_prices.push(round_up_number_to_2_digits(ytd_data[label]));
                 counter++;
             }
@@ -647,11 +604,7 @@
             let list_of_prices = [];
             let counter = 0;
             for (let label in oney_data) {
-                if (counter % 3 == 0) {
-                    list_of_labels.push(label);
-                } else {
-                    list_of_labels.push('');
-                }
+                list_of_labels.push(label);
                 list_of_prices.push(round_up_number_to_2_digits(oney_data[label]));
                 counter++;
             }
@@ -685,13 +638,14 @@
             let list_of_labels = [];
             let list_of_prices = [];
             let counter = 0;
+            let tempPrice;
             for (let label in fivey_data) {
-                if (counter % 5 == 0) {
-                    list_of_labels.push(label);
-                } else {
-                    list_of_labels.push('');
+
+                list_of_labels.push(label);
+                tempPrice = fivey_data[label];
+                if (tempPrice != undefined) {
+                    list_of_prices.push(round_up_number_to_2_digits(tempPrice));
                 }
-                list_of_prices.push(round_up_number_to_2_digits(fivey_data[label]));
                 counter++;
             }
             list_of_labels.push('');
@@ -702,7 +656,83 @@
                 data: lineChartData(
                     list_of_labels,
                     [{
-                        label: 'Chart 1',
+                        label: '5 Year Chart',
+                        backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                        borderColor: 'transparent',
+                        borderWidth: 0,
+                        pointRadius: 3,
+                        pointHoverRadius: 3,
+                        pointHitRadius: 100,
+                        pointBackgroundColor: 'transparent',
+                        pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                        data: list_of_prices,
+                    }, ],
+                ),
+                options: lineChartOptions
+            });
+
+        }
+
+        function create_fivey_graph(fivey_data, current_price) {
+            let list_of_labels = [];
+            let list_of_prices = [];
+            let counter = 0;
+            let tempPrice;
+            for (let label in fivey_data) {
+                list_of_labels.push(label);
+                tempPrice = fivey_data[label];
+                if (tempPrice != undefined) {
+                    list_of_prices.push(round_up_number_to_2_digits(tempPrice));
+                }
+                counter++;
+            }
+            list_of_labels.push('');
+            list_of_prices.push(current_price);
+            // All Linechart - 5y
+            var chartLine = new Chart(chartElement("#lineStockChart_5y"), {
+                type: 'line',
+                data: lineChartData(
+                    list_of_labels,
+                    [{
+                        label: '5 Year Chart',
+                        backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                        borderColor: 'transparent',
+                        borderWidth: 0,
+                        pointRadius: 3,
+                        pointHoverRadius: 3,
+                        pointHitRadius: 100,
+                        pointBackgroundColor: 'transparent',
+                        pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                        data: list_of_prices,
+                    }, ],
+                ),
+                options: lineChartOptions
+            });
+
+        }
+
+        function create_all_graph(all_data, current_price) {
+            let list_of_labels = [];
+            let list_of_prices = [];
+            let counter = 0;
+            let tempPrice;
+            for (let label in all_data) {
+                list_of_labels.push(label);
+                tempPrice = all_data[label];
+                if (tempPrice != undefined) {
+                    list_of_prices.push(round_up_number_to_2_digits(tempPrice));
+                }
+                counter++;
+            }
+            list_of_labels.push('');
+            list_of_prices.push(current_price);
+            // All Linechart - 5y
+            var chartLine = new Chart(chartElement("#lineStockChart"), {
+                type: 'line',
+                data: lineChartData(
+                    list_of_labels,
+                    [{
+                        label: 'All Chart',
                         backgroundColor: 'rgba(94, 119, 255, 0.8)',
                         borderColor: 'transparent',
                         borderWidth: 0,
@@ -776,11 +806,14 @@
                         color: 'transparent',
                         zeroLineWidth: 0,
                         zeroLineColor: 'transparent',
+
                     },
                     ticks: {
                         fontSize: 12,
                         fontColor: '#bcbec0',
                         fontFamily: "'Overpass', sans-serif",
+                        autoSkip: true,
+                        maxTicksLimit: 20,
                     },
                 }],
                 yAxes: [{

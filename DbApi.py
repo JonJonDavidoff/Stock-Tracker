@@ -433,7 +433,7 @@ def stock_exists(user_id, ticker):
 
 
 def main():
-   pass
+    pass
 
 
 if __name__ == '__main__':

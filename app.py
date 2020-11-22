@@ -13,11 +13,11 @@ import json
 from threading import Thread, Lock
 from time import sleep
 
-
 app = Flask(__name__, static_url_path='/static')  # Construct an instance of Flask class for our webapp
 app.config['SECRET_KEY'] = 'SECRET'
 socketio = SocketIO(app)
 ticker = None
+stock_dashboard_thread = None
 
 
 @app.route('/stock_page')
@@ -102,7 +102,12 @@ def logout():
 
 @app.route("/stocks", methods=['GET', 'POST'])
 def on_stocks():
-    print(str(request.args.to_dict()))
+    global stock_dashboard_thread
+    if stock_dashboard_thread:
+        try:
+            stock_dashboard_thread.join()
+        except:
+            pass
     url_dict = request.args.to_dict()
     session['Email'] = session['Email']
     session['ticker'] = url_dict[' ticker']
@@ -119,7 +124,6 @@ def parse_args(arg_dict):
 
 @socketio.on('dashboard_load_request')
 def handle_an_event(json_data, methods=['GET', 'POST']):
-    print('recived event')
     stock_table = bridging_users_db.get_stocks_data_by_email(session['Email'])
     stock_diversity_list = Stock.get_sector_diversity(stock_table)
     list_of_stocks_json = []
@@ -129,8 +133,9 @@ def handle_an_event(json_data, methods=['GET', 'POST']):
     socketio.emit('dashboard_load_response',
                   json.dumps((json.dumps(list_of_stocks_json), json.dumps(stock_diversity_list))))
     # Update live data
+    global stock_dashboard_thread
     stock_dashboard_thread = Thread(target=update_data, args=(stock_table,))
-    sleep(120)
+    sleep(15)
     stock_dashboard_thread.start()
 
 
@@ -191,8 +196,8 @@ lock = Lock()
 
 def update_data(list_of_stocks):
     json_list_of_stocks = []
+    sleep(15)
     while True:
-        sleep(10)
         lock.acquire()
         json_list_of_stocks.clear()
         for stock in list_of_stocks:
@@ -200,8 +205,8 @@ def update_data(list_of_stocks):
             json_list_of_stocks.append(stock.convert_main_stock_data_to_json())
         socketio.emit('update_data', json.dumps(json_list_of_stocks))
         lock.release()
-
-
+        print("Update")
+        sleep(20)
 
 
 if __name__ == '__main__':  # Script executed directly?
