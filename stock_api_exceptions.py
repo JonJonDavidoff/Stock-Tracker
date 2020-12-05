@@ -12,3 +12,5 @@ class ServerErrorException(Exception):
 
     def __str__(self):
         return "An Error with the stock System has occurred please try again"
+
+

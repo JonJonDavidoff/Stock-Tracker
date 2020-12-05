@@ -39,4 +39,3 @@ class Log:
                 file.write(
                     '\n ' + self.get_time_stamp() + ', file_name=  ' + file_name + ', function_name= ' + function_name + ',line= ' + str(
                         line) + ',exception= ' + exception)
-                print('Logged')

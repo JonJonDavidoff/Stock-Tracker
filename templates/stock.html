@@ -255,155 +255,204 @@
                     </table>
                 </div>
             </div>
-        </div>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/custom.js') }}"></script>
-        <script type="text/javascript" src=" {{ url_for('static', filename='js/main.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/socketio.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/Chart.bundle.min.js') }}"></script>
-        <script type="text/javascript" src=" {{ url_for('static', filename='js/swipe/swiper-bundle.min.js') }}"></script>
-        <script src=" {{ url_for('static', filename='js/main.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/socketio.js') }}"></script>
-        <script type="text/javascript">
-        const socket = io.connect('http://' + document.domain + ':' + location.port);
-        // page load functions
-        const stock_form = ($('.stock_form')).on('submit', function(e) {
-            e.preventDefault();
-            const ticker = $(('.search_stock_inp')).val().toUpperCase();
-            if (ticker != '') {
-                window.location.replace("http://127.0.0.1:5000/stocks? ticker=" + ticker);
-            }
-        });
-        window.onload = socket.emit('onload');
+            <div class="modal fade stockModal error-symbol" id="staticBackdrop" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" id="error-symbol-title">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" onclick="close_error_modal()" class="btn modalClose btn-lg btn-block" style="background-color: #707070" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/custom.js') }}"></script>
+            <script type="text/javascript" src=" {{ url_for('static', filename='js/main.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/socketio.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/Chart.bundle.min.js') }}"></script>
+            <script type="text/javascript" src=" {{ url_for('static', filename='js/swipe/swiper-bundle.min.js') }}"></script>
+            <script src=" {{ url_for('static', filename='js/main.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/socketio.js') }}"></script>
+            <script type="text/javascript">
+            const socket = io.connect('http://' + document.domain + ':' + location.port);
+            // page load functions
+            const stock_form = ($('.stock_form')).on('submit', function(e) {
+                e.preventDefault();
+                const ticker = $(('.search_stock_inp')).val().toUpperCase();
+                if (ticker != '') {
+                    window.location.replace("http://127.0.0.1:5000/stocks? ticker=" + ticker);
+                }
+            });
+            window.onload = socket.emit('onload');
+            socket.on('page_load_response', function(json) {
+                if (typeof json !== 'undefined') {
+                    json = JSON.parse(json);
+                    console.log(json)
+                    if (json.is_user_holding_stock) {
+                        $('#star_id').addClass('active');
+                    }
+                    json.daily_change = round_up_number_to_2_digits(json.daily_change);
+                    console.log(json.daily_change);
+                    add_title(json.company_name, json.price, json.daily_change, json.daily_change_money, json.description);
+                    add_logo(json.logo);
+                    add_stock_data_to_table(json.close_price, json.open_price, json.bid, json.ask, json.day_range, json.week_52_range, json.volume, json.avg_volume, json.market_cap, json.beta, json.pe_ratio, json.eps, json.next_earnings_date, json.dividend_yield, json.ex_dividend_date, json.ytd_change);
+                    create_graphs(json);
+                }
+            });
 
-        socket.on('page_load_response', function(json) {
-            if (typeof json !== 'undefined') {
-                json = JSON.parse(json);
-                console.log(json)
-                if (json.is_user_holding_stock) {
+            function round_up_number_to_2_digits(num) {
+                num = num.toFixed(2);
+                return Number(num);
+            }
+
+            function add_title(company_name, price, daily_change, daily_change_money, company_description) {
+                // insert company_name title
+                $('#company_name').append(company_name);
+                // insert company_price and daily change
+                $('.price_p').addClass(get_price_class(daily_change_money));
+                $('.price_p').append("<span class='price'>" + price + " </span>" + daily_change_money + "     " + daily_change + "%");
+                // insert company description
+                $('#company-descr').append("<p class='descr' style='margin-top:2%;font-size:0.83em'>" + company_description + "</p>");
+
+            }
+
+
+            function add_logo(logo_url) {
+                // add_logo is a function that adds the logo to stock page
+                $('.img_logo').append('<img src=' + logo_url + ' alt="" style="border-radius: 50%;width:50px;height:51px;max-width: None;">')
+            }
+
+
+            function get_price_class(daily_change) {
+                // get_price_class check to see what color is the number
+                if (daily_change > 0) {
+                    return "green";
+                } else if (daily_change < 0) {
+                    return "red";
+                } else {
+                    return "";
+                }
+            }
+
+            $('#star_id').click(function() { // if star checkbox is clicked
+                console.log('clicked')
+                if ($('#star_id').hasClass('active')) {
+                    // remove stock if star is active
+                    $('#star_id').removeClass('active');
+                    socket.emit('removeStock', {});
+                } else {
+                    // add stock if star is not active
                     $('#star_id').addClass('active');
+                    socket.emit('addStock', {});
                 }
-                json.daily_change = round_up_number_to_2_digits(json.daily_change);
-                console.log(json.daily_change);
-                add_title(json.company_name, json.price, json.daily_change, json.daily_change_money, json.description);
-                add_logo(json.logo);
-                add_stock_data_to_table(json.close_price, json.open_price, json.bid, json.ask, json.day_range, json.week_52_range, json.volume, json.avg_volume, json.market_cap, json.beta, json.pe_ratio, json.eps, json.next_earnings_date, json.dividend_yield, json.ex_dividend_date, json.ytd_change);
-                create_graphs(json);
-            }
-        });
+            });
 
-        function round_up_number_to_2_digits(num) {
-            num = num.toFixed(2);
-            return Number(num);
-        }
-
-        function add_title(company_name, price, daily_change, daily_change_money, company_description) {
-            // insert company_name title
-            $('#company_name').append(company_name);
-            // insert company_price and daily change
-            $('.price_p').addClass(get_price_class(daily_change_money));
-            $('.price_p').append("<span class='price'>" + price + " </span>" + daily_change_money + "     " + daily_change + "%");
-            // insert company description
-            $('#company-descr').append("<p class='descr' style='margin-top:2%;font-size:0.83em'>" + company_description + "</p>");
-
-        }
-
-
-        function add_logo(logo_url) {
-            // add_logo is a function that adds the logo to stock page
-            $('.img_logo').append('<img src=' + logo_url + ' alt="" style="border-radius: 50%;width:50px;height:51px;max-width: None;">')
-        }
-
-
-        function get_price_class(daily_change) {
-            // get_price_class check to see what color is the number
-            if (daily_change > 0) {
-                return "green";
-            } else if (daily_change < 0) {
-                return "red";
-            } else {
-                return "";
-            }
-        }
-
-        $('#star_id').click(function() { // if star checkbox is clicked
-            console.log('clicked')
-            if ($('#star_id').hasClass('active')) {
-                // remove stock if star is active
-                $('#star_id').removeClass('active');
-                socket.emit('removeStock', {});
-            } else {
-                // add stock if star is not active
-                $('#star_id').addClass('active');
-                socket.emit('addStock', {});
-            }
-        });
-
-        function add_stock_data_to_table(close_price, open_price, bid, ask, day_range, week_52_range, volume, avg_volume, market_cap, beta, pe_ratio, eps, next_earnings_date, dividend_yield, ex_dividend_date, ytd_change) {
-            // append data to stock data table
-            $('#previous_close').append("<td>" + close_price + "</td>");
-            $('#open_price').append("<td>" + open_price + "</td>");
-            if (bid == "- X ") { // check if empty and assign correct value
-                bid = "-";
-            }
-            $('#bid').append("<td>" + bid + "</td>");
-            if (ask == "- X ") { // check if empty and assign correct value
-                ask = "-";
-            }
-            $('#ask').append("<td>" + ask + "</td>");
-            $('#day_range').append("<td>" + day_range + "</td>");
-            $('#week_52_range').append("<td>" + week_52_range + "</td>");
-            $('#volume').append("<td>" + volume + "</td>");
-            $('#avg_volume').append("<td>" + avg_volume + "</td>");
-            $('#market_cap').append("<td>" + market_cap + "</td>");
-            $('#beta').append("<td>" + beta + "</td>");
-            $('#pe_ratio').append("<td>" + pe_ratio + "</td>");
-            $('#eps').append("<td>" + eps + "</td>");
-            $('#next_earnings_date').append("<td>" + next_earnings_date + "</td>");
-            $('#dividend_yield').append("<td>" + dividend_yield + "</td>");
-            $('#ex_dividend_date').append("<td>" + ex_dividend_date + "</td>");
-            $('#ytd_change').append("<td>" + ytd_change.toFixed(2) + "%</td>");
-        }
-
-        function create_graphs(json) {
-            create_1d_graph(json.graph_1d, json.price);
-            create_5d_graph(json.graph_5d, json.price);
-            create_1m_graph(json.graph_1m, json.price);
-            create_3m_graph(json.graph_3m, json.price);
-            create_6m_graph(json.graph_6m, json.price);
-            create_ytd_graph(json.graph_ytd, json.price);
-            create_oney_graph(json.graph_1y, json.price);
-            create_fivey_graph(json.graph_5y, json.price);
-            create_all_graph(json.graph_max, json.price);
-        }
-
-        function create_1d_graph(oned_data, current_price) {
-            // All Linechart
-            let list_of_labels = [];
-            let list_of_prices = [];
-            let counter = 0;
-            let tempPrice;
-            for (let label in oned_data) {
-                list_of_labels.push(label);
-                tempPrice = oned_data[label];
-                if (tempPrice != undefined) {
-                    list_of_prices.push(round_up_number_to_2_digits(tempPrice));
+            function add_stock_data_to_table(close_price, open_price, bid, ask, day_range, week_52_range, volume, avg_volume, market_cap, beta, pe_ratio, eps, next_earnings_date, dividend_yield, ex_dividend_date, ytd_change) {
+                // append data to stock data table
+                $('#previous_close').append("<td>" + close_price + "</td>");
+                $('#open_price').append("<td>" + open_price + "</td>");
+                if (bid == "- X ") { // check if empty and assign correct value
+                    bid = "-";
                 }
-                counter++;
+                $('#bid').append("<td>" + bid + "</td>");
+                if (ask == "- X ") { // check if empty and assign correct value
+                    ask = "-";
+                }
+                $('#ask').append("<td>" + ask + "</td>");
+                $('#day_range').append("<td>" + day_range + "</td>");
+                $('#week_52_range').append("<td>" + week_52_range + "</td>");
+                $('#volume').append("<td>" + volume + "</td>");
+                $('#avg_volume').append("<td>" + avg_volume + "</td>");
+                $('#market_cap').append("<td>" + market_cap + "</td>");
+                $('#beta').append("<td>" + beta + "</td>");
+                $('#pe_ratio').append("<td>" + pe_ratio + "</td>");
+                $('#eps').append("<td>" + eps + "</td>");
+                $('#next_earnings_date').append("<td>" + next_earnings_date + "</td>");
+                $('#dividend_yield').append("<td>" + dividend_yield + "</td>");
+                $('#ex_dividend_date').append("<td>" + ex_dividend_date + "</td>");
+                $('#ytd_change').append("<td>" + ytd_change.toFixed(2) + "%</td>");
             }
-            list_of_labels.push('4:00 PM');
-            list_of_prices.push(current_price);
 
-            // All Linechart - 1d
-            var chartLine = new Chart(chartElement("#lineStockChart_1d"), {
-                type: 'line',
-                data: lineChartData(
-                    list_of_labels,
-                    [{
-                            label: "1 Day ",
+            function create_graphs(json) {
+                create_1d_graph(json.graph_1d, json.price);
+                create_5d_graph(json.graph_5d, json.price);
+                create_1m_graph(json.graph_1m, json.price);
+                create_3m_graph(json.graph_3m, json.price);
+                create_6m_graph(json.graph_6m, json.price);
+                create_ytd_graph(json.graph_ytd, json.price);
+                create_oney_graph(json.graph_1y, json.price);
+                create_fivey_graph(json.graph_5y, json.price);
+                create_all_graph(json.graph_max, json.price);
+            }
+
+            function create_1d_graph(oned_data, current_price) {
+                // All Linechart
+                let list_of_labels = [];
+                let list_of_prices = [];
+                let counter = 0;
+                let tempPrice;
+                for (let label in oned_data) {
+                    list_of_labels.push(label);
+                    tempPrice = oned_data[label];
+                    if (tempPrice != undefined) {
+                        list_of_prices.push(round_up_number_to_2_digits(tempPrice));
+                    }
+                    counter++;
+                }
+                list_of_labels.push('4:00 PM');
+                list_of_prices.push(current_price);
+
+                // All Linechart - 1d
+                var chartLine = new Chart(chartElement("#lineStockChart_1d"), {
+                    type: 'line',
+                    data: lineChartData(
+                        list_of_labels,
+                        [{
+                                label: "1 Day ",
+                                backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                                borderColor: 'transparent',
+                                borderWidth: 0,
+                                pointRadius: 3,
+                                pointHoverRadius: 3,
+                                pointHitRadius: 100,
+                                pointBackgroundColor: 'transparent',
+                                pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                                data: list_of_prices,
+                            },
+
+                        ],
+                    ),
+                    options: lineChartOptions
+                });
+            }
+
+
+
+            function create_5d_graph(fived_data, current_price) {
+                let list_of_labels = [];
+                let list_of_prices = [];
+                let counter = 0;
+                for (let label in fived_data) {
+
+                    list_of_labels.push(label);
+                    list_of_prices.push(round_up_number_to_2_digits(fived_data[label]));
+                    counter++;
+                }
+                list_of_labels.push('');
+                list_of_prices.push(current_price);
+
+
+                // All Linechart - 5d
+                const chartLine = new Chart(chartElement("#lineStockChart_5d"), {
+                    type: 'line',
+                    data: lineChartData(
+                        list_of_labels,
+                        [{
+                            label: '5 Days',
                             backgroundColor: 'rgba(94, 119, 255, 0.8)',
                             borderColor: 'transparent',
                             borderWidth: 0,
@@ -413,443 +462,405 @@
                             pointBackgroundColor: 'transparent',
                             pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
                             data: list_of_prices,
-                        },
+                        }, ],
+                    ),
+                    options: lineChartOptions
+                });
 
-                    ],
-                ),
-                options: lineChartOptions
-            });
-        }
-
-
-
-        function create_5d_graph(fived_data, current_price) {
-            let list_of_labels = [];
-            let list_of_prices = [];
-            let counter = 0;
-            for (let label in fived_data) {
-
-                list_of_labels.push(label);
-                list_of_prices.push(round_up_number_to_2_digits(fived_data[label]));
-                counter++;
-            }
-            list_of_labels.push('');
-            list_of_prices.push(current_price);
-
-
-            // All Linechart - 5d
-            const chartLine = new Chart(chartElement("#lineStockChart_5d"), {
-                type: 'line',
-                data: lineChartData(
-                    list_of_labels,
-                    [{
-                        label: '5 Days',
-                        backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                        borderColor: 'transparent',
-                        borderWidth: 0,
-                        pointRadius: 3,
-                        pointHoverRadius: 3,
-                        pointHitRadius: 100,
-                        pointBackgroundColor: 'transparent',
-                        pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                        data: list_of_prices,
-                    }, ],
-                ),
-                options: lineChartOptions
-            });
-
-        }
-
-        function create_1m_graph(onem_data, current_price) {
-            let list_of_labels = [];
-            let list_of_prices = [];
-            let counter = 0;
-            for (let label in onem_data) {
-                list_of_labels.push(label);
-
-                list_of_prices.push(round_up_number_to_2_digits(onem_data[label]));
-                counter++;
-            }
-            list_of_labels.push('');
-            list_of_prices.push(current_price);
-            // All Linechart - 1m
-            var chartLine = new Chart(chartElement("#lineStockChart_1m"), {
-                type: 'line',
-                data: lineChartData(
-                    list_of_labels,
-                    [{
-                        label: '1 Month',
-                        backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                        borderColor: 'transparent',
-                        borderWidth: 0,
-                        pointRadius: 3,
-                        pointHoverRadius: 3,
-                        pointHitRadius: 100,
-                        pointBackgroundColor: 'transparent',
-                        pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                        data: list_of_prices,
-                    }, ],
-                ),
-                options: lineChartOptions
-            });
-        }
-
-        function create_3m_graph(threem_data, current_price) {
-            let list_of_labels = [];
-            let list_of_prices = [];
-            let counter = 0;
-            for (let label in threem_data) {
-
-                list_of_labels.push(label);
-
-                list_of_prices.push(round_up_number_to_2_digits(threem_data[label]));
-                counter++;
-            }
-            list_of_labels.push('');
-            list_of_prices.push(current_price);
-
-            // All Linechart - 3m
-            var chartLine = new Chart(chartElement("#lineStockChart_3m"), {
-                type: 'line',
-                data: lineChartData(
-                    list_of_labels,
-                    [{
-                        label: '3 Months',
-                        backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                        borderColor: 'transparent',
-                        borderWidth: 0,
-                        pointRadius: 3,
-                        pointHoverRadius: 3,
-                        pointHitRadius: 100,
-                        pointBackgroundColor: 'transparent',
-                        pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                        data: list_of_prices,
-                    }, ],
-                ),
-                options: lineChartOptions
-            });
-        }
-
-        function create_6m_graph(sixm_data, current_price) {
-            let list_of_labels = [];
-            let list_of_prices = [];
-            let counter = 0;
-            for (let label in sixm_data) {
-
-                list_of_labels.push(label);
-                list_of_prices.push(round_up_number_to_2_digits(sixm_data[label]));
-                counter++;
-            }
-            list_of_labels.push('');
-            list_of_prices.push(current_price);
-            // All Linechart - 6m
-            var chartLine = new Chart(chartElement("#lineStockChart_6m"), {
-                type: 'line',
-                data: lineChartData(
-                    list_of_labels,
-                    [{
-                        label: '6 Months',
-                        backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                        borderColor: 'transparent',
-                        borderWidth: 0,
-                        pointRadius: 3,
-                        pointHoverRadius: 3,
-                        pointHitRadius: 100,
-                        pointBackgroundColor: 'transparent',
-                        pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                        data: list_of_prices,
-                    }, ],
-                ),
-                options: lineChartOptions
-            });
-        }
-
-        function create_ytd_graph(ytd_data, current_price) {
-            let list_of_labels = [];
-            let list_of_prices = [];
-            let counter = 0;
-            for (let label in ytd_data) {
-
-                list_of_labels.push(label);
-
-                list_of_prices.push(round_up_number_to_2_digits(ytd_data[label]));
-                counter++;
-            }
-            list_of_labels.push('');
-            list_of_prices.push(current_price);
-            // All Linechart - ytd
-            var chartLine = new Chart(chartElement("#lineStockChart_ytd"), {
-                type: 'line',
-                data: lineChartData(
-                    list_of_labels,
-                    [{
-                        label: 'YTD Chart',
-                        backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                        borderColor: 'transparent',
-                        borderWidth: 0,
-                        pointRadius: 3,
-                        pointHoverRadius: 3,
-                        pointHitRadius: 100,
-                        pointBackgroundColor: 'transparent',
-                        pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                        data: list_of_prices,
-                    }, ],
-                ),
-                options: lineChartOptions
-            });
-        }
-
-        function create_oney_graph(oney_data, current_price) {
-            let list_of_labels = [];
-            let list_of_prices = [];
-            let counter = 0;
-            for (let label in oney_data) {
-                list_of_labels.push(label);
-                list_of_prices.push(round_up_number_to_2_digits(oney_data[label]));
-                counter++;
             }
 
-            list_of_labels.push('');
-            list_of_prices.push(current_price);
+            function create_1m_graph(onem_data, current_price) {
+                let list_of_labels = [];
+                let list_of_prices = [];
+                let counter = 0;
+                for (let label in onem_data) {
+                    list_of_labels.push(label);
 
-            // All Linechart - 1y
-            const chartLine = new Chart(chartElement("#lineStockChart_1y"), {
-                type: 'line',
-                data: lineChartData(
-                    list_of_labels,
-                    [{
-                        label: '1 Year Chart',
-                        backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                        borderColor: 'transparent',
-                        borderWidth: 0,
-                        pointRadius: 3,
-                        pointHoverRadius: 3,
-                        pointHitRadius: 100,
-                        pointBackgroundColor: 'transparent',
-                        pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                        data: list_of_prices,
-                    }, ],
-                ),
-                options: lineChartOptions
-            });
-        }
-
-        function create_fivey_graph(fivey_data, current_price) {
-            let list_of_labels = [];
-            let list_of_prices = [];
-            let counter = 0;
-            let tempPrice;
-            for (let label in fivey_data) {
-
-                list_of_labels.push(label);
-                tempPrice = fivey_data[label];
-                if (tempPrice != undefined) {
-                    list_of_prices.push(round_up_number_to_2_digits(tempPrice));
+                    list_of_prices.push(round_up_number_to_2_digits(onem_data[label]));
+                    counter++;
                 }
-                counter++;
+                list_of_labels.push('');
+                list_of_prices.push(current_price);
+                // All Linechart - 1m
+                var chartLine = new Chart(chartElement("#lineStockChart_1m"), {
+                    type: 'line',
+                    data: lineChartData(
+                        list_of_labels,
+                        [{
+                            label: '1 Month',
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: list_of_prices,
+                        }, ],
+                    ),
+                    options: lineChartOptions
+                });
             }
-            list_of_labels.push('');
-            list_of_prices.push(current_price);
-            // All Linechart - 5y
-            var chartLine = new Chart(chartElement("#lineStockChart_5y"), {
-                type: 'line',
-                data: lineChartData(
-                    list_of_labels,
-                    [{
-                        label: '5 Year Chart',
-                        backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                        borderColor: 'transparent',
-                        borderWidth: 0,
-                        pointRadius: 3,
-                        pointHoverRadius: 3,
-                        pointHitRadius: 100,
-                        pointBackgroundColor: 'transparent',
-                        pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                        data: list_of_prices,
-                    }, ],
-                ),
-                options: lineChartOptions
-            });
 
-        }
+            function create_3m_graph(threem_data, current_price) {
+                let list_of_labels = [];
+                let list_of_prices = [];
+                let counter = 0;
+                for (let label in threem_data) {
 
-        function create_fivey_graph(fivey_data, current_price) {
-            let list_of_labels = [];
-            let list_of_prices = [];
-            let counter = 0;
-            let tempPrice;
-            for (let label in fivey_data) {
-                list_of_labels.push(label);
-                tempPrice = fivey_data[label];
-                if (tempPrice != undefined) {
-                    list_of_prices.push(round_up_number_to_2_digits(tempPrice));
+                    list_of_labels.push(label);
+
+                    list_of_prices.push(round_up_number_to_2_digits(threem_data[label]));
+                    counter++;
                 }
-                counter++;
+                list_of_labels.push('');
+                list_of_prices.push(current_price);
+
+                // All Linechart - 3m
+                var chartLine = new Chart(chartElement("#lineStockChart_3m"), {
+                    type: 'line',
+                    data: lineChartData(
+                        list_of_labels,
+                        [{
+                            label: '3 Months',
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: list_of_prices,
+                        }, ],
+                    ),
+                    options: lineChartOptions
+                });
             }
-            list_of_labels.push('');
-            list_of_prices.push(current_price);
-            // All Linechart - 5y
-            var chartLine = new Chart(chartElement("#lineStockChart_5y"), {
-                type: 'line',
-                data: lineChartData(
-                    list_of_labels,
-                    [{
-                        label: '5 Year Chart',
-                        backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                        borderColor: 'transparent',
-                        borderWidth: 0,
-                        pointRadius: 3,
-                        pointHoverRadius: 3,
-                        pointHitRadius: 100,
-                        pointBackgroundColor: 'transparent',
-                        pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                        data: list_of_prices,
-                    }, ],
-                ),
-                options: lineChartOptions
-            });
 
-        }
+            function create_6m_graph(sixm_data, current_price) {
+                let list_of_labels = [];
+                let list_of_prices = [];
+                let counter = 0;
+                for (let label in sixm_data) {
 
-        function create_all_graph(all_data, current_price) {
-            let list_of_labels = [];
-            let list_of_prices = [];
-            let counter = 0;
-            let tempPrice;
-            for (let label in all_data) {
-                list_of_labels.push(label);
-                tempPrice = all_data[label];
-                if (tempPrice != undefined) {
-                    list_of_prices.push(round_up_number_to_2_digits(tempPrice));
+                    list_of_labels.push(label);
+                    list_of_prices.push(round_up_number_to_2_digits(sixm_data[label]));
+                    counter++;
                 }
-                counter++;
+                list_of_labels.push('');
+                list_of_prices.push(current_price);
+                // All Linechart - 6m
+                var chartLine = new Chart(chartElement("#lineStockChart_6m"), {
+                    type: 'line',
+                    data: lineChartData(
+                        list_of_labels,
+                        [{
+                            label: '6 Months',
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: list_of_prices,
+                        }, ],
+                    ),
+                    options: lineChartOptions
+                });
             }
-            list_of_labels.push('');
-            list_of_prices.push(current_price);
-            // All Linechart - 5y
-            var chartLine = new Chart(chartElement("#lineStockChart"), {
-                type: 'line',
-                data: lineChartData(
-                    list_of_labels,
-                    [{
-                        label: 'All Chart',
-                        backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                        borderColor: 'transparent',
-                        borderWidth: 0,
-                        pointRadius: 3,
-                        pointHoverRadius: 3,
-                        pointHitRadius: 100,
-                        pointBackgroundColor: 'transparent',
-                        pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                        data: list_of_prices,
-                    }, ],
-                ),
-                options: lineChartOptions
+
+            function create_ytd_graph(ytd_data, current_price) {
+                let list_of_labels = [];
+                let list_of_prices = [];
+                let counter = 0;
+                for (let label in ytd_data) {
+
+                    list_of_labels.push(label);
+
+                    list_of_prices.push(round_up_number_to_2_digits(ytd_data[label]));
+                    counter++;
+                }
+                list_of_labels.push('');
+                list_of_prices.push(current_price);
+                // All Linechart - ytd
+                var chartLine = new Chart(chartElement("#lineStockChart_ytd"), {
+                    type: 'line',
+                    data: lineChartData(
+                        list_of_labels,
+                        [{
+                            label: 'YTD Chart',
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: list_of_prices,
+                        }, ],
+                    ),
+                    options: lineChartOptions
+                });
+            }
+
+            function create_oney_graph(oney_data, current_price) {
+                let list_of_labels = [];
+                let list_of_prices = [];
+                let counter = 0;
+                for (let label in oney_data) {
+                    list_of_labels.push(label);
+                    list_of_prices.push(round_up_number_to_2_digits(oney_data[label]));
+                    counter++;
+                }
+
+                list_of_labels.push('');
+                list_of_prices.push(current_price);
+
+                // All Linechart - 1y
+                const chartLine = new Chart(chartElement("#lineStockChart_1y"), {
+                    type: 'line',
+                    data: lineChartData(
+                        list_of_labels,
+                        [{
+                            label: '1 Year Chart',
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: list_of_prices,
+                        }, ],
+                    ),
+                    options: lineChartOptions
+                });
+            }
+
+            function create_fivey_graph(fivey_data, current_price) {
+                let list_of_labels = [];
+                let list_of_prices = [];
+                let counter = 0;
+                let tempPrice;
+                for (let label in fivey_data) {
+
+                    list_of_labels.push(label);
+                    tempPrice = fivey_data[label];
+                    if (tempPrice != undefined) {
+                        list_of_prices.push(round_up_number_to_2_digits(tempPrice));
+                    }
+                    counter++;
+                }
+                list_of_labels.push('');
+                list_of_prices.push(current_price);
+                // All Linechart - 5y
+                var chartLine = new Chart(chartElement("#lineStockChart_5y"), {
+                    type: 'line',
+                    data: lineChartData(
+                        list_of_labels,
+                        [{
+                            label: '5 Year Chart',
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: list_of_prices,
+                        }, ],
+                    ),
+                    options: lineChartOptions
+                });
+
+            }
+
+            function create_fivey_graph(fivey_data, current_price) {
+                let list_of_labels = [];
+                let list_of_prices = [];
+                let counter = 0;
+                let tempPrice;
+                for (let label in fivey_data) {
+                    list_of_labels.push(label);
+                    tempPrice = fivey_data[label];
+                    if (tempPrice != undefined) {
+                        list_of_prices.push(round_up_number_to_2_digits(tempPrice));
+                    }
+                    counter++;
+                }
+                list_of_labels.push('');
+                list_of_prices.push(current_price);
+                // All Linechart - 5y
+                var chartLine = new Chart(chartElement("#lineStockChart_5y"), {
+                    type: 'line',
+                    data: lineChartData(
+                        list_of_labels,
+                        [{
+                            label: '5 Year Chart',
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: list_of_prices,
+                        }, ],
+                    ),
+                    options: lineChartOptions
+                });
+
+            }
+
+            function create_all_graph(all_data, current_price) {
+                let list_of_labels = [];
+                let list_of_prices = [];
+                let counter = 0;
+                let tempPrice;
+                for (let label in all_data) {
+                    list_of_labels.push(label);
+                    tempPrice = all_data[label];
+                    if (tempPrice != undefined) {
+                        list_of_prices.push(round_up_number_to_2_digits(tempPrice));
+                    }
+                    counter++;
+                }
+                list_of_labels.push('');
+                list_of_prices.push(current_price);
+                // All Linechart - 5y
+                var chartLine = new Chart(chartElement("#lineStockChart"), {
+                    type: 'line',
+                    data: lineChartData(
+                        list_of_labels,
+                        [{
+                            label: 'All Chart',
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: list_of_prices,
+                        }, ],
+                    ),
+                    options: lineChartOptions
+                });
+
+            }
+            </script>
+            <script type="text/javascript">
+            var swiper = new Swiper('.swiper-container', {
+
+                spaceBetween: 30,
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                }
             });
 
-        }
-        </script>
-        <script type="text/javascript">
-        var swiper = new Swiper('.swiper-container', {
-
-            spaceBetween: 30,
-            navigation: {
-                nextEl: '.swiper-button-next',
-                prevEl: '.swiper-button-prev',
+            // ---------- Line Chart
+            function lineChartData(labels, datasets) {
+                return {
+                    labels: labels,
+                    datasets: datasets
+                }
             }
-        });
 
-        // ---------- Line Chart
-        function lineChartData(labels, datasets) {
-            return {
-                labels: labels,
-                datasets: datasets
-            }
-        }
-
-        const lineChartOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            tooltips: {
-                mode: 'nearest',
-                intersect: false,
-                backgroundColor: '#393f49',
-                titleMarginBottom: 8,
-                titleFontSize: 14,
-                titleFontColor: '#f8f9fa',
-                titleFontFamily: "'Overpass', sans-serif",
-                bodyFontSize: 11,
-                bodyFontColor: '#d7d9e0',
-                bodyFontFamily: "'Overpass', sans-serif",
-                footerMarginTop: 10,
-                footerFontSize: 11,
-                footerFontColor: '#f8f9fa',
-                footerFontFamily: "'Overpass', sans-serif",
-                xPadding: 10,
-                yPadding: 10,
-                caretPadding: 5,
-                cornerRadius: 4,
-            },
-            legend: {
-                labels: {
-                    padding: 30,
-                    fontSize: 14,
-                    fontColor: '#6c757d',
-                    fontFamily: "'Overpass', sans-serif",
-                    boxWidth: 14,
+            const lineChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                tooltips: {
+                    mode: 'nearest',
+                    intersect: false,
+                    backgroundColor: '#393f49',
+                    titleMarginBottom: 8,
+                    titleFontSize: 14,
+                    titleFontColor: '#f8f9fa',
+                    titleFontFamily: "'Overpass', sans-serif",
+                    bodyFontSize: 11,
+                    bodyFontColor: '#d7d9e0',
+                    bodyFontFamily: "'Overpass', sans-serif",
+                    footerMarginTop: 10,
+                    footerFontSize: 11,
+                    footerFontColor: '#f8f9fa',
+                    footerFontFamily: "'Overpass', sans-serif",
+                    xPadding: 10,
+                    yPadding: 10,
+                    caretPadding: 5,
+                    cornerRadius: 4,
                 },
-            },
-            scales: {
-                xAxes: [{
-                    gridLines: {
-                        lineWidth: 0,
-                        color: 'transparent',
-                        zeroLineWidth: 0,
-                        zeroLineColor: 'transparent',
-
-                    },
-                    ticks: {
-                        fontSize: 12,
-                        fontColor: '#bcbec0',
+                legend: {
+                    labels: {
+                        padding: 30,
+                        fontSize: 14,
+                        fontColor: '#6c757d',
                         fontFamily: "'Overpass', sans-serif",
-                        autoSkip: true,
-                        maxTicksLimit: 20,
+                        boxWidth: 14,
                     },
-                }],
-                yAxes: [{
-                    gridLines: {
-                        lineWidth: 0,
-                        color: 'transparent',
-                        zeroLineWidth: 0,
-                        zeroLineColor: 'transparent',
-                    },
-                    ticks: {
-                        fontSize: 12,
-                        fontColor: '#bcbec0',
-                        fontFamily: "'Overpass', sans-serif",
-                    },
-                }],
-            },
-        };
+                },
+                scales: {
+                    xAxes: [{
+                        gridLines: {
+                            lineWidth: 0,
+                            color: 'transparent',
+                            zeroLineWidth: 0,
+                            zeroLineColor: 'transparent',
+
+                        },
+                        ticks: {
+                            fontSize: 12,
+                            fontColor: '#bcbec0',
+                            fontFamily: "'Overpass', sans-serif",
+                            autoSkip: true,
+                            maxTicksLimit: 20,
+                        },
+                    }],
+                    yAxes: [{
+                        gridLines: {
+                            lineWidth: 0,
+                            color: 'transparent',
+                            zeroLineWidth: 0,
+                            zeroLineColor: 'transparent',
+                        },
+                        ticks: {
+                            fontSize: 12,
+                            fontColor: '#bcbec0',
+                            fontFamily: "'Overpass', sans-serif",
+                        },
+                    }],
+                },
+            };
 
 
-        chartElement = (el) => {
-            return document.querySelector(el).getContext('2d');
-        }
+            chartElement = (el) => {
+                return document.querySelector(el).getContext('2d');
+            }
+            </script>
+            <script type="text/javascript">
+            socket.on('ticker_not_found', function(json) {
+                console.log('dfs');
+                json = JSON.parse(json);
 
+                $(".error-symbol").modal();
+                $('#error-symbol-title').append('<h3 class="modal-title" style="color: #fff;" id="staticBackdropLabel">Unknown symbol, ' + json.ticker + '</h3>')
+            });
 
-        window.onload = function() {
-
-
-
-
-
-
-
-
-
-        }
-        </script>
+            function close_error_modal() {
+                ($('.error-symbol')).modal('hide'); // hide the modal
+                console.log('in');
+                window.location.replace("http://127.0.0.1:5000/index.html");
+            }
+            </script>
 </body>
 
 </html>

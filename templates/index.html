@@ -459,7 +459,9 @@
                     daily_change.text(json.daily_change + '%');
                     $('.' + json.ticker + '_daily_change_money').text(json.daily_change_money);
                     const total_change =  $('.' + json.ticker + '_total_change');
-                    total_change.text(json.total_change + '%')
+                    total_change.text(json.total_change + '%');
+                     ;
+                    $('.' + json.ticker + "_total_change_money").text
 
 
                 }
@@ -484,7 +486,7 @@
                     const daily_change_class_search = json.ticker + '_daily_change';
                     const daily_change_money_class = json.ticker + '_daily_change_money';
                     const total_change_class_search = json.ticker + '_total_change';
-
+                    const total_change_money_class = json.ticker + "_total_change_money";
                     row = "<tr class='" + json.ticker + "'><td class='table_br'><span class='blue'><a href='http://127.0.0.1:5000/stocks? ticker=" + json.ticker + "'>" + json.ticker + "</a></span><br><span class=" + price_class + ">" + json.price + "</span></td><td class='table_br'>";
                     if (json.total_change == '-') {
                         row = row + "<span class=>" + json.total_change + "</span><br>";
@@ -498,7 +500,6 @@
                         row = row + "<td class='table_br'><span class=" + daily_change_class_search + ">" + json.daily_change + "%</span><br>";
                     } else {
                         row = row + "<td class='table_br'><span class='" + daily_change_class_search + " " + table_classes['daily_change_class'] + "'>" + json.daily_change + "%</span><br>";
-
                     }
                     row = row + "<span class=" + daily_change_money_class + ">" + json.daily_change_money + "</span></td><td class='table_br'>";
                     if (json.total_change == '-') {
@@ -506,7 +507,7 @@
                     } else {
                         row = row + "<span class='" + table_classes.total_change_class + " " + total_change_class_search +"'>" + json.total_change + "%</span><br>";
                     }
-                    row = row + "<span class=''>" + json.total_change_money + "</span></td><td class='table_br'>";
+                    row = row + "<span class='"+total_change_money_class+"'>" + json.total_change_money + "</span></td><td class='table_br'>";
                     row = row + " <span>" + currentDate + "</span></td></tr>";
                     $('tbody.stock_table_body').append(row);
                     // console.log($('.' + daily_change_class_search));
