@@ -2,6 +2,7 @@
 """
 hello_flask: First Python-Flask webapp
 """
+
 from flask import Flask, render_template, request, url_for, redirect, \
     session  # Need render_template() to render HTML pages
 import bridging_users_db
@@ -9,11 +10,18 @@ import Stock
 import DbApi
 from flask_socketio import SocketIO
 import json
+from threading import Thread, Lock
+from time import sleep
+import stock_api_exceptions
+import Logger
+import sys
+import StockWithHistory
 
 app = Flask(__name__, static_url_path='/static')  # Construct an instance of Flask class for our webapp
 app.config['SECRET_KEY'] = 'SECRET'
 socketio = SocketIO(app)
 ticker = None
+stock_dashboard_thread = None
 
 
 @app.route('/stock_page')
@@ -81,10 +89,7 @@ def login_form():
         form_data_dict = dict(request.form)
         print(str(form_data_dict))
         if bridging_users_db.excecute_login(form_data_dict):
-            stock_table = bridging_users_db.get_stocks_data_by_email(email=form_data_dict['Email'])
             session['Email'] = form_data_dict['Email']
-            for stock in stock_table:
-                print(stock.convert_main_stock_data_to_json())
             # TODO Transfer data
             return redirect(url_for('stock_dashboard'))
         else:
@@ -101,7 +106,6 @@ def logout():
 
 @app.route("/stocks", methods=['GET', 'POST'])
 def on_stocks():
-    print(str(request.args.to_dict()))
     url_dict = request.args.to_dict()
     session['Email'] = session['Email']
     session['ticker'] = url_dict[' ticker']
@@ -118,15 +122,20 @@ def parse_args(arg_dict):
 
 @socketio.on('dashboard_load_request')
 def handle_an_event(json_data, methods=['GET', 'POST']):
-    print('recived event')
     stock_table = bridging_users_db.get_stocks_data_by_email(session['Email'])
-    print(str(Stock.get_sector_diversity(stock_table)))
-
+    stock_diversity_list = Stock.get_sector_diversity(stock_table)
     list_of_stocks_json = []
     for stock in stock_table:
         list_of_stocks_json.append(stock.convert_main_stock_data_to_json())
     print(list_of_stocks_json)
-    socketio.emit('dashboard_load_response', json.dumps(list_of_stocks_json))
+    socketio.emit('dashboard_load_response',
+                  json.dumps((json.dumps(list_of_stocks_json), json.dumps(stock_diversity_list))))
+    # Update live data
+    global stock_dashboard_thread
+    stock_dashboard_thread = Thread(target=update_data, args=(stock_table,))
+    sleep(15)
+    stock_dashboard_thread.start()
+    stock_dashboard_thread.join()
 
 
 @socketio.on('add_transaction')
@@ -154,11 +163,32 @@ def add_transaction(json, methods=['GET', 'POST']):
 
 @socketio.on('onload')
 def stock_page_on_load():
-    is_user_holding_stock = DbApi.stock_exists(user_id=DbApi.get_user_id_by_email(session['Email']),
-                                               ticker=session['ticker'])
-    stock_json = Stock.Stock(ticker=session['ticker']).convert_main_stock_data_to_json()
-    stock_json['is_user_holding_stock'] = is_user_holding_stock
-    socketio.emit('page_load_response', json.dumps(stock_json))
+    try:
+        try:
+            global stock_dashboard_thread
+            stock_dashboard_thread.join()
+        except Exception:
+            pass
+        is_user_holding_stock = DbApi.stock_exists(user_id=DbApi.get_user_id_by_email(session['Email']),
+                                                   ticker=session['ticker'])
+        stock = StockWithHistory.StockWithHistory(ticker=session['ticker'])
+        stock_json = stock.convert_main_stock_data_to_json()
+        stock_json['is_user_holding_stock'] = is_user_holding_stock
+        stock_json['graph_1d'] = stock._one_day_historical_data
+        stock_json['graph_5d'] = stock._five_day_historical_data
+        stock_json['graph_1m'] = stock.one_month_data
+        stock_json['graph_3m'] = stock._three_month_historical_data
+        stock_json['graph_6m'] = stock._six_month_historical_data
+        stock_json['graph_ytd'] = stock._ytd_historical_data
+        stock_json['graph_1y'] = stock._1y_historical_data
+        stock_json['graph_5y'] = stock._5y_historical_data
+        stock_json['graph_max'] = stock._max_historical_data
+        socketio.emit('page_load_response', json.dumps(stock_json))
+    except stock_api_exceptions.UnknownSymbolException as e:
+        print(sys.exc_info())
+        Logger.Log.get_log().log(file_name='Stock.py', exception=str(e), function_name='get_company_name')
+        socketio.emit("ticker_not_found", json.dumps({'ticker': session['ticker']}))
+
 
 @socketio.on('addStock')
 def add_stock(json, methods=['GET', 'POST']):
@@ -168,6 +198,24 @@ def add_stock(json, methods=['GET', 'POST']):
 @socketio.on('removeStock')
 def remove_stock(json, methods=['GET', 'POST']):
     DbApi.remove_stock_by_user_id(ticker=str(session['ticker']), user_id=DbApi.get_user_id_by_email(session['Email']))
+
+
+lock = Lock()
+
+
+def update_data(list_of_stocks):
+    json_list_of_stocks = []
+    sleep(15)
+    while True:
+        json_list_of_stocks.clear()
+        lock.acquire()
+        for stock in list_of_stocks:
+            stock.update_stock()
+            json_list_of_stocks.append(stock.convert_main_stock_data_to_json())
+        socketio.emit('update_data', json.dumps(json_list_of_stocks))
+        lock.release()
+        print("Update")
+        sleep(20)
 
 
 if __name__ == '__main__':  # Script executed directly?

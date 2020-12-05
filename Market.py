@@ -24,5 +24,4 @@ class Market:
         # If it's a weekend
         if now.date().weekday() > 4:
             return False
-
         return True
