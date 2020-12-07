@@ -1,3 +1,5 @@
+from typing import Any
+
 import Stock
 import threading
 
@@ -33,6 +35,9 @@ class StockWithHistory(Stock.Stock):
         th_3m_data.join()
         th_5d_data.join()
         th_1d_data.join()
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        super().__setattr__(name, value)
 
 
 def main():

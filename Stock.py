@@ -1,3 +1,5 @@
+from typing import Any
+
 import requests
 import json
 import Market
@@ -47,7 +49,6 @@ class Stock:
             api_url + "stable/stock/" + self._ticker + "/batch/?types=quote,stats,logo,company,chart&range=1m&token=" + api_key)
         self.check_response_code(api_request, ticker=ticker)
         api = json.loads(api_request.content)
-        print(api)
         self._one_month_data = None
         onem_th = threading.Thread(target=self.parse_onem_historical_data, args=(api['chart'], '1m',))
         onem_th.start()
@@ -402,7 +403,6 @@ class Stock:
             api_url + "/stable/stock/" + self._ticker + "/chart/" + time_range + "?includeToday=true&chartInterval=" + str(
                 intervel) + "&token=" + api_key)
         api = json.loads(api_request.content)
-        print(api)
         stock_data_dict = {}
         if time_range == '1d' or '5dm':
             indicator = 'average'
@@ -410,7 +410,6 @@ class Stock:
             indicator = 'close'
         if time_range != '5dm':
             indicator = 'close'
-        print(api)
         for d in api:
             if 'label' in d.keys():
                 stock_data_dict[d['label']] = d[indicator]
@@ -469,7 +468,7 @@ def get_sector_diversity(list_of_stocks):
     except Exception as e:
         Logger.Log.get_log().log(file_name='Stock.py', function_name='get_sector_diversity', exception=str(e))
 
-
+# TODO Test Case
 def get_list_of_historcal_data(list_of_stocks, time_range):
     list_of_stock_dicts = []
     return_dict = {}
@@ -497,7 +496,6 @@ def main():
     # api = json.loads(api_request.content)
     # print(api)
     fb = Stock(ticker='fb')
-    print(fb.one_month_data)
 
 
 if __name__ == '__main__':

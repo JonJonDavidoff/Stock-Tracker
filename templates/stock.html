@@ -850,7 +850,6 @@
             socket.on('ticker_not_found', function(json) {
                 console.log('dfs');
                 json = JSON.parse(json);
-
                 $(".error-symbol").modal();
                 $('#error-symbol-title').append('<h3 class="modal-title" style="color: #fff;" id="staticBackdropLabel">Unknown symbol, ' + json.ticker + '</h3>')
             });

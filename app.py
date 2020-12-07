@@ -220,3 +220,4 @@ def update_data(list_of_stocks):
 
 if __name__ == '__main__':  # Script executed directly?
     socketio.run(app, debug=True, host="")
+

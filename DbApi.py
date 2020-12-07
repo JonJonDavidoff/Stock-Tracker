@@ -34,7 +34,6 @@ def add_user(first_name, last_name, email, password):
             # TODO create message on ui
             print("User already exists")
             return False
-
     except Exception:
         # TODO Handle Exception properly
         print("Error")
