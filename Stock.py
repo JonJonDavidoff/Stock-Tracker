@@ -45,8 +45,11 @@ class Stock:
         else:
             self._purchase_date = str(purchase_date)
         # TODO Handle Exception
-        api_request = requests.get(
-            api_url + "stable/stock/" + self._ticker + "/batch/?types=quote,stats,logo,company,chart&range=1m&token=" + api_key)
+        try:
+            api_request = requests.get(
+                api_url + "stable/stock/" + self._ticker + "/batch/?types=quote,stats,logo,company,chart&range=1m&token=" + api_key)
+        except requests.exceptions.ConnectionError as e:
+            raise stock_api_exceptions.ConnectionError()
         self.check_response_code(api_request, ticker=ticker)
         api = json.loads(api_request.content)
         # print(api)
@@ -468,6 +471,7 @@ def get_sector_diversity(list_of_stocks):
 
     except Exception as e:
         Logger.Log.get_log().log(file_name='Stock.py', function_name='get_sector_diversity', exception=str(e))
+
 
 # TODO Test Case
 def get_list_of_historcal_data(list_of_stocks, time_range):

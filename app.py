@@ -23,7 +23,7 @@ app.config['SECRET_KEY'] = 'SECRET'
 socketio = SocketIO(app)
 ticker = None
 stock_dashboard_thread = None
-isThreadLive: bool = False
+is_stock_dashboard_thread_live: bool = False
 usernameExsits = False
 
 
@@ -119,14 +119,14 @@ def logout():
 @app.route("/stocks", methods=['GET', 'POST'])
 def on_stocks():
     global stock_dashboard_thread
-    global isThreadLive
+    global is_stock_dashboard_thread_live
     url_dict = request.args.to_dict()
     session['Email'] = session['Email']
     session['ticker'] = url_dict[' ticker']
     try:
         stock_dashboard_thread.join()
         stock_dashboard_thread = None
-        isThreadLive = False
+        is_stock_dashboard_thread_live = False
     except Exception:
         pass
     return redirect(url_for('stock_page'))
@@ -152,15 +152,14 @@ def handle_an_event(json_data, methods=['GET', 'POST']):
                   json.dumps((json.dumps(list_of_stocks_json), json.dumps(stock_diversity_list))))
     # Update live data
     global stock_dashboard_thread
-    global isThreadLive
+    global is_stock_dashboard_thread_live
     stock_dashboard_thread = None
     stock_dashboard_thread = Thread(target=update_data, args=(stock_table,))
-    isThreadLive = True
+    is_stock_dashboard_thread_live = True
     sleep(20)
     stock_dashboard_thread.start()
-
     stock_dashboard_thread.join()
-    isThreadLive = False
+    is_stock_dashboard_thread_live = False
     stock_dashboard_thread = None
 
 
@@ -191,10 +190,10 @@ def add_transaction(json, methods=['GET', 'POST']):
 def stock_page_on_load():
     try:
         try:
-            global isThreadLive
+            global is_stock_dashboard_thread_live
             global stock_dashboard_thread
             stock_dashboard_thread.join()
-            isThreadLive = False
+            is_stock_dashboard_thread_live = False
             stock_dashboard_thread = None
         except Exception:
             pass
@@ -237,10 +236,10 @@ lock = Lock()
 def update_data(list_of_stocks):
     json_list_of_stocks = []
     sleep(0)
-    global isThreadLive
+    global is_stock_dashboard_thread_live
     global stock_dashboard_thread
     while True:
-        if not isThreadLive:
+        if not is_stock_dashboard_thread_live:
             break
         json_list_of_stocks.clear()
         lock.acquire()

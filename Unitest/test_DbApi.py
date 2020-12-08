@@ -16,3 +16,4 @@ class TestDBApi(TestCase):
         global email
         result = DbApi.add_user(first_name='dffds', last_name='fsdfsd', email=email, password='1234667')
         self.assertTrue(result)
+        
