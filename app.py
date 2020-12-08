@@ -17,11 +17,14 @@ import Logger
 import sys
 import StockWithHistory
 
+
 app = Flask(__name__, static_url_path='/static')  # Construct an instance of Flask class for our webapp
 app.config['SECRET_KEY'] = 'SECRET'
 socketio = SocketIO(app)
 ticker = None
 stock_dashboard_thread = None
+isThreadLive: bool = False
+usernameExsits = False
 
 
 @app.route('/stock_page')
@@ -42,6 +45,13 @@ def login():
 
 @app.route('/signup.html')
 def signup():
+    global usernameExsits
+    if usernameExsits:
+        socketio.emit('user_exists', json.dumps({
+            'hellp' : 'h',
+        }))
+        usernameExsits = False
+        print('done')
     return render_template('signup.html')
 
 
@@ -77,6 +87,8 @@ def signup_form():
                 print(str(e))
         else:
             try:
+                global usernameExsits
+                usernameExsits = True
                 return redirect(url_for('signup'))
             except Exception as e:
                 print(str(e))
@@ -106,9 +118,17 @@ def logout():
 
 @app.route("/stocks", methods=['GET', 'POST'])
 def on_stocks():
+    global stock_dashboard_thread
+    global isThreadLive
     url_dict = request.args.to_dict()
     session['Email'] = session['Email']
     session['ticker'] = url_dict[' ticker']
+    try:
+        stock_dashboard_thread.join()
+        stock_dashboard_thread = None
+        isThreadLive = False
+    except Exception:
+        pass
     return redirect(url_for('stock_page'))
 
 
@@ -132,10 +152,16 @@ def handle_an_event(json_data, methods=['GET', 'POST']):
                   json.dumps((json.dumps(list_of_stocks_json), json.dumps(stock_diversity_list))))
     # Update live data
     global stock_dashboard_thread
+    global isThreadLive
+    stock_dashboard_thread = None
     stock_dashboard_thread = Thread(target=update_data, args=(stock_table,))
-    sleep(15)
+    isThreadLive = True
+    sleep(20)
     stock_dashboard_thread.start()
+
     stock_dashboard_thread.join()
+    isThreadLive = False
+    stock_dashboard_thread = None
 
 
 @socketio.on('add_transaction')
@@ -165,8 +191,11 @@ def add_transaction(json, methods=['GET', 'POST']):
 def stock_page_on_load():
     try:
         try:
+            global isThreadLive
             global stock_dashboard_thread
             stock_dashboard_thread.join()
+            isThreadLive = False
+            stock_dashboard_thread = None
         except Exception:
             pass
         is_user_holding_stock = DbApi.stock_exists(user_id=DbApi.get_user_id_by_email(session['Email']),
@@ -188,6 +217,8 @@ def stock_page_on_load():
         print(sys.exc_info())
         Logger.Log.get_log().log(file_name='Stock.py', exception=str(e), function_name='get_company_name')
         socketio.emit("ticker_not_found", json.dumps({'ticker': session['ticker']}))
+    except Exception as e:
+        print(e)
 
 
 @socketio.on('addStock')
@@ -205,8 +236,12 @@ lock = Lock()
 
 def update_data(list_of_stocks):
     json_list_of_stocks = []
-    sleep(15)
+    sleep(0)
+    global isThreadLive
+    global stock_dashboard_thread
     while True:
+        if not isThreadLive:
+            break
         json_list_of_stocks.clear()
         lock.acquire()
         for stock in list_of_stocks:
@@ -215,9 +250,8 @@ def update_data(list_of_stocks):
         socketio.emit('update_data', json.dumps(json_list_of_stocks))
         lock.release()
         print("Update")
-        sleep(20)
+        sleep(200)
 
 
 if __name__ == '__main__':  # Script executed directly?
     socketio.run(app, debug=True, host="")
-

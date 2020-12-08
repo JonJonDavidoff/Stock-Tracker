@@ -256,7 +256,7 @@
                 </div>
             </div>
             <div class="modal fade stockModal error-symbol" id="staticBackdrop" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-dialog modal-dialog-centered  modal-lg" role="document">
                     <div class="modal-content">
                         <div class="modal-header" id="error-symbol-title">
                         </div>
@@ -266,13 +266,13 @@
                     </div>
                 </div>
             </div>
-            <script type="text/javascript" src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
-            <script type="text/javascript" src="{{ url_for('static', filename='js/custom.js') }}"></script>
-            <script type="text/javascript" src=" {{ url_for('static', filename='js/main.js') }}"></script>
-            <script src="{{ url_for('static', filename='js/socketio.js') }}"></script>
-            <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
-            <script type="text/javascript" src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
-            <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/custom.js') }}"></script>
+        <script type="text/javascript" src=" {{ url_for('static', filename='js/main.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/socketio.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
             <script type="text/javascript" src="{{ url_for('static', filename='js/Chart.bundle.min.js') }}"></script>
             <script type="text/javascript" src=" {{ url_for('static', filename='js/swipe/swiper-bundle.min.js') }}"></script>
             <script src=" {{ url_for('static', filename='js/main.js') }}"></script>
@@ -757,8 +757,8 @@
                 });
 
             }
-            </script>
-            <script type="text/javascript">
+        </script>
+        <script type="text/javascript">
             var swiper = new Swiper('.swiper-container', {
 
                 spaceBetween: 30,
@@ -848,7 +848,7 @@
             </script>
             <script type="text/javascript">
             socket.on('ticker_not_found', function(json) {
-                console.log('dfs');
+
                 json = JSON.parse(json);
                 $(".error-symbol").modal();
                 $('#error-symbol-title').append('<h3 class="modal-title" style="color: #fff;" id="staticBackdropLabel">Unknown symbol, ' + json.ticker + '</h3>')

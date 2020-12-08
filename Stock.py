@@ -49,6 +49,7 @@ class Stock:
             api_url + "stable/stock/" + self._ticker + "/batch/?types=quote,stats,logo,company,chart&range=1m&token=" + api_key)
         self.check_response_code(api_request, ticker=ticker)
         api = json.loads(api_request.content)
+        # print(api)
         self._one_month_data = None
         onem_th = threading.Thread(target=self.parse_onem_historical_data, args=(api['chart'], '1m',))
         onem_th.start()
