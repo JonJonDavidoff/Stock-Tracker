@@ -172,3 +172,4 @@ def remove_stock(json, methods=['GET', 'POST']):
 
 if __name__ == '__main__':  # Script executed directly?
     socketio.run(app, debug=True, host="")
+#     dfadf
