@@ -12,7 +12,7 @@ def execute_query(sql):
     except Exception as e:
         print("Error" + str(e))
 
-
+#dnfdknfdknfdkn
 def add_user(first_name, last_name, email, password):
     """
     add_user is a function that check if the user exists in db and if it doesnt exits adds it to db
