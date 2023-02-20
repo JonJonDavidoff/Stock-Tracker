@@ -1,3 +1,4 @@
+const socket = io.connect('http://' + document.domain + ':' + location.port);
 function setFocus(){
 	$("#FirstName").focus();
 }
@@ -57,4 +58,9 @@ function isAllLetters(classToCheck){
 		addError(classToCheck);
 		return false;
 	}
+}
+
+socket.on('user_exists', function(json) {
+	console.log('in');
+	$('#append_error').append('<br/><h6><strong style="color:white">The Email already exists. Please use a different Email</strong></h6>');
 }

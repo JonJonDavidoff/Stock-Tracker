@@ -55,7 +55,7 @@
                                         </button>
                                     </span>
                             </div>
-                            <input type="text" class="form-control search_stock_inp" placeholder="Search" aria-describedby="search_stock">
+                            <input type="text" id="ticker-search" class="form-control search_stock_inp" placeholder="Search" aria-describedby="search_stock">
                             </form>
                         </div>
                         <div class="search_stock_dropdown">
@@ -266,65 +266,6 @@
         </div>
         <!-- --------------- Table -------------- -->
         <div class='table_div'>
-            <!--         <div class="stock_table">
-        <div class="table-responsive"> -->
-            <!--                 <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Symbol</th>
-                        <th>Change per share</th>
-                        <th>Shares</th>
-                        <th>Cost per share</th>
-                        <th>Market value</th>
-                        <th>Daily Gain</th>
-                        <th>Total Gain</th>
-                    </tr>
-                </thead> -->
-            <!--                         <tr>
-                        <td class="table_br"><span class="blue">AAPL</span><br><span>497.6</span></td>
-                        <td class="table_br"><span class="green">+5.5%</span><br><span>497.6</span></td>
-                        <td>1</td>
-                        <td>300.00</td>
-                        <td>497</td>
-                        <td class="table_br">
-                            <span class="green">+6.7</span><br>
-                            <span>+2.78</span>
-                        </td>
-                        <td class="table_br">
-                            <span class="green">+5.5%</span><br>
-                            <span>+5.78</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="table_br"><span class="blue">AAPL</span><br><span>497.6</span></td>
-                        <td class="table_br"><span class="green">+5.5%</span><br><span>497.6</span></td>
-                        <td>1</td>
-                        <td>300.00</td>
-                        <td>497</td>
-                        <td class="table_br">
-                            <span class="green">+6.7</span><br>
-                            <span>+2.78</span>
-                        </td>
-                        <td class="table_br">
-                            <span class="green">+5.5%</span><br>
-                            <span>+5.78</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="table_br"><span class="blue">AAPL</span><br><span>497.6</span></td>
-                        <td class="table_br"><span class="green">+5.5%</span><br><span>497.6</span></td>
-                        <td>1</td>
-                        <td>300.00</td>
-                        <td>497</td>
-                        <td class="table_br">
-                            <span class="green">+6.7</span><br>
-                            <span>+2.78</span>
-                        </td>
-                        <td class="table_br">
-                            <span class="green">+5.5%</span><br>
-                            <span>+5.78</span>
-                        </td>
-                    </tr> -->
             <div class="addStockToTable" data-toggle="modal" data-target="#addStock" style="z-index: 999;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff" width="25px" height="25px">
                     <path d="M0 0h24v24H0z" fill="none" />
@@ -367,210 +308,345 @@
                         </div>
                     </div>
                 </div>
-                <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
-                <script type="text/javascript" src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
-                <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-                <script type="text/javascript" src="{{ url_for('static', filename='js/Chart.bundle.min.js') }}"></script>
-                <script type="text/javascript" src=" {{ url_for('static', filename='js/swipe/swiper-bundle.min.js') }}"></script>
-                <script type="text/javascript" src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
-                <script type="text/javascript" src="{{ url_for('static', filename='js/custom.js') }}"></script>
-                <script type="text/javascript" src=" {{ url_for('static', filename='js/main.js') }}"></script>
-                <script src="{{ url_for('static', filename='js/socketio.js') }}"></script>
-                <script type="text/javascript">
-                const socket = io.connect('http://' + document.domain + ':' + location.port);
-                window.onload = socket.emit('dashboard_load_request', {}); // page load event
-                // response of page load
-                socket.on('dashboard_load_response', function(json) {
-                    json = JSON.parse(json);
-                    console.log(json);
-                    for (let i = 0; i < json.length; ++i) {
-                        add_table_row(json[i]);
-                        add_ticker_to_select(json[i].ticker);
-                    }
+            </div>
+            <div class="modal fade error-illegal-input-ticker" id="error" tabindex="-1" role="dialog" data-keyboard="false" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" id="error-symbol-title">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" onclick="close_error_modal()" class="btn modalClose btn-lg btn-block" style="background-color: #707070" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/Chart.bundle.min.js') }}"></script>
+            <script type="text/javascript" src=" {{ url_for('static', filename='js/swipe/swiper-bundle.min.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/custom.js') }}"></script>
+            <script type="text/javascript" src=" {{ url_for('static', filename='js/main.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/socketio.js') }}"></script>
+            <script type="text/javascript">
+            const socket = io.connect('http://' + document.domain + ':' + location.port);
+            window.onload = socket.emit('dashboard_load_request', {}); // page load event
+            // response of page load
+            var modals = document.getElementsByClassName('modal');
+            console.log(modals);
+            socket.on('dashboard_load_response', function(json) {
+                json = JSON.parse(json);
+                sectors = JSON.parse(json[1]);
+                json = JSON.parse(json[0]);
+                if (json.amount_of_stocks == 0) {
+                    json.amount_of_stocks = '-';
+                }
+                for (let i = 0; i < json.length; ++i) {
+                    add_table_row(json[i]);
+                    add_ticker_to_select(json[i].ticker);
+                }
+                const cakeConfig = add_sector_chart(sectors);
+                var cakeCtx = document.getElementById('cakeStockChart').getContext('2d');
+                window.myDoughnut = new Chart(cakeCtx, cakeConfig);
 
-                });
 
+            });
 
-                const stock_form = ($('.stock_form')).on('submit', function(e) {
-                    e.preventDefault();
-                    const ticker = $(('.search_stock_inp')).val().toUpperCase();
-                    if (ticker != '') {
+            function validate_search_stock(ticker) {
+                var letters = /^[0-9a-zA-Z]+$/;
+                if (ticker.match(letters)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            const stock_form = ($('.stock_form')).on('submit', function(e) {
+                e.preventDefault();
+                const ticker = $(('.search_stock_inp')).val().toUpperCase();
+                if (ticker != '') {
+                    if (validate_search_stock(ticker)) {
                         window.location.replace("http://127.0.0.1:5000/stocks? ticker=" + ticker);
+                    } else {
+                        $('#error-symbol-title').append('<h3 class="modal-title" style="color: #fff;">Please input alphanumeric characters only</h3>');
+                        const modal = $(modals[1]);
+                        modal.modal('show');
+                        document.getElementById('ticker-search').value = '';
                     }
-                });
-                const form = ($('.add_transaction_form')).on('submit', function(e) {
-                    console.log('sub');
-                    e.preventDefault();
-                    // get form data
-                    let ticker = ($("#symbol :selected")).val(); // The value of the selected option
-                    let shares = ($('#shares')).val();
-                    let costPerShare = ($('#costPerShare')).val();
-                    let purchaseDate = ($('#purchaseDate')).val().slice(8, 10) +
-                        ($('#purchaseDate')).val().slice(5, 7) + $('#purchaseDate').val().slice(0, 4); // convert date to db format
-                    ($('.' + ticker)).remove();
-                    ($('.stockModal')).modal('hide'); // hide the modal
-                    socket.emit('add_transaction', { // send to server side
-                        ticker: ticker,
-                        shares: shares,
-                        costPerShare: costPerShare,
-                        purchaseDate: purchaseDate
-                    })
-                });
-                socket.on('response_adding_table_row', function(json) {
-                    location.reload();
-                });
+                }
+            });
 
+            function close_error_modal() {
+                $('.modal-title').remove();
+                const modal = $(modals[1]);
+                modal.modal('hide'); // hide the modal
+            }
 
-                function get_table_classes(json) {
-                    // get_table_classes is a function that gets the json and returns the appropriate classes
-                    let total_change_class;
-                    let daily_change_class;
-                    // Check total change class
-                    if (json.total_change != "-") {
-                        if (json.total_change > 0) {
-                            total_change_class = "green";
+            const form = ($('.add_transaction_form')).on('submit', function(e) {
+                console.log('sub');
+                e.preventDefault();
+                // get form data
+                let ticker = ($("#symbol :selected")).val(); // The value of the selected option
+                let shares = ($('#shares')).val();
+                let costPerShare = ($('#costPerShare')).val();
+                let purchaseDate = ($('#purchaseDate')).val().slice(8, 10) +
+                    ($('#purchaseDate')).val().slice(5, 7) + $('#purchaseDate').val().slice(0, 4); // convert date to db format
+                ($('.' + ticker)).remove();
+                ($('.stockModal')).modal('hide'); // hide the modal
+                socket.emit('add_transaction', { // send to server side
+                    ticker: ticker,
+                    shares: shares,
+                    costPerShare: costPerShare,
+                    purchaseDate: purchaseDate
+                })
+            });
+            socket.on('response_adding_table_row', function(json) {
+                location.reload();
+            });
+
+            socket.on('update_data', function(json) {
+                json = JSON.parse(json);
+                for (let i = 0; i < json.length; ++i) {
+                    update_table_row(json[i]);
+
+                }
+            });
+
+            function get_table_classes(json) {
+                // get_table_classes is a function that gets the json and returns the appropriate classes
+                let total_change_class;
+                let daily_change_class;
+                // Check total change class
+                if (json.total_change != "-") {
+                    if (json.total_change > 0) {
+                        total_change_class = "green";
+                    } else {
+                        total_change_class = "red";
+                    }
+                } else {
+                    total_change_class = "";
+                }
+                // Check daily change class
+
+                if (json.daily_change === 0) {
+                    daily_change_class = "";
+                } else if (json.daily_change > 0) {
+                    daily_change_class = "green";
+                } else {
+                    daily_change_class = "red";
+                }
+                return {
+                    "total_change_class": total_change_class,
+                    "daily_change_class": daily_change_class
+                }
+            }
+
+            function round_up_data(json) {
+                // Converting to only two numbers after .
+                json.price = json.price.toFixed(2);
+                if (json.total_change != '-') {
+                    json.total_change = round_up_number_to_2_digits(json.total_change);
+                }
+                json.daily_change = json.daily_change.toFixed(2);
+                if (json.total_change_money != '-') {
+                    json.total_change_money = round_up_number_to_2_digits(json.total_change_money);
+                }
+                //Converting to number
+                json.price = Number(json.price);
+                json.daily_change = Number(json.daily_change);
+                return json;
+            }
+
+            function getOpositeColor(color) {
+                if (color == "red") {
+                    return "green";
+                } else {
+                    return "red";
+                }
+            }
+
+            function addClassToElement(element, classToCheck) {
+                if (classToCheck != "") {
+                    if (!element.hasClass(classToCheck)) {
+                        const OpositeColor = getOpositeColor(classToCheck);
+                        if (element.hasClass(OpositeColor)) {
+                            element.removeClass(OpositeColor);
+                            element.addClass(classToCheck);
                         } else {
-                            total_change_class = "red";
+                            element.addClass(classToCheck);
                         }
-                    } else {
-                        total_change_class = "";
                     }
-                    // Check daily change class
-
-                    if (json.daily_change === 0) {
-                        daily_change_class = "";
-                    } else if (json.daily_change > 0) {
-                        daily_change_class = "green";
+                } else {
+                    if (element.hasClass("red")) {
+                        element.removeClass('red');
                     } else {
-                        daily_change_class = "red";
-                    }
-                    return {
-                        "total_change_class": total_change_class,
-                        "daily_change_class": daily_change_class
+                        element.removeClass('green');
                     }
                 }
+            }
 
-                function round_up_data(json) {
-                    // Converting to only two numbers after .
-                    console.log(json.price);
-                    json.price = json.price.toFixed(2);
-                    if (json.total_change != '-') {
-                        json.total_change = json.total_change.toFixed(2);
-                        json.total_change = Number(json.total_change);
-                    }
-                    json.daily_change = json.daily_change.toFixed(2);
-                    if (json.total_change_money != '-') {
-                        json.total_change_money = json.total_change_money.toFixed(2);
-                        json.total_change_money = Number(json.total_change_money);
-                    }
-                    //Converting to number
-                    json.price = Number(json.price);
-                    json.daily_change = Number(json.daily_change);
-                    return json;
 
-                }
+            function update_table_row(json) {
+                classes = get_table_classes(json);
+                $('.' + json.ticker + '_price').text(json.price);
+                $('.' + json.ticker + '_holdings').text(json.stock_holdings);
+                const daily_change = $('.' + json.ticker + '_daily_change');
+                addClassToElement(daily_change, classes['daily_change_class']);
+                daily_change.text(json.daily_change + '%');
+                $('.' + json.ticker + '_daily_change_money').text(json.daily_change_money);
+                const total_change = $('.' + json.ticker + '_total_change');
+                total_change.text(json.total_change + '%');;
+                $('.' + json.ticker + "_total_change_money").text
 
-                function get_date(purchase_date) {
-                    console.log(purchase_date);
-                    if (purchase_date != '-') {
-                        // Convert date to short format
-                        purchase_date = purchase_date.slice(4) +"-"+ purchase_date.slice(2,4) +  "-"+ purchase_date.slice(0,2);
-                         return new Date(purchase_date).toLocaleDateString("he-IL");
-                    }
-                    return purchase_date;
-                }
 
-                function add_row_append(json, table_classes, currentDate) {
-                    row = "<tr class='" + json.ticker + "'><td class='table_br'><span class='blue'>" + json.ticker + "</span><br><span>" + json.price + "</span></td><td class='table_br'>";
-                    if (json.total_change == '-') {
-                        row = row + "<span class=>" + json.total_change + "</span><br>";
-                    } else {
-                        row = row + "<span class=" + table_classes.total_change_class + ">" + json.total_change + "%</span><br>";
-                    }
-                    row = row + "<span>" + json.price + "</span></td><td>" + json.amount_of_stocks + "</td><td>" +
-                        json.cost + "</td><td>" + json.stock_holdings + "</td>";
-                    if (json.daily_change == '-') {
-                        row = row + "<td class='table_br'><span>" + json.daily_change + "</span><br>";
-                    } else {
-                        row = row + "<td class='table_br'><span class=" + table_classes.daily_change_class + ">" + json.daily_change + "%</span><br>";
-                    }
-                    row = row + "<span>" + json.daily_change_money + "</span></td><td class='table_br'>";
-                    if (json.total_change == '-') {
-                        row = row + "<span>" + json.total_change + "</span><br>";
-                    } else {
-                        row = row + "<span class='" + table_classes.total_change_class + "'>" + json.total_change + "%</span><br>";
-                    }
-                    row = row + "<span>" + json.total_change_money + "</span></td><td class='table_br'>";
-                    row = row + " <span>" + currentDate + "</span></td></tr>";
-                   
+            }
 
-                    $('tbody.stock_table_body').append(row);
-                }
+            function round_up_number_to_2_digits(num) {
+                num = num.toFixed(2);
+                return Number(num);
+            }
 
-                function add_table_row(json) {
-                    if (typeof $('table').val() === 'undefined') { // if table does not exists
-                        $('div.table_div').append('<div class="stock_table"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Symbol</th><th>Change per share</th><th>Shares</th><th>Cost per share</th><th>Market value</th><th>Daily Gain</th><th>Total Gain</th><th>Purchase Date</th></tr>  </thead><tbody class="stock_table_body"></tbody>');
-                        $('h3').remove()
-                    }
-                    // Get correct classes
-                    table_classes = get_table_classes(json);
-                    // Round up data to 2 digits after 2
-                    json = round_up_data(json);
+            function get_date(purchase_date) {
+                if (purchase_date != '-') {
                     // Convert date to short format
-
-                    let currentDate = get_date(json.purchase_date);
-                    let row = $('.' + json.ticker);
-                    if (row != undefined) {
-                         row.remove();
-                    } 
-                    add_row_append(json, table_classes, currentDate);
+                    purchase_date = purchase_date.slice(4) + "-" + purchase_date.slice(2, 4) + "-" + purchase_date.slice(0, 2);
+                    return new Date(purchase_date).toLocaleDateString("he-IL");
                 }
+                return purchase_date;
+            }
 
-
-                function add_ticker_to_select(ticker) {
-                    $('#symbol').append('<option>' + ticker + '</option>');
+            function add_row_append(json, table_classes, currentDate) {
+                const price_class = json.ticker + '_price';
+                const stock_holdings_class = json.ticker + '_holdings';
+                const daily_change_class_search = json.ticker + '_daily_change';
+                const daily_change_money_class = json.ticker + '_daily_change_money';
+                const total_change_class_search = json.ticker + '_total_change';
+                const total_change_money_class = json.ticker + "_total_change_money";
+                row = "<tr class='" + json.ticker + "'><td class='table_br'><span class='blue'><a href='http://127.0.0.1:5000/stocks? ticker=" + json.ticker + "'>" + json.ticker + "</a></span><br><span class=" + price_class + ">" + json.price + "</span></td><td class='table_br'>";
+                if (json.total_change == '-') {
+                    row = row + "<span class=>" + json.total_change + "</span><br>";
+                } else {
+                    row = row + "<span class=" + table_classes.total_change_class + ">" + json.total_change + "%</span><br>";
                 }
+                row = row + "<span class=" + price_class + ">" + json.price + "</span></td><td>" + json.amount_of_stocks + "</td><td>" +
+                    json.cost + "</td><td class=" + stock_holdings_class + ">" + json.stock_holdings + "</td>";
+                if (json.daily_change == '-') {
+                    console.log('in if');
+                    row = row + "<td class='table_br'><span class=" + daily_change_class_search + ">" + json.daily_change + "%</span><br>";
+                } else {
+                    row = row + "<td class='table_br'><span class='" + daily_change_class_search + " " + table_classes['daily_change_class'] + "'>" + json.daily_change + "%</span><br>";
+                }
+                row = row + "<span class=" + daily_change_money_class + ">" + json.daily_change_money + "</span></td><td class='table_br'>";
+                if (json.total_change == '-') {
+                    row = row + "<span>" + json.total_change + "</span><br>";
+                } else {
+                    row = row + "<span class='" + table_classes.total_change_class + " " + total_change_class_search + "'>" + json.total_change + "%</span><br>";
+                }
+                row = row + "<span class='" + total_change_money_class + "'>" + json.total_change_money + "</span></td><td class='table_br'>";
+                row = row + " <span>" + currentDate + "</span></td></tr>";
+                $('tbody.stock_table_body').append(row);
+                // console.log($('.' + daily_change_class_search));
+            }
+
+            function add_table_row(json) {
+                if (typeof $('table').val() === 'undefined') { // if table does not exists
+                    $('div.table_div').append('<div class="stock_table"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Symbol</th><th>Change per share</th><th>Shares</th><th>Cost per share</th><th>Market value</th><th>Daily Gain</th><th>Total Gain</th><th>Purchase Date</th></tr>  </thead><tbody class="stock_table_body"></tbody>');
+                    $('h3').remove()
+                }
+                // Get correct classes
+                table_classes = get_table_classes(json);
+                // Round up data to 2 digits after 2
+                json = round_up_data(json);
+                // Convert date to short format
+
+                let currentDate = get_date(json.purchase_date);
+                let row = $('.' + json.ticker);
+                if (row != undefined) {
+                    row.remove();
+                }
+                add_row_append(json, table_classes, currentDate);
+            }
 
 
-                var swiper = new Swiper('.swiper-container', {
-                    spaceBetween: 30,
-                    navigation: {
-                        nextEl: '.swiper-button-next',
-                        prevEl: '.swiper-button-prev',
-                    },
-                    variableWidth: false,
-                    slidesPerView: "auto"
+            function add_ticker_to_select(ticker) {
+                $('#symbol').append('<option>' + ticker + '</option>');
+            }
 
-                });
 
-                // ---------- Chart Chart
-                var cakeConfig = {
+            var swiper = new Swiper('.swiper-container', {
+                spaceBetween: 30,
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+                variableWidth: false,
+                slidesPerView: "auto"
+
+            });
+
+            function get_sector_color(sector) {
+                sector_dict = {
+                    'Electronic_Technology': '#65fede',
+                    'Distribution_Services': '#16d27b',
+                    'Health_Technology': '#eef03e',
+                    'Commercial_Services': '#ef3c2e',
+                    'Industrial_Services': '#1a1c20',
+                    'Finance': '#cf7500',
+                    'Process_Industries': '#f0a500',
+                    'Transportation': '#03c4a1',
+                    'Technology_Services': '#150485',
+                    'Producer_Manufacturing': '#590995',
+                    'Retail_Trade': '#7579e7',
+                    'Consumer_Services': '#9AB3F5',
+                    'Non-Energy_Minerals': '#a3d8f4',
+                    'Utilities': '#b9fffc',
+                    'Miscellaneous': '#625261',
+                    'Health_Services': '#a6a6a4',
+                    'Consumer_Durables': '#89beb3',
+                    'Consumer_Non-Durables': '#a4b787',
+                    'Communications': '#aa3a3a',
+                    'Energy_Minerals': '#595b83',
+                    'Government': '060930',
+                    'other': '#f4abc4'
+                }
+                return sector_dict[sector];
+            }
+
+            function get_sum_of_json(sector_list) {
+                let sum = 0;
+                for (let sector in sector_list) {
+                    sum = sum + sector_list[sector];
+                }
+                return sum;
+            }
+
+            // ---------- Chart Chart
+            function add_sector_chart(sector_list) {
+                let data = [];
+                const sum = get_sum_of_json(sector_list);
+                let index = 0;
+
+                let precentge = 0;
+                let list_of_colors = [];
+                let list_of_labels = [];
+                for (let sector in sector_list) {
+                    precentge = round_up_number_to_2_digits((sector_list[sector] / sum) * 100);
+                    data[index++] = precentge;
+                    list_of_colors.push(get_sector_color(sector));
+                    list_of_labels.push(precentge + "% " + sector.replace('_', ' '));
+                }
+                const cakeConfig = {
                     type: 'doughnut',
                     data: {
                         datasets: [{
-                            data: [
-                                50,
-                                25,
-                                20,
-                                5
-
-                            ],
-                            backgroundColor: [
-                                "rgba(255,35,31,1)",
-                                "rgba(255,147,39,1)",
-                                "rgba(94, 119, 255, 1)",
-                                "blue"
-                            ],
+                            data: data,
+                            backgroundColor: list_of_colors,
                             label: 'Stock',
                             borderColor: '#fff',
                             borderWidth: 0,
                         }],
-                        labels: [
-                            '50% Consumer',
-                            '25% HealthCare',
-                            '20% Others',
-                            '5% Tech'
-                        ]
+                        labels: list_of_labels
                     },
                     options: {
                         responsive: true,
@@ -588,396 +664,396 @@
                     }
                 };
 
-                // ---------- Line Chart
-                function lineChartData(labels, datasets) {
-                    return {
-                        labels: labels,
-                        datasets: datasets
-                    }
-                }
+                return cakeConfig;
+            }
 
-                const lineChartOptions = {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    tooltips: {
-                        mode: 'nearest',
-                        intersect: false,
-                        backgroundColor: '#393f49',
-                        titleMarginBottom: 8,
-                        titleFontSize: 14,
-                        titleFontColor: '#f8f9fa',
-                        titleFontFamily: "'Overpass', sans-serif",
-                        bodyFontSize: 11,
-                        bodyFontColor: '#d7d9e0',
-                        bodyFontFamily: "'Overpass', sans-serif",
-                        footerMarginTop: 10,
-                        footerFontSize: 11,
-                        footerFontColor: '#f8f9fa',
-                        footerFontFamily: "'Overpass', sans-serif",
-                        xPadding: 10,
-                        yPadding: 10,
-                        caretPadding: 5,
-                        cornerRadius: 4,
+
+
+            // ---------- Line Chart
+            function lineChartData(labels, datasets) {
+                return {
+                    labels: labels,
+                    datasets: datasets
+                }
+            }
+
+            const lineChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                tooltips: {
+                    mode: 'nearest',
+                    intersect: false,
+                    backgroundColor: '#393f49',
+                    titleMarginBottom: 8,
+                    titleFontSize: 14,
+                    titleFontColor: '#f8f9fa',
+                    titleFontFamily: "'Overpass', sans-serif",
+                    bodyFontSize: 11,
+                    bodyFontColor: '#d7d9e0',
+                    bodyFontFamily: "'Overpass', sans-serif",
+                    footerMarginTop: 10,
+                    footerFontSize: 11,
+                    footerFontColor: '#f8f9fa',
+                    footerFontFamily: "'Overpass', sans-serif",
+                    xPadding: 10,
+                    yPadding: 10,
+                    caretPadding: 5,
+                    cornerRadius: 4,
+                },
+                legend: {
+                    labels: {
+                        padding: 30,
+                        fontSize: 14,
+                        fontColor: '#6c757d',
+                        fontFamily: "'Overpass', sans-serif",
+                        boxWidth: 14,
                     },
-                    legend: {
-                        labels: {
-                            padding: 30,
-                            fontSize: 14,
-                            fontColor: '#6c757d',
-                            fontFamily: "'Overpass', sans-serif",
-                            boxWidth: 14,
+                },
+                scales: {
+                    xAxes: [{
+                        gridLines: {
+                            lineWidth: 0,
+                            color: 'transparent',
+                            zeroLineWidth: 0,
+                            zeroLineColor: 'transparent',
                         },
-                    },
-                    scales: {
-                        xAxes: [{
-                            gridLines: {
-                                lineWidth: 0,
-                                color: 'transparent',
-                                zeroLineWidth: 0,
-                                zeroLineColor: 'transparent',
-                            },
-                            ticks: {
-                                fontSize: 12,
-                                fontColor: '#bcbec0',
-                                fontFamily: "'Overpass', sans-serif",
-                            },
-                        }],
-                        yAxes: [{
-                            gridLines: {
-                                lineWidth: 0,
-                                color: 'transparent',
-                                zeroLineWidth: 0,
-                                zeroLineColor: 'transparent',
-                            },
-                            ticks: {
-                                fontSize: 12,
-                                fontColor: '#bcbec0',
-                                fontFamily: "'Overpass', sans-serif",
-                            },
-                        }],
-                    },
-                };
+                        ticks: {
+                            fontSize: 12,
+                            fontColor: '#bcbec0',
+                            fontFamily: "'Overpass', sans-serif",
+                        },
+                    }],
+                    yAxes: [{
+                        gridLines: {
+                            lineWidth: 0,
+                            color: 'transparent',
+                            zeroLineWidth: 0,
+                            zeroLineColor: 'transparent',
+                        },
+                        ticks: {
+                            fontSize: 12,
+                            fontColor: '#bcbec0',
+                            fontFamily: "'Overpass', sans-serif",
+                        },
+                    }],
+                },
+            };
 
 
-                chartElement = (el) => {
-                    return document.querySelector(el).getContext('2d');
-                }
+            chartElement = (el) => {
+                return document.querySelector(el).getContext('2d');
+            }
 
 
-                window.onload = function() {
-                    var cakeCtx = document.getElementById('cakeStockChart').getContext('2d');
-                    window.myDoughnut = new Chart(cakeCtx, cakeConfig);
 
 
-                    // All Linechart
-                    var chartLine = new Chart(chartElement("#lineStockChart"), {
-                        type: 'line',
-                        data: lineChartData(
-                            ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                            [{
-                                    label: 'Chart 1',
-                                    backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                                    borderColor: 'transparent',
-                                    borderWidth: 0,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 3,
-                                    pointHitRadius: 100,
-                                    pointBackgroundColor: 'transparent',
-                                    pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                                    data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
-                                },
-                                {
-                                    label: 'Chart 2',
-                                    backgroundColor: 'rgba(171, 184, 255, 0.8)',
-                                    borderColor: 'transparent',
-                                    borderWidth: 0,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 3,
-                                    pointHitRadius: 100,
-                                    pointBackgroundColor: 'transparent',
-                                    pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
-                                    data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
-                                }
-                            ],
-                        ),
-                        options: lineChartOptions
-                    });
+            // All Linechart
+            var chartLine = new Chart(chartElement("#lineStockChart"), {
+                type: 'line',
+                data: lineChartData(
+                    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                    [{
+                            label: 'Chart 1',
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
+                        },
+                        {
+                            label: 'Chart 2',
+                            backgroundColor: 'rgba(171, 184, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
+                            data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
+                        }
+                    ],
+                ),
+                options: lineChartOptions
+            });
 
 
-                    // All Linechart - 1m
-                    var chartLine = new Chart(chartElement("#lineStockChart_1m"), {
-                        type: 'line',
-                        data: lineChartData(
-                            ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                            [{
-                                    label: 'Chart 1',
-                                    backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                                    borderColor: 'transparent',
-                                    borderWidth: 0,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 3,
-                                    pointHitRadius: 100,
-                                    pointBackgroundColor: 'transparent',
-                                    pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                                    data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
-                                },
-                                {
-                                    label: 'Chart 2',
-                                    backgroundColor: 'rgba(171, 184, 255, 0.8)',
-                                    borderColor: 'transparent',
-                                    borderWidth: 0,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 3,
-                                    pointHitRadius: 100,
-                                    pointBackgroundColor: 'transparent',
-                                    pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
-                                    data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
-                                }
-                            ],
-                        ),
-                        options: lineChartOptions
-                    });
+            // All Linechart - 1m
+            var chartLine = new Chart(chartElement("#lineStockChart_1m"), {
+                type: 'line',
+                data: lineChartData(
+                    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                    [{
+                            label: 'Chart 1',
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
+                        },
+                        {
+                            label: 'Chart 2',
+                            backgroundColor: 'rgba(171, 184, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
+                            data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
+                        }
+                    ],
+                ),
+                options: lineChartOptions
+            });
 
-                    // All Linechart - 3m
-                    var chartLine = new Chart(chartElement("#lineStockChart_3m"), {
-                        type: 'line',
-                        data: lineChartData(
-                            ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                            [{
-                                    label: 'Chart 1',
-                                    backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                                    borderColor: 'transparent',
-                                    borderWidth: 0,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 3,
-                                    pointHitRadius: 100,
-                                    pointBackgroundColor: 'transparent',
-                                    pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                                    data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
-                                },
-                                {
-                                    label: 'Chart 2',
-                                    backgroundColor: 'rgba(171, 184, 255, 0.8)',
-                                    borderColor: 'transparent',
-                                    borderWidth: 0,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 3,
-                                    pointHitRadius: 100,
-                                    pointBackgroundColor: 'transparent',
-                                    pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
-                                    data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
-                                }
-                            ],
-                        ),
-                        options: lineChartOptions
-                    });
+            // All Linechart - 3m
+            var chartLine = new Chart(chartElement("#lineStockChart_3m"), {
+                type: 'line',
+                data: lineChartData(
+                    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                    [{
+                            label: 'Chart 1',
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
+                        },
+                        {
+                            label: 'Chart 2',
+                            backgroundColor: 'rgba(171, 184, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
+                            data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
+                        }
+                    ],
+                ),
+                options: lineChartOptions
+            });
 
-                    // All Linechart - 6m
-                    var chartLine = new Chart(chartElement("#lineStockChart_6m"), {
-                        type: 'line',
-                        data: lineChartData(
-                            ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                            [{
-                                    label: 'Chart 1',
-                                    backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                                    borderColor: 'transparent',
-                                    borderWidth: 0,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 3,
-                                    pointHitRadius: 100,
-                                    pointBackgroundColor: 'transparent',
-                                    pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                                    data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
-                                },
-                                {
-                                    label: 'Chart 2',
-                                    backgroundColor: 'rgba(171, 184, 255, 0.8)',
-                                    borderColor: 'transparent',
-                                    borderWidth: 0,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 3,
-                                    pointHitRadius: 100,
-                                    pointBackgroundColor: 'transparent',
-                                    pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
-                                    data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
-                                }
-                            ],
-                        ),
-                        options: lineChartOptions
-                    });
+            // All Linechart - 6m
+            var chartLine = new Chart(chartElement("#lineStockChart_6m"), {
+                type: 'line',
+                data: lineChartData(
+                    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                    [{
+                            label: 'Chart 1',
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
+                        },
+                        {
+                            label: 'Chart 2',
+                            backgroundColor: 'rgba(171, 184, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
+                            data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
+                        }
+                    ],
+                ),
+                options: lineChartOptions
+            });
 
-                    // All Linechart - ytd
-                    var chartLine = new Chart(chartElement("#lineStockChart_ytd"), {
-                        type: 'line',
-                        data: lineChartData(
-                            ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                            [{
-                                    label: 'Chart 1',
-                                    backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                                    borderColor: 'transparent',
-                                    borderWidth: 0,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 3,
-                                    pointHitRadius: 100,
-                                    pointBackgroundColor: 'transparent',
-                                    pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                                    data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
-                                },
-                                {
-                                    label: 'Chart 2',
-                                    backgroundColor: 'rgba(171, 184, 255, 0.8)',
-                                    borderColor: 'transparent',
-                                    borderWidth: 0,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 3,
-                                    pointHitRadius: 100,
-                                    pointBackgroundColor: 'transparent',
-                                    pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
-                                    data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
-                                }
-                            ],
-                        ),
-                        options: lineChartOptions
-                    });
+            // All Linechart - ytd
+            var chartLine = new Chart(chartElement("#lineStockChart_ytd"), {
+                type: 'line',
+                data: lineChartData(
+                    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                    [{
+                            label: 'Chart 1',
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
+                        },
+                        {
+                            label: 'Chart 2',
+                            backgroundColor: 'rgba(171, 184, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
+                            data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
+                        }
+                    ],
+                ),
+                options: lineChartOptions
+            });
 
-                    // All Linechart - 1y
-                    var chartLine = new Chart(chartElement("#lineStockChart_1y"), {
-                        type: 'line',
-                        data: lineChartData(
-                            ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                            [{
-                                    label: 'Chart 1',
-                                    backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                                    borderColor: 'transparent',
-                                    borderWidth: 0,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 3,
-                                    pointHitRadius: 100,
-                                    pointBackgroundColor: 'transparent',
-                                    pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                                    data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
-                                },
-                                {
-                                    label: 'Chart 2',
-                                    backgroundColor: 'rgba(171, 184, 255, 0.8)',
-                                    borderColor: 'transparent',
-                                    borderWidth: 0,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 3,
-                                    pointHitRadius: 100,
-                                    pointBackgroundColor: 'transparent',
-                                    pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
-                                    data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
-                                }
-                            ],
-                        ),
-                        options: lineChartOptions
-                    });
+            // All Linechart - 1y
+            var chartLine = new Chart(chartElement("#lineStockChart_1y"), {
+                type: 'line',
+                data: lineChartData(
+                    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                    [{
+                            label: 'Chart 1',
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
+                        },
+                        {
+                            label: 'Chart 2',
+                            backgroundColor: 'rgba(171, 184, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
+                            data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
+                        }
+                    ],
+                ),
+                options: lineChartOptions
+            });
 
-                    // All Linechart - 2y
-                    var chartLine = new Chart(chartElement("#lineStockChart_2y"), {
-                        type: 'line',
-                        data: lineChartData(
-                            ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                            [{
-                                    label: 'Chart 1',
-                                    backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                                    borderColor: 'transparent',
-                                    borderWidth: 0,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 3,
-                                    pointHitRadius: 100,
-                                    pointBackgroundColor: 'transparent',
-                                    pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                                    data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
-                                },
-                                {
-                                    label: 'Chart 2',
-                                    backgroundColor: 'rgba(171, 184, 255, 0.8)',
-                                    borderColor: 'transparent',
-                                    borderWidth: 0,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 3,
-                                    pointHitRadius: 100,
-                                    pointBackgroundColor: 'transparent',
-                                    pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
-                                    data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
-                                }
-                            ],
-                        ),
-                        options: lineChartOptions
-                    });
+            // All Linechart - 2y
+            var chartLine = new Chart(chartElement("#lineStockChart_2y"), {
+                type: 'line',
+                data: lineChartData(
+                    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                    [{
+                            label: 'Chart 1',
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
+                        },
+                        {
+                            label: 'Chart 2',
+                            backgroundColor: 'rgba(171, 184, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
+                            data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
+                        }
+                    ],
+                ),
+                options: lineChartOptions
+            });
 
-                    // All Linechart - 3y
-                    var chartLine = new Chart(chartElement("#lineStockChart_3y"), {
-                        type: 'line',
-                        data: lineChartData(
-                            ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                            [{
-                                    label: 'Chart 1',
-                                    backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                                    borderColor: 'transparent',
-                                    borderWidth: 0,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 3,
-                                    pointHitRadius: 100,
-                                    pointBackgroundColor: 'transparent',
-                                    pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                                    data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
-                                },
-                                {
-                                    label: 'Chart 2',
-                                    backgroundColor: 'rgba(171, 184, 255, 0.8)',
-                                    borderColor: 'transparent',
-                                    borderWidth: 0,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 3,
-                                    pointHitRadius: 100,
-                                    pointBackgroundColor: 'transparent',
-                                    pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
-                                    data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
-                                }
-                            ],
-                        ),
-                        options: lineChartOptions
-                    });
+            // All Linechart - 3y
+            var chartLine = new Chart(chartElement("#lineStockChart_3y"), {
+                type: 'line',
+                data: lineChartData(
+                    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                    [{
+                            label: 'Chart 1',
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
+                        },
+                        {
+                            label: 'Chart 2',
+                            backgroundColor: 'rgba(171, 184, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
+                            data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
+                        }
+                    ],
+                ),
+                options: lineChartOptions
+            });
 
-                    // All Linechart - 5y
-                    var chartLine = new Chart(chartElement("#lineStockChart_5y"), {
-                        type: 'line',
-                        data: lineChartData(
-                            ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                            [{
-                                    label: 'Chart 1',
-                                    backgroundColor: 'rgba(94, 119, 255, 0.8)',
-                                    borderColor: 'transparent',
-                                    borderWidth: 0,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 3,
-                                    pointHitRadius: 100,
-                                    pointBackgroundColor: 'transparent',
-                                    pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
-                                    data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
-                                },
-                                {
-                                    label: 'Chart 2',
-                                    backgroundColor: 'rgba(171, 184, 255, 0.8)',
-                                    borderColor: 'transparent',
-                                    borderWidth: 0,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 3,
-                                    pointHitRadius: 100,
-                                    pointBackgroundColor: 'transparent',
-                                    pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
-                                    data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
-                                }
-                            ],
-                        ),
-                        options: lineChartOptions
-                    });
-
-                }
-                </script>
+            // All Linechart - 5y
+            var chartLine = new Chart(chartElement("#lineStockChart_5y"), {
+                type: 'line',
+                data: lineChartData(
+                    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                    [{
+                            label: 'Chart 1',
+                            backgroundColor: 'rgba(94, 119, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(94, 119, 255, 1)',
+                            data: [0, 9, 15, 10, 30, 15, 25, 18, 20],
+                        },
+                        {
+                            label: 'Chart 2',
+                            backgroundColor: 'rgba(171, 184, 255, 0.8)',
+                            borderColor: 'transparent',
+                            borderWidth: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 3,
+                            pointHitRadius: 100,
+                            pointBackgroundColor: 'transparent',
+                            pointHoverBackgroundColor: 'rgba(171, 184, 255, 1)',
+                            data: [0, 10, 10, 13, 10, 20, 10, 10, 25],
+                        }
+                    ],
+                ),
+                options: lineChartOptions
+            });
+            </script>
 </body>
 
 </html>

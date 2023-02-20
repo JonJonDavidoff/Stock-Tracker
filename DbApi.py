@@ -1,6 +1,7 @@
 import pyodbc
 import User
 import Stock
+import Logger
 
 
 def execute_query(sql):
@@ -10,7 +11,7 @@ def execute_query(sql):
         conn_and_cursor[0].commit()
         close_conn(conn_and_cursor[1])
     except Exception as e:
-        print("Error" + str(e))
+        Logger.Log.get_log().log(file_name='Stock.py', exception=str(e), function_name='update_stock')
 
 #dnfdknfdknfdkn
 def add_user(first_name, last_name, email, password):
@@ -33,7 +34,6 @@ def add_user(first_name, last_name, email, password):
             # TODO create message on ui
             print("User already exists")
             return False
-
     except Exception:
         # TODO Handle Exception properly
         print("Error")
@@ -44,16 +44,13 @@ def is_exist(sql):
     is_exist is a function that checks if a user exists in a db
     :return: bool values True if user exists False if it does not
     """
-    try:
-        data = execute_select_query(
-            sql=sql)
-        print(data)
-        if len(data) > 0:
-            return True
-        else:
-            return False
-    except Exception as e:
-        print(str(e))
+    data = execute_select_query(
+        sql=sql)
+    print(data)
+    if len(data) > 0:
+        return True
+    else:
+        return False
 
 
 def execute_select_query(sql):
@@ -62,15 +59,12 @@ def execute_select_query(sql):
     :param sql: select query
     :return: the requested data
     """
-    try:
-        conn_and_cursor = create_conn()
-        conn_and_cursor[0].execute(sql)
-        data = conn_and_cursor[0].fetchall()
-        conn_and_cursor[0].commit()
-        close_conn(conn_and_cursor[1])
-        return data
-    except Exception as e:
-        print("Error  " + str(e))
+    conn_and_cursor = create_conn()
+    conn_and_cursor[0].execute(sql)
+    data = conn_and_cursor[0].fetchall()
+    conn_and_cursor[0].commit()
+    close_conn(conn_and_cursor[1])
+    return data
 
 
 def create_conn(db_name="StockTracker"):
@@ -79,7 +73,7 @@ def create_conn(db_name="StockTracker"):
     :param db_name: the db's name
     :return: tuple of connection and cursor for actions
     """
-    conn = pyodbc.connect('Driver={SQL Server};'
+    conn = pyodbc.connect('Driver={ODBC Driver 17 for SQL Server};'
                           'Server=DESKTOP-RDOEULV;'
                           'Database=' + db_name + ';'
                                                   'Trusted_Connection=yes;UID=sa;PWD=jonjon1212')
@@ -200,7 +194,6 @@ def get_users_stock_by_ticker(user_id, ticker):
     data = data_to_list(data)
     print(data)
     return Stock.Stock(ticker=data[0][1], amount_of_stocks=data[0][2], cost=data[0][4], purchase_date=data[0][5])
-
     # print("Error... " + str(e))
 
 
@@ -304,82 +297,6 @@ def data_to_list(data):
     return list
 
 
-def get_users_stocks_by_user_id(user_id):
-    """
-    get_users_stocks_by_user_id is a function that gets a user id and returns all of the users stocks
-    :param user_id: the user id to search for
-    :return: list of Stocks
-    """
-    # get data from db
-    stock_data = execute_select_query(sql="SELECT * FROM dbo.Stocks WHERE user_id=" + str(user_id))
-    # convert data to list
-    list_of_stocks = data_to_list(stock_data)
-    # move data to list of all stocks
-    return_user_stocks_list = []
-    temp_stock = 0
-    for stock in list_of_stocks:
-        ticker = stock[1]
-        amount_of_stocks = stock[2]
-        cost = stock[4]
-        purchase_date = str(stock[5])
-        temp_stock = Stock.Stock(ticker=ticker, amount_of_stocks=amount_of_stocks, cost=cost,
-                                 purchase_date=purchase_date)
-        return_user_stocks_list.append(temp_stock)
-    return return_user_stocks_list
-
-
-def get_users_stock_by_ticker(user_id, ticker):
-    try:
-        sql = "SELECT * FROM dbo.Stocks WHERE ticker='" + ticker + "' AND user_id=" + str(user_id)
-        data = execute_select_query(sql)
-        data = data_to_list(data)
-        return Stock.Stock(ticker=data[0][1], amount_of_stocks=data[0][2], cost=data[0][4], purchase_date=data[0][5])
-    except Exception as e:
-        print("Error... " + str(e))
-
-
-def get_users_stocks_by_email(email):
-    """
-     get_users_stocks_by_user_id is a function that gets an email and returns all of the users stocks
-    :param email:
-    :return:
-    """
-    return get_users_stocks_by_user_id(user_id=get_user_id_by_email(email))
-
-
-def print_all_users():
-    """
-    print_all_users is a function that prints all users from the Users table
-    :return: None
-    """
-    data = execute_select_query("SELECT * FROM dbo.Users")
-    print("[id   FirstName   LastName   Email                            Password]")
-    for row in data:
-        print(row)
-
-
-def print_all_stocks():
-    """
-    print_all_users is a function that prints all stocks from the Stocks table
-    :return: None
-    """
-    data = execute_select_query("SELECT * FROM dbo.Stocks")
-    print("[id   ticker   amount_of_stocks   user_id cost]")
-    for row in data:
-        print(row)
-
-
-def remove_stock_by_user_id(ticker, user_id):
-    """
-    remove_stock_by_user_id is a function that removes a stocks by the user's id
-    :param ticker: the stocks ticker
-    :param user_id: the user's id
-    :return: None
-    """
-    execute_query(sql="DELETE FROM dbo.Stocks WHERE ticker='" + ticker + "' AND user_id=" + str(user_id))
-    print("Stock removed from db")
-
-
 def remove_user_by_email(email):
     """
       remove_stock_by_email is a function that removes a user and its stocks from db by the user's id
@@ -433,7 +350,7 @@ def stock_exists(user_id, ticker):
 
 
 def main():
-    pass
+    print(check_user_details(email='jonjondavidofff@gmail.com', password='Jonjon1212'))
 
 
 if __name__ == '__main__':

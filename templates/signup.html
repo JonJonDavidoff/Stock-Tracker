@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Sign up</title>
     <meta charset="utf-8">
@@ -7,9 +8,10 @@
     <link rel="stylesheet" type="text/css" href=" {{ url_for('static', filename='css/bootstrap.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/stylesheet.css') }}">
 </head>
+
 <body>
     <style>
-            body, html{
+        body, html{
                 background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)),  url({{ url_for('static',filename = 'images/stock_home_page.jpg')}}) no-repeat center center fixed;
                 -webkit-background-size: cover;
                 -moz-background-size: cover;
@@ -26,17 +28,12 @@
             <a class="navbar-brand" href="../">
                 <img src=" {{ url_for('static', filename='images/icon_5.png')}}  " class="logo pull-left">
             </a>
-
             <!-- Collapse -->
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-                    aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
             <!-- Links -->
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-
                 <!-- Left -->
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item active">
@@ -60,21 +57,16 @@
         </div>
     </nav>
     <!-- Navbar end -->
-
     <h1 class="Login-header"><strong> Signup </strong></h1>
     <center>
         <form method="post" action="{{ url_for('signup_form') }}" onsubmit="return mainValidaiton()">
-            <input type="text" name="FirstName" class="form-control mr-sm-2 FirstName-input input-text"
-                   placeholder="First Name"
-                   id="FirstName">
-            <input type="text" name="LastName" class="form-control mr-sm-2 LastName-input input-text"
-                   placeholder="Last Name">
-            <input type="email" name="Email" placeholder="Email" class="form-control mr-sm-2  Email-input-signup input-text"
-                   id="Email">
-            <input type="password" name="Password" placeholder="Password"
-                   class="form-control mr-sm-2 Password-input input-text">
-            <input name="Signup" class="btn btn-m btn-outline-secondary my-2 my-sm-0 Login-btn" type="submit"
-                   value="Sign up">
+            <!-- TODO Add Case where user exsits -->
+            <input type="text" name="FirstName" class="form-control mr-sm-2 FirstName-input input-text" placeholder="First Name" id="FirstName">
+            <input type="text" name="LastName" class="form-control mr-sm-2 LastName-input input-text" placeholder="Last Name">
+            <input type="email" name="Email" placeholder="Email" class="form-control mr-sm-2  Email-input-signup input-text" id="Email">
+            <input type="password" name="Password" placeholder="Password" class="form-control mr-sm-2 Password-input input-text">
+            <div id="append_error"></div>
+            <input name="Signup" class="btn btn-m btn-outline-secondary my-2 my-sm-0 Login-btn" type="submit" value="Sign up">
         </form>
     </center>
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery_file.js') }}"></script>
@@ -82,5 +74,16 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap_js.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/Signup_js.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/stockSearchBar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/socketio.js') }}"></script>
+    <script type="text/javascript">
+
+    const socket = io();
+    console.log(socket);
+    socket.on('user_exists', function(json) {
+        console.log('in');
+        $('#append_error').append('<br/><h6><strong style="color:white">The Email already exists. Please use a different Email</strong></h6>');
+    });
+    </script>
 </body>
+
 </html>
