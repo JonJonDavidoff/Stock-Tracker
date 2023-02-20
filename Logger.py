@@ -33,9 +33,9 @@ class Log:
             current_time.strftime("%H%M")) + str(
             "]")
 
-    def log(self, file_name, function_name, exception, line='?'):
+    def log(self, file_name, function_name, exception):
         with threading.Lock():
             with open(self._file, 'a') as file:
                 file.write(
-                    '\n ' + self.get_time_stamp() + ', file_name=  ' + file_name + ', function_name= ' + function_name + ',line= ' + str(
-                        line) + ',exception= ' + exception)
+                    '\n ' + self.get_time_stamp() + ', file_name=  ' + file_name + ', function_name= ' + function_name + ', exception= ' + exception)
+                print('Logged')
